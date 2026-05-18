@@ -1,26 +1,70 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-sakura-50: #fce4ec;
+  --color-sakura-100: #f8bbd0;
+  --color-sakura-200: #f48fb1;
+  --color-sakura-300: #f06292;
+  --color-sakura-400: #ec407a;
+  --color-sakura-500: #d63384;
+  --color-sakura-600: #c2185b;
+  --color-sakura-700: #ad1457;
+  --color-sakura-800: #880e4f;
+  --color-sakura-900: #6a0dad;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  body {
+    color: #333;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer components {
+  .btn-sakura {
+    background-image: linear-gradient(to right, var(--color-sakura-200), var(--color-sakura-500));
+    color: white;
+    font-weight: 600;
+    border-radius: 0.75rem;
+    padding: 0.75rem 1.5rem;
+    box-shadow: 0 10px 15px -3px color-mix(in srgb, var(--color-sakura-500) 30%, transparent);
+    transition: all 0.2s;
+  }
+  .btn-sakura:hover {
+    box-shadow: 0 20px 25px -5px color-mix(in srgb, var(--color-sakura-500) 40%, transparent);
+  }
+
+  .btn-sakura-outline {
+    border: 2px solid var(--color-sakura-200);
+    color: var(--color-sakura-500);
+    font-weight: 600;
+    border-radius: 0.75rem;
+    padding: 0.75rem 1.5rem;
+    transition: all 0.2s;
+  }
+  .btn-sakura-outline:hover {
+    background-color: var(--color-sakura-50);
+  }
+
+  .input-sakura {
+    width: 100%;
+    background-color: var(--color-sakura-50);
+    border: none;
+    border-radius: 0.75rem;
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    outline: none;
+  }
+  .input-sakura:focus {
+    outline: 2px solid var(--color-sakura-200);
+  }
+
+  .card-sakura {
+    background-color: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(4px);
+    border-radius: 1rem;
+    box-shadow: 0 20px 25px -5px color-mix(in srgb, var(--color-sakura-500) 10%, transparent);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+  }
 }
