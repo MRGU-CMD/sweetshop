@@ -1,21 +1,21 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-sakura-50: #faf5f7;
-  --color-sakura-100: #f3e5eb;
-  --color-sakura-200: #e4ccd6;
-  --color-sakura-300: #cfa3b4;
-  --color-sakura-400: #b87d93;
-  --color-sakura-500: #9a6078;
-  --color-sakura-600: #7d4a60;
-  --color-sakura-700: #62394a;
-  --color-sakura-800: #472a36;
-  --color-sakura-900: #2d1a22;
+  --color-sakura-50: #fdf9f0;
+  --color-sakura-100: #f7eed8;
+  --color-sakura-200: #ebd9af;
+  --color-sakura-300: #d4b974;
+  --color-sakura-400: #b8942f;
+  --color-sakura-500: #8b6914;
+  --color-sakura-600: #6b5010;
+  --color-sakura-700: #4d380b;
+  --color-sakura-800: #332609;
+  --color-sakura-900: #1a1304;
 }
 
 @layer base {
   body {
-    color: #3d2c33;
+    color: #3d3220;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -23,22 +23,22 @@
 
 @layer components {
   .btn-sakura {
-    background: linear-gradient(135deg, #b87d93 0%, #9a6078 50%, #7d4a60 100%);
-    color: white;
+    background: linear-gradient(135deg, #c9a545 0%, #8b6914 50%, #6b5010 100%);
+    color: #fdf9f0;
     font-weight: 500;
     border-radius: 0.75rem;
     padding: 0.75rem 1.5rem;
-    box-shadow: 0 4px 14px 0 rgba(154, 96, 120, 0.25);
+    box-shadow: 0 4px 14px 0 rgba(139, 105, 20, 0.25);
     transition: all 0.3s ease;
   }
   .btn-sakura:hover {
-    box-shadow: 0 8px 25px 0 rgba(154, 96, 120, 0.4);
+    box-shadow: 0 8px 25px 0 rgba(139, 105, 20, 0.4);
     transform: translateY(-1px);
   }
 
   .btn-sakura-outline {
-    border: 1.5px solid #d4bcc6;
-    color: #7d4a60;
+    border: 1.5px solid #ebd9af;
+    color: #6b5010;
     font-weight: 500;
     border-radius: 0.75rem;
     padding: 0.75rem 1.5rem;
@@ -46,35 +46,35 @@
     background: transparent;
   }
   .btn-sakura-outline:hover {
-    border-color: #b87d93;
-    background-color: rgba(184, 125, 147, 0.06);
+    border-color: #b8942f;
+    background-color: rgba(184, 148, 47, 0.06);
   }
 
   .input-sakura {
     width: 100%;
-    background-color: #faf5f7;
+    background-color: #fdf9f0;
     border: 1.5px solid transparent;
     border-radius: 0.75rem;
     padding: 0.75rem 1rem;
     font-size: 0.875rem;
     outline: none;
-    color: #3d2c33;
+    color: #3d3220;
     transition: all 0.2s ease;
   }
   .input-sakura::placeholder {
-    color: #c4b0b8;
+    color: #c4b898;
   }
   .input-sakura:focus {
-    border-color: #b87d93;
+    border-color: #b8942f;
     background-color: #fff;
-    box-shadow: 0 0 0 3px rgba(184, 125, 147, 0.08);
+    box-shadow: 0 0 0 3px rgba(184, 148, 47, 0.08);
   }
 
   .card-sakura {
     background-color: rgba(255, 255, 255, 0.85);
     backdrop-filter: blur(12px);
     border-radius: 1rem;
-    box-shadow: 0 8px 32px rgba(45, 26, 34, 0.08), 0 1px 2px rgba(45, 26, 34, 0.04);
+    box-shadow: 0 8px 32px rgba(26, 19, 4, 0.08), 0 1px 2px rgba(26, 19, 4, 0.04);
     border: 1px solid rgba(255, 255, 255, 0.6);
   }
 }

@@ -59,17 +59,17 @@ export default function ResetPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#faf5f7] relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center bg-[#fdf9f0] relative overflow-hidden">
       {/* Subtle decorative elements */}
-      <div className="absolute top-20 left-16 w-64 h-64 bg-[#b87d93]/5 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-20 right-16 w-72 h-72 bg-[#7d4a60]/4 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute top-0 right-0 w-52 h-64 bg-gradient-to-bl from-[#e4ccd6]/20 to-transparent rounded-bl-full pointer-events-none" />
+      <div className="absolute top-20 left-16 w-64 h-64 bg-[#b8942f]/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-20 right-16 w-72 h-72 bg-[#6b5010]/4 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-0 right-0 w-52 h-64 bg-gradient-to-bl from-[#ebd9af]/20 to-transparent rounded-bl-full pointer-events-none" />
 
       <div className="relative z-10 w-full max-w-md mx-4">
         <div className="card-sakura p-8">
           <div className="text-center mb-6">
-            <h1 className="text-2xl font-semibold tracking-wide text-[#b87d93]">找回密码</h1>
-            <p className="text-sm text-[#8a7a82] mt-1">
+            <h1 className="text-2xl font-semibold tracking-wide text-[#b8942f]">找回密码</h1>
+            <p className="text-sm text-[#a09880] mt-1">
               {step === 1 ? "选择验证方式" : "设置新密码"}
             </p>
           </div>

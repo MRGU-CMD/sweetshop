@@ -59,7 +59,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex relative overflow-hidden bg-[#1a0e14]">
+    <div className="min-h-screen flex relative overflow-hidden bg-[#1a1304]">
       {/* Background image */}
       <div className="absolute inset-0 z-0">
         <img
@@ -67,30 +67,30 @@ export default function RegisterPage() {
           alt=""
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#1a0e14]/80 via-[#1a0e14]/40 to-[#1a0e14]/65" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#1a0e14]/55 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#1a1304]/80 via-[#1a1304]/40 to-[#1a1304]/65" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#1a1304]/55 via-transparent to-transparent" />
         <div className="absolute top-0 right-1/4 w-1/2 h-full bg-gradient-to-l from-white/[0.04] via-white/[0.02] to-transparent -skew-x-12" />
-        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[600px] h-[500px] bg-gradient-to-r from-[#b87d93]/10 via-[#b87d93]/05 to-transparent rounded-full blur-3xl" />
+        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[600px] h-[500px] bg-gradient-to-r from-[#b8942f]/10 via-[#b8942f]/05 to-transparent rounded-full blur-3xl" />
       </div>
 
       <div className="relative z-10 w-full flex items-center justify-center lg:justify-start lg:pl-16 xl:pl-28 px-4">
         <div className="w-full max-w-md">
           <div className="card-sakura p-8">
             <div className="text-center mb-8">
-              <h1 className="text-2xl font-semibold tracking-wide text-[#b87d93]">
+              <h1 className="text-2xl font-semibold tracking-wide text-[#b8942f]">
                 创建账号
               </h1>
-              <p className="text-sm text-[#8a7a82] mt-1">加入SweetShop，发现动漫好物</p>
+              <p className="text-sm text-[#a09880] mt-1">加入SweetShop，发现动漫好物</p>
             </div>
 
             {/* Tab */}
-            <div className="flex bg-[#faf5f7] rounded-xl p-1 mb-6">
+            <div className="flex bg-[#fdf9f0] rounded-xl p-1 mb-6">
               <button
                 onClick={() => setTab("phone")}
                 className={`flex-1 py-2.5 text-sm font-medium rounded-lg transition-all duration-300 ${
                   tab === "phone"
-                    ? "bg-white text-[#7d4a60] shadow-sm"
-                    : "text-[#b8a0ab] hover:text-[#8a7a82]"
+                    ? "bg-white text-[#6b5010] shadow-sm"
+                    : "text-[#c4b898] hover:text-[#a09880]"
                 }`}
               >
                 手机注册
@@ -99,8 +99,8 @@ export default function RegisterPage() {
                 onClick={() => setTab("email")}
                 className={`flex-1 py-2.5 text-sm font-medium rounded-lg transition-all duration-300 ${
                   tab === "email"
-                    ? "bg-white text-[#7d4a60] shadow-sm"
-                    : "text-[#b8a0ab] hover:text-[#8a7a82]"
+                    ? "bg-white text-[#6b5010] shadow-sm"
+                    : "text-[#c4b898] hover:text-[#a09880]"
                 }`}
               >
                 邮箱注册
@@ -142,7 +142,7 @@ export default function RegisterPage() {
                     />
                     <button
                       type="button"
-                      className="px-4 py-3 text-sm text-[#9a6078] bg-[#faf5f7] rounded-xl font-medium whitespace-nowrap hover:bg-[#f3e5eb] transition-colors"
+                      className="px-4 py-3 text-sm text-[#8b6914] bg-[#fdf9f0] rounded-xl font-medium whitespace-nowrap hover:bg-[#f7eed8] transition-colors"
                     >
                       获取验证码
                     </button>
@@ -195,9 +195,9 @@ export default function RegisterPage() {
               </button>
             </form>
 
-            <p className="text-center text-sm text-[#b8a0ab] mt-6">
+            <p className="text-center text-sm text-[#c4b898] mt-6">
               已有账号？{" "}
-              <Link href="/login" className="text-[#9a6078] font-medium hover:text-[#7d4a60] transition-colors">
+              <Link href="/login" className="text-[#8b6914] font-medium hover:text-[#6b5010] transition-colors">
                 立即登录
               </Link>
             </p>

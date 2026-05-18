@@ -38,7 +38,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex relative overflow-hidden bg-[#1a0e14]">
+    <div className="min-h-screen flex relative overflow-hidden bg-[#1a1304]">
       {/* Background image */}
       <div className="absolute inset-0 z-0">
         <img
@@ -47,12 +47,12 @@ export default function LoginPage() {
           className="w-full h-full object-cover"
         />
         {/* Lighting overlays */}
-        <div className="absolute inset-0 bg-gradient-to-r from-[#1a0e14]/85 via-[#1a0e14]/45 to-[#1a0e14]/70" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#1a0e14]/60 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#1a1304]/85 via-[#1a1304]/45 to-[#1a1304]/70" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#1a1304]/60 via-transparent to-transparent" />
         {/* Light ray */}
         <div className="absolute top-0 right-1/4 w-1/2 h-full bg-gradient-to-l from-white/[0.04] via-white/[0.02] to-transparent -skew-x-12" />
         {/* Soft glow behind the card area */}
-        <div className="absolute right-0 top-1/2 -translate-y-1/2 w-[600px] h-[500px] bg-gradient-to-l from-[#b87d93]/10 via-[#b87d93]/05 to-transparent rounded-full blur-3xl" />
+        <div className="absolute right-0 top-1/2 -translate-y-1/2 w-[600px] h-[500px] bg-gradient-to-l from-[#b8942f]/10 via-[#b8942f]/05 to-transparent rounded-full blur-3xl" />
       </div>
 
       {/* Content */}
@@ -61,20 +61,20 @@ export default function LoginPage() {
           <div className="card-sakura p-8">
             {/* Logo */}
             <div className="text-center mb-8">
-              <h1 className="text-2xl font-semibold tracking-wide text-[#b87d93]">
+              <h1 className="text-2xl font-semibold tracking-wide text-[#b8942f]">
                 SweetShop
               </h1>
-              <p className="text-sm text-[#8a7a82] mt-1">发现你喜爱的动漫好物</p>
+              <p className="text-sm text-[#a09880] mt-1">发现你喜爱的动漫好物</p>
             </div>
 
             {/* Tab */}
-            <div className="flex bg-[#faf5f7] rounded-xl p-1 mb-6">
+            <div className="flex bg-[#fdf9f0] rounded-xl p-1 mb-6">
               <button
                 onClick={() => setTab("email")}
                 className={`flex-1 py-2.5 text-sm font-medium rounded-lg transition-all duration-300 ${
                   tab === "email"
-                    ? "bg-white text-[#7d4a60] shadow-sm"
-                    : "text-[#b8a0ab] hover:text-[#8a7a82]"
+                    ? "bg-white text-[#6b5010] shadow-sm"
+                    : "text-[#c4b898] hover:text-[#a09880]"
                 }`}
               >
                 邮箱登录
@@ -83,8 +83,8 @@ export default function LoginPage() {
                 onClick={() => setTab("sms")}
                 className={`flex-1 py-2.5 text-sm font-medium rounded-lg transition-all duration-300 ${
                   tab === "sms"
-                    ? "bg-white text-[#7d4a60] shadow-sm"
-                    : "text-[#b8a0ab] hover:text-[#8a7a82]"
+                    ? "bg-white text-[#6b5010] shadow-sm"
+                    : "text-[#c4b898] hover:text-[#a09880]"
                 }`}
               >
                 短信登录
@@ -139,7 +139,7 @@ export default function LoginPage() {
                     />
                     <button
                       type="button"
-                      className="px-4 py-3 text-sm text-[#9a6078] bg-[#faf5f7] rounded-xl font-medium whitespace-nowrap hover:bg-[#f3e5eb] transition-colors"
+                      className="px-4 py-3 text-sm text-[#8b6914] bg-[#fdf9f0] rounded-xl font-medium whitespace-nowrap hover:bg-[#f7eed8] transition-colors"
                     >
                       获取验证码
                     </button>
@@ -152,11 +152,11 @@ export default function LoginPage() {
               )}
 
               <div className="flex items-center justify-between text-sm">
-                <label className="flex items-center gap-2 text-[#b8a0ab] cursor-pointer">
-                  <input type="checkbox" className="accent-[#b87d93] rounded" />
+                <label className="flex items-center gap-2 text-[#c4b898] cursor-pointer">
+                  <input type="checkbox" className="accent-[#b8942f] rounded" />
                   记住我
                 </label>
-                <Link href="/reset-password" className="text-[#9a6078] hover:text-[#7d4a60] transition-colors">
+                <Link href="/reset-password" className="text-[#8b6914] hover:text-[#6b5010] transition-colors">
                   忘记密码？
                 </Link>
               </div>
@@ -174,9 +174,9 @@ export default function LoginPage() {
             <div className="mt-6">
               <div className="relative text-center mb-4">
                 <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-[#e8dde3]" />
+                  <div className="w-full border-t border-[#ebe0c8]" />
                 </div>
-                <span className="relative bg-white px-4 text-xs text-[#c4b0b8]">
+                <span className="relative bg-white px-4 text-xs text-[#c4b898]">
                   其他登录方式
                 </span>
               </div>
@@ -204,7 +204,7 @@ export default function LoginPage() {
                 </button>
                 <button
                   onClick={() => signIn("google")}
-                  className="w-10 h-10 rounded-full flex items-center justify-center bg-white border border-[#e8dde3] transition-transform hover:scale-110"
+                  className="w-10 h-10 rounded-full flex items-center justify-center bg-white border border-[#ebe0c8] transition-transform hover:scale-110"
                   title="Google登录"
                 >
                   <svg viewBox="0 0 24 24" className="w-4 h-4">
@@ -218,9 +218,9 @@ export default function LoginPage() {
             </div>
 
             {/* Register link */}
-            <p className="text-center text-sm text-[#b8a0ab] mt-6">
+            <p className="text-center text-sm text-[#c4b898] mt-6">
               还没有账号？{" "}
-              <Link href="/register" className="text-[#9a6078] font-medium hover:text-[#7d4a60] transition-colors">
+              <Link href="/register" className="text-[#8b6914] font-medium hover:text-[#6b5010] transition-colors">
                 立即注册
               </Link>
             </p>
