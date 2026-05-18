@@ -1,7 +1,9 @@
 import Header from "@/components/layout/Header";
+import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import FavoriteButton from "@/components/product/FavoriteButton";
 
 export default async function ProductPage({
   params,
@@ -23,6 +25,15 @@ export default async function ProductPage({
   });
 
   if (!product) notFound();
+
+  const session = await auth();
+  let isFavorited = false;
+  if (session?.user) {
+    const fav = await prisma.favorite.findUnique({
+      where: { userId_productId: { userId: (session.user as any).id, productId: product.id } },
+    });
+    isFavorited = !!fav;
+  }
 
   const imageList = JSON.parse(product.images || "[]") as string[];
 
@@ -92,6 +103,7 @@ export default async function ProductPage({
               </div>
 
               <div className="flex gap-3 pt-2">
+                <FavoriteButton productId={product.id} initialFavorited={isFavorited} />
                 <button className="flex-1 btn-sakura-outline text-sm">
                   加入购物车
                 </button>

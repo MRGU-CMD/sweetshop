@@ -185,7 +185,7 @@ model AfterSale {
 }
 
 model Address {
-  id        String  @id @default(cuid())
+  id        String   @id @default(cuid())
   userId    String
   name      String
   phone     String
@@ -194,7 +194,8 @@ model Address {
   district  String
   detail    String
   zipCode   String?
-  isDefault Boolean @default(false)
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
