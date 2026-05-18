@@ -4,7 +4,6 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ChibiGirl, ChibiCat } from "@/components/login/AnimeCharacters";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -60,154 +59,149 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center bg-gradient-to-br from-[#fce4ec] via-[#f8e8f0] to-[#e8e0f0] relative overflow-hidden">
-      {/* Floating decorations */}
-      <div className="absolute top-8 left-1/4 text-3xl opacity-20 select-none pointer-events-none">🌸</div>
-      <div className="absolute bottom-1/4 right-1/4 text-2xl opacity-15 select-none pointer-events-none">✨</div>
-
-      {/* Background blurs */}
-      <div className="absolute top-0 right-0 w-96 h-96 bg-purple-300/15 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-80 h-80 bg-sakura-300/15 rounded-full blur-3xl pointer-events-none" />
-
-      {/* Left illustration */}
-      <div className="hidden lg:flex flex-1 items-end justify-center h-screen pt-20">
-        <div className="w-64 h-[28rem] relative">
-          <ChibiGirl />
-        </div>
+    <div className="min-h-screen flex relative overflow-hidden bg-[#1a0e14]">
+      {/* Background image */}
+      <div className="absolute inset-0 z-0">
+        <img
+          src="/images/anime-bg.png"
+          alt=""
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#1a0e14]/80 via-[#1a0e14]/40 to-[#1a0e14]/65" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#1a0e14]/55 via-transparent to-transparent" />
+        <div className="absolute top-0 right-1/4 w-1/2 h-full bg-gradient-to-l from-white/[0.04] via-white/[0.02] to-transparent -skew-x-12" />
+        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[600px] h-[500px] bg-gradient-to-r from-[#b87d93]/10 via-[#b87d93]/05 to-transparent rounded-full blur-3xl" />
       </div>
 
-      <div className="relative z-10 w-full max-w-md mx-4 flex-shrink-0">
-        <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl shadow-sakura-500/10 p-8">
-          <div className="text-center mb-6">
-            <h1 className="text-2xl font-bold text-sakura-500">🌸 创建账号</h1>
-            <p className="text-sm text-gray-400 mt-1">加入SweetShop，发现动漫好物</p>
-          </div>
-
-          {/* Tab */}
-          <div className="flex bg-sakura-50 rounded-xl p-1 mb-6">
-            <button
-              onClick={() => setTab("phone")}
-              className={`flex-1 py-2.5 text-sm font-medium rounded-lg transition-all ${
-                tab === "phone"
-                  ? "bg-white text-sakura-500 shadow-sm"
-                  : "text-gray-400 hover:text-gray-600"
-              }`}
-            >
-              手机注册
-            </button>
-            <button
-              onClick={() => setTab("email")}
-              className={`flex-1 py-2.5 text-sm font-medium rounded-lg transition-all ${
-                tab === "email"
-                  ? "bg-white text-sakura-500 shadow-sm"
-                  : "text-gray-400 hover:text-gray-600"
-              }`}
-            >
-              邮箱注册
-            </button>
-          </div>
-
-          <form onSubmit={handleRegister} className="space-y-4">
-            <div>
-              <input
-                type="text"
-                placeholder="昵称"
-                value={nickname}
-                onChange={(e) => setNickname(e.target.value)}
-                className="input-sakura"
-                required
-              />
+      <div className="relative z-10 w-full flex items-center justify-center lg:justify-start lg:pl-16 xl:pl-28 px-4">
+        <div className="w-full max-w-md">
+          <div className="card-sakura p-8">
+            <div className="text-center mb-8">
+              <h1 className="text-2xl font-semibold tracking-wide text-[#b87d93]">
+                创建账号
+              </h1>
+              <p className="text-sm text-[#8a7a82] mt-1">加入SweetShop，发现动漫好物</p>
             </div>
 
-            {tab === "phone" ? (
-              <>
-                <div>
-                  <input
-                    type="tel"
-                    placeholder="手机号"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    className="input-sakura"
-                    required
-                  />
-                </div>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    placeholder="短信验证码"
-                    value={smsCode}
-                    onChange={(e) => setSmsCode(e.target.value)}
-                    className="input-sakura flex-1"
-                    required
-                  />
-                  <button
-                    type="button"
-                    className="px-4 py-3 text-sm text-sakura-500 bg-sakura-50 rounded-xl font-medium whitespace-nowrap hover:bg-sakura-100 transition-colors"
-                  >
-                    获取验证码
-                  </button>
-                </div>
-              </>
-            ) : (
+            {/* Tab */}
+            <div className="flex bg-[#faf5f7] rounded-xl p-1 mb-6">
+              <button
+                onClick={() => setTab("phone")}
+                className={`flex-1 py-2.5 text-sm font-medium rounded-lg transition-all duration-300 ${
+                  tab === "phone"
+                    ? "bg-white text-[#7d4a60] shadow-sm"
+                    : "text-[#b8a0ab] hover:text-[#8a7a82]"
+                }`}
+              >
+                手机注册
+              </button>
+              <button
+                onClick={() => setTab("email")}
+                className={`flex-1 py-2.5 text-sm font-medium rounded-lg transition-all duration-300 ${
+                  tab === "email"
+                    ? "bg-white text-[#7d4a60] shadow-sm"
+                    : "text-[#b8a0ab] hover:text-[#8a7a82]"
+                }`}
+              >
+                邮箱注册
+              </button>
+            </div>
+
+            <form onSubmit={handleRegister} className="space-y-4">
               <div>
                 <input
-                  type="email"
-                  placeholder="邮箱地址"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  type="text"
+                  placeholder="昵称"
+                  value={nickname}
+                  onChange={(e) => setNickname(e.target.value)}
                   className="input-sakura"
                   required
                 />
               </div>
-            )}
 
-            <div>
-              <input
-                type="password"
-                placeholder="密码（至少6位）"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="input-sakura"
-                required
-              />
-            </div>
-            <div>
-              <input
-                type="password"
-                placeholder="确认密码"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="input-sakura"
-                required
-              />
-            </div>
+              {tab === "phone" ? (
+                <>
+                  <div>
+                    <input
+                      type="tel"
+                      placeholder="手机号"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      className="input-sakura"
+                      required
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      placeholder="短信验证码"
+                      value={smsCode}
+                      onChange={(e) => setSmsCode(e.target.value)}
+                      className="input-sakura flex-1"
+                      required
+                    />
+                    <button
+                      type="button"
+                      className="px-4 py-3 text-sm text-[#9a6078] bg-[#faf5f7] rounded-xl font-medium whitespace-nowrap hover:bg-[#f3e5eb] transition-colors"
+                    >
+                      获取验证码
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <div>
+                  <input
+                    type="email"
+                    placeholder="邮箱地址"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="input-sakura"
+                    required
+                  />
+                </div>
+              )}
 
-            {error && (
-              <p className="text-red-500 text-sm text-center">{error}</p>
-            )}
+              <div>
+                <input
+                  type="password"
+                  placeholder="密码（至少6位）"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="input-sakura"
+                  required
+                />
+              </div>
+              <div>
+                <input
+                  type="password"
+                  placeholder="确认密码"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="input-sakura"
+                  required
+                />
+              </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="btn-sakura w-full disabled:opacity-60"
-            >
-              {loading ? "注册中..." : "注册"}
-            </button>
-          </form>
+              {error && (
+                <p className="text-red-400 text-sm text-center">{error}</p>
+              )}
 
-          <p className="text-center text-sm text-gray-400 mt-6">
-            已有账号？{" "}
-            <Link href="/login" className="text-sakura-500 font-medium hover:underline">
-              立即登录
-            </Link>
-          </p>
-        </div>
-      </div>
+              <button
+                type="submit"
+                disabled={loading}
+                className="btn-sakura w-full disabled:opacity-60"
+              >
+                {loading ? "注册中..." : "注册"}
+              </button>
+            </form>
 
-      {/* Right illustration */}
-      <div className="hidden lg:flex flex-1 items-end justify-center h-screen pt-20">
-        <div className="w-52 h-72 relative">
-          <ChibiCat />
+            <p className="text-center text-sm text-[#b8a0ab] mt-6">
+              已有账号？{" "}
+              <Link href="/login" className="text-[#9a6078] font-medium hover:text-[#7d4a60] transition-colors">
+                立即登录
+              </Link>
+            </p>
+          </div>
         </div>
       </div>
     </div>
