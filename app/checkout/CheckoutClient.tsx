@@ -1,0 +1,334 @@
+"use client";
+
+import { useState, useEffect, useCallback } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
+
+interface CartItem {
+  id: string;
+  productId: string;
+  quantity: number;
+  product: { id: string; name: string; price: number; images: string };
+}
+
+export default function CheckoutClient() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const [step, setStep] = useState(1);
+  const [items, setItems] = useState<CartItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Address
+  const [address, setAddress] = useState({
+    name: "",
+    phone: "",
+    province: "",
+    city: "",
+    district: "",
+    detail: "",
+    zipCode: "",
+  });
+
+  // Payment
+  const [paymentMethod, setPaymentMethod] = useState("wechat");
+
+  const fetchItems = useCallback(async () => {
+    const ids = searchParams.get("items");
+    if (!ids) return;
+    const itemIds = ids.split(",");
+    const res = await fetch("/api/cart");
+    if (res.ok) {
+      const allItems = await res.json();
+      setItems(allItems.filter((i: CartItem) => itemIds.includes(i.id)));
+    }
+    setLoading(false);
+  }, [searchParams]);
+
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/login");
+      return;
+    }
+    if (status === "authenticated") fetchItems();
+  }, [status, router, fetchItems]);
+
+  const total = items.reduce((sum, i) => sum + i.product.price * i.quantity, 0);
+
+  const handleSubmitOrder = async () => {
+    const res = await fetch("/api/orders", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        cartItemIds: items.map((i) => i.id),
+        address,
+        paymentMethod,
+      }),
+    });
+
+    if (res.ok) {
+      const order = await res.json();
+      router.push(`/order-success?orderId=${order.id}&orderNo=${order.orderNo}&total=${total}`);
+    }
+  };
+
+  if (status === "loading" || loading) {
+    return <div className="max-w-3xl mx-auto px-4 py-20 text-center text-gray-400">加载中...</div>;
+  }
+
+  if (items.length === 0) {
+    return (
+      <div className="max-w-3xl mx-auto px-4 py-20 text-center">
+        <p className="text-gray-400">没有需要结算的商品</p>
+        <Link href="/cart" className="text-sakura-500 text-sm mt-2 inline-block hover:underline">
+          返回购物车
+        </Link>
+      </div>
+    );
+  }
+
+  const steps = [
+    { num: 1, label: "确认地址" },
+    { num: 2, label: "选择支付" },
+    { num: 3, label: "确认提交" },
+  ];
+
+  const paymentMethods = [
+    { value: "wechat", label: "微信支付", icon: "💚", color: "#07c160" },
+    { value: "alipay", label: "支付宝", icon: "💙", color: "#1677ff" },
+    { value: "card", label: "银行卡", icon: "💳", color: "#333" },
+  ];
+
+  return (
+    <div className="max-w-5xl mx-auto px-4 py-6">
+      <h1 className="text-xl font-bold text-gray-800 mb-6">📋 订单结算</h1>
+
+      {/* Step indicator */}
+      <div className="flex items-center justify-center gap-0 mb-8">
+        {steps.map((s, i) => (
+          <div key={s.num} className="flex items-center">
+            <div className="flex items-center gap-2">
+              <div
+                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all ${
+                  step >= s.num
+                    ? "bg-sakura-500 text-white"
+                    : "bg-gray-100 text-gray-400"
+                }`}
+              >
+                {step > s.num ? "✓" : s.num}
+              </div>
+              <span className={`text-sm font-medium ${step >= s.num ? "text-sakura-500" : "text-gray-400"}`}>
+                {s.label}
+              </span>
+            </div>
+            {i < steps.length - 1 && (
+              <div className={`w-12 h-0.5 mx-2 ${step > s.num ? "bg-sakura-500" : "bg-gray-100"}`} />
+            )}
+          </div>
+        ))}
+      </div>
+
+      <div className="flex gap-6">
+        {/* Main */}
+        <div className="flex-1">
+          <div className="bg-white rounded-2xl border border-gray-50 p-6">
+            {/* Step 1: Address */}
+            {step === 1 && (
+              <div>
+                <h2 className="text-base font-bold text-gray-700 mb-4">📍 收货地址</h2>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs text-gray-400 mb-1 block">收货人 *</label>
+                    <input
+                      type="text"
+                      value={address.name}
+                      onChange={(e) => setAddress({ ...address, name: e.target.value })}
+                      className="input-sakura"
+                      placeholder="姓名"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-400 mb-1 block">手机号 *</label>
+                    <input
+                      type="tel"
+                      value={address.phone}
+                      onChange={(e) => setAddress({ ...address, phone: e.target.value })}
+                      className="input-sakura"
+                      placeholder="手机号"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-400 mb-1 block">省份</label>
+                    <input
+                      type="text"
+                      value={address.province}
+                      onChange={(e) => setAddress({ ...address, province: e.target.value })}
+                      className="input-sakura"
+                      placeholder="省"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-400 mb-1 block">城市</label>
+                    <input
+                      type="text"
+                      value={address.city}
+                      onChange={(e) => setAddress({ ...address, city: e.target.value })}
+                      className="input-sakura"
+                      placeholder="市"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-400 mb-1 block">区/县</label>
+                    <input
+                      type="text"
+                      value={address.district}
+                      onChange={(e) => setAddress({ ...address, district: e.target.value })}
+                      className="input-sakura"
+                      placeholder="区"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-400 mb-1 block">邮编</label>
+                    <input
+                      type="text"
+                      value={address.zipCode}
+                      onChange={(e) => setAddress({ ...address, zipCode: e.target.value })}
+                      className="input-sakura"
+                      placeholder="邮编"
+                    />
+                  </div>
+                  <div className="col-span-2">
+                    <label className="text-xs text-gray-400 mb-1 block">详细地址 *</label>
+                    <input
+                      type="text"
+                      value={address.detail}
+                      onChange={(e) => setAddress({ ...address, detail: e.target.value })}
+                      className="input-sakura"
+                      placeholder="街道、门牌号等"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Step 2: Payment */}
+            {step === 2 && (
+              <div>
+                <h2 className="text-base font-bold text-gray-700 mb-4">💳 支付方式</h2>
+                <div className="space-y-3">
+                  {paymentMethods.map((pm) => (
+                    <label
+                      key={pm.value}
+                      className={`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                        paymentMethod === pm.value
+                          ? "border-sakura-500 bg-sakura-50"
+                          : "border-gray-100 hover:border-gray-200"
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="payment"
+                        value={pm.value}
+                        checked={paymentMethod === pm.value}
+                        onChange={(e) => setPaymentMethod(e.target.value)}
+                        className="accent-sakura-500"
+                      />
+                      <span className="text-lg">{pm.icon}</span>
+                      <span className="text-sm font-medium" style={{ color: pm.color }}>
+                        {pm.label}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Step 3: Confirm */}
+            {step === 3 && (
+              <div>
+                <h2 className="text-base font-bold text-gray-700 mb-4">✅ 确认订单</h2>
+                <div className="bg-sakura-50 rounded-xl p-4 mb-4">
+                  <p className="text-sm text-gray-600">
+                    <span className="font-medium">收货人：</span>
+                    {address.name} {address.phone}
+                  </p>
+                  <p className="text-sm text-gray-600 mt-1">
+                    <span className="font-medium">地址：</span>
+                    {address.province} {address.city} {address.district} {address.detail}
+                  </p>
+                </div>
+                <div className="bg-gray-50 rounded-xl p-4">
+                  <p className="text-sm text-gray-600">
+                    <span className="font-medium">支付方式：</span>
+                    {paymentMethods.find((p) => p.value === paymentMethod)?.label}
+                  </p>
+                </div>
+
+                {/* Items */}
+                <div className="mt-4 space-y-2">
+                  {items.map((item) => (
+                    <div key={item.id} className="flex items-center gap-3 text-sm">
+                      <span className="text-gray-500 flex-1 truncate">{item.product.name}</span>
+                      <span className="text-gray-400">×{item.quantity}</span>
+                      <span className="text-sakura-500 font-medium">
+                        ¥{(item.product.price * item.quantity).toFixed(2)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Nav buttons */}
+            <div className="flex justify-between mt-8 pt-6 border-t border-gray-50">
+              {step > 1 ? (
+                <button
+                  onClick={() => setStep(step - 1)}
+                  className="btn-sakura-outline text-sm"
+                >
+                  ← 上一步
+                </button>
+              ) : (
+                <Link href="/cart" className="btn-sakura-outline text-sm">
+                  ← 返回购物车
+                </Link>
+              )}
+              {step < 3 ? (
+                <button onClick={() => setStep(step + 1)} className="btn-sakura text-sm">
+                  下一步 →
+                </button>
+              ) : (
+                <button onClick={handleSubmitOrder} className="btn-sakura text-sm">
+                  确认下单
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Sidebar summary */}
+        <div className="w-72 flex-shrink-0">
+          <div className="bg-white rounded-2xl border border-gray-50 p-5 sticky top-20">
+            <h3 className="text-sm font-bold text-gray-700 mb-4">订单汇总</h3>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between text-gray-500">
+                <span>商品总额</span>
+                <span>¥{total.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between text-gray-500">
+                <span>运费</span>
+                <span className="text-green-500">免运费</span>
+              </div>
+            </div>
+            <div className="border-t border-gray-50 mt-4 pt-4 flex justify-between">
+              <span className="text-sm font-bold">实付金额</span>
+              <span className="text-xl font-bold text-sakura-500">¥{total.toFixed(2)}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
