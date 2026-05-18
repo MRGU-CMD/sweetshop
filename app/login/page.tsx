@@ -4,6 +4,7 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { ChibiGirl, ChibiCat } from "@/components/login/AnimeCharacters";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -38,18 +39,27 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#fce4ec] relative overflow-hidden">
-      {/* Anime decorative elements */}
-      <div className="absolute top-10 left-10 text-6xl opacity-30 select-none pointer-events-none">🌸</div>
-      <div className="absolute top-20 right-16 text-5xl opacity-25 select-none pointer-events-none">🎀</div>
-      <div className="absolute bottom-20 left-20 text-5xl opacity-20 select-none pointer-events-none">✨</div>
-      <div className="absolute bottom-32 right-12 text-6xl opacity-25 select-none pointer-events-none">🦋</div>
-      <div className="absolute top-1/2 -translate-y-1/2 left-0 w-32 h-64 bg-sakura-200/20 rounded-r-full blur-3xl pointer-events-none" />
-      <div className="absolute top-1/3 right-0 w-40 h-80 bg-gradient-to-b from-purple-300/20 to-sakura-200/20 rounded-l-full blur-3xl pointer-events-none" />
+    <div className="min-h-screen flex items-center bg-gradient-to-br from-[#fce4ec] via-[#f8e8f0] to-[#e8e0f0] relative overflow-hidden">
+      {/* Floating background decorations */}
+      <div className="absolute top-8 left-1/4 text-3xl opacity-20 animate-bounce select-none pointer-events-none">🌸</div>
+      <div className="absolute top-1/3 right-1/4 text-2xl opacity-15 select-none pointer-events-none">✨</div>
+      <div className="absolute bottom-1/4 left-1/3 text-2xl opacity-15 select-none pointer-events-none">💫</div>
+      <div className="absolute top-1/2 right-1/3 text-3xl opacity-15 select-none pointer-events-none">🎀</div>
 
-      {/* Card */}
-      <div className="relative z-10 w-full max-w-md mx-4">
-        <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl shadow-sakura-500/10 p-8">
+      {/* Background blurs */}
+      <div className="absolute top-0 left-0 w-96 h-96 bg-sakura-300/15 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-0 right-0 w-80 h-80 bg-purple-300/15 rounded-full blur-3xl pointer-events-none" />
+
+      {/* Left illustration - Chibi Girl */}
+      <div className="hidden lg:flex flex-1 items-end justify-center h-screen pt-20">
+        <div className="w-64 h-[28rem] relative">
+          <ChibiGirl />
+        </div>
+      </div>
+
+      {/* Center Card */}
+      <div className="relative z-10 w-full max-w-md mx-4 flex-shrink-0">
+        <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl shadow-sakura-500/10 p-8">
           {/* Logo */}
           <div className="text-center mb-6">
             <h1 className="text-2xl font-bold text-sakura-500">🌸 SweetShop</h1>
@@ -218,6 +228,13 @@ export default function LoginPage() {
               立即注册
             </Link>
           </p>
+        </div>
+      </div>
+
+      {/* Right illustration - Chibi Cat */}
+      <div className="hidden lg:flex flex-1 items-end justify-center h-screen pt-20">
+        <div className="w-52 h-72 relative">
+          <ChibiCat />
         </div>
       </div>
     </div>

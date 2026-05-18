@@ -4,6 +4,7 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { ChibiGirl, ChibiCat } from "@/components/login/AnimeCharacters";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -59,14 +60,24 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#fce4ec] relative overflow-hidden">
-      <div className="absolute top-12 right-16 text-6xl opacity-30 select-none pointer-events-none">🎀</div>
-      <div className="absolute bottom-16 left-16 text-5xl opacity-25 select-none pointer-events-none">🌸</div>
-      <div className="absolute top-1/4 left-0 w-36 h-72 bg-sakura-200/20 rounded-r-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-1/4 right-0 w-44 h-56 bg-gradient-to-t from-purple-300/20 to-sakura-200/20 rounded-l-full blur-3xl pointer-events-none" />
+    <div className="min-h-screen flex items-center bg-gradient-to-br from-[#fce4ec] via-[#f8e8f0] to-[#e8e0f0] relative overflow-hidden">
+      {/* Floating decorations */}
+      <div className="absolute top-8 left-1/4 text-3xl opacity-20 select-none pointer-events-none">🌸</div>
+      <div className="absolute bottom-1/4 right-1/4 text-2xl opacity-15 select-none pointer-events-none">✨</div>
 
-      <div className="relative z-10 w-full max-w-md mx-4">
-        <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl shadow-sakura-500/10 p-8">
+      {/* Background blurs */}
+      <div className="absolute top-0 right-0 w-96 h-96 bg-purple-300/15 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-80 h-80 bg-sakura-300/15 rounded-full blur-3xl pointer-events-none" />
+
+      {/* Left illustration */}
+      <div className="hidden lg:flex flex-1 items-end justify-center h-screen pt-20">
+        <div className="w-64 h-[28rem] relative">
+          <ChibiGirl />
+        </div>
+      </div>
+
+      <div className="relative z-10 w-full max-w-md mx-4 flex-shrink-0">
+        <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl shadow-sakura-500/10 p-8">
           <div className="text-center mb-6">
             <h1 className="text-2xl font-bold text-sakura-500">🌸 创建账号</h1>
             <p className="text-sm text-gray-400 mt-1">加入SweetShop，发现动漫好物</p>
@@ -190,6 +201,13 @@ export default function RegisterPage() {
               立即登录
             </Link>
           </p>
+        </div>
+      </div>
+
+      {/* Right illustration */}
+      <div className="hidden lg:flex flex-1 items-end justify-center h-screen pt-20">
+        <div className="w-52 h-72 relative">
+          <ChibiCat />
         </div>
       </div>
     </div>
