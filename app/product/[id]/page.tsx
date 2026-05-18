@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import FavoriteButton from "@/components/product/FavoriteButton";
+import AddToCartButton from "@/components/product/AddToCartButton";
 
 export default async function ProductPage({
   params,
@@ -91,26 +92,11 @@ export default async function ProductPage({
             </div>
 
             {/* Quantity & buttons */}
-            <div className="mt-6 space-y-3">
-              <div className="flex items-center gap-3">
-                <span className="text-sm text-gray-500">数量</span>
-                <div className="flex items-center border border-gray-200 rounded-lg">
-                  <button className="w-9 h-9 flex items-center justify-center text-gray-400 hover:text-sakura-500">−</button>
-                  <span className="w-12 text-center text-sm">1</span>
-                  <button className="w-9 h-9 flex items-center justify-center text-gray-400 hover:text-sakura-500">+</button>
-                </div>
-                <span className="text-xs text-gray-300">库存 {product.stock} 件</span>
-              </div>
-
-              <div className="flex gap-3 pt-2">
+            <div className="mt-6">
+              <div className="flex items-center gap-3 mb-3">
                 <FavoriteButton productId={product.id} initialFavorited={isFavorited} />
-                <button className="flex-1 btn-sakura-outline text-sm">
-                  加入购物车
-                </button>
-                <button className="flex-1 btn-sakura text-sm">
-                  立即购买
-                </button>
               </div>
+              <AddToCartButton productId={product.id} stock={product.stock} />
             </div>
           </div>
         </div>
