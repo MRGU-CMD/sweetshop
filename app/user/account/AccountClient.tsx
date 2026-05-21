@@ -42,9 +42,16 @@ export default function AccountClient({ user, bindings }: { user: User; bindings
   const [pwSaving, setPwSaving] = useState(false);
   const [pwError, setPwError] = useState("");
 
+  const MAX_UPLOAD_SIZE = 3 * 1024 * 1024; // 3MB
+
   const handleUpload = async () => {
     const file = fileRef.current?.files?.[0];
     if (!file) return;
+    if (file.size > MAX_UPLOAD_SIZE) {
+      alert(`图片过大（${(file.size / 1024 / 1024).toFixed(1)}MB），请压缩到 3MB 以内后重试`);
+      if (fileRef.current) fileRef.current.value = "";
+      return;
+    }
     setUploading(true);
     const formData = new FormData();
     formData.append("file", file);
@@ -158,6 +165,7 @@ export default function AccountClient({ user, bindings }: { user: User; bindings
             >
               {uploading ? "上传中..." : "更换头像"}
             </button>
+            <span className="text-xs text-gray-400">不超过 3MB</span>
           </div>
 
           <div className="flex-1 max-w-sm space-y-3">

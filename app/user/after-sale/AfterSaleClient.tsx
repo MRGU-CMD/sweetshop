@@ -60,9 +60,16 @@ export default function AfterSaleClient({
 
   const selectedOrder = orders.find((o) => o.id === form.orderId);
 
+  const MAX_UPLOAD_SIZE = 3 * 1024 * 1024; // 3MB
+
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (file.size > MAX_UPLOAD_SIZE) {
+      alert(`图片过大（${(file.size / 1024 / 1024).toFixed(1)}MB），请压缩到 3MB 以内后重试`);
+      e.target.value = "";
+      return;
+    }
     setUploading(true);
     const formData = new FormData();
     formData.append("file", file);
@@ -192,6 +199,7 @@ export default function AfterSaleClient({
                   {uploading ? "..." : "+"}
                   <input type="file" accept="image/*" onChange={handleUpload} className="hidden" disabled={uploading} />
                 </label>
+                <span className="text-xs text-gray-400 self-center">不超过 3MB</span>
               </div>
             </div>
             <div className="flex gap-3">

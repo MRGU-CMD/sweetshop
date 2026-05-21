@@ -98,9 +98,16 @@ export default function AdminProductsClient({ categories }: { categories: Catego
     }
   };
 
+  const MAX_UPLOAD_SIZE = 5 * 1024 * 1024; // 5MB
+
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (file.size > MAX_UPLOAD_SIZE) {
+      alert(`图片过大（${(file.size / 1024 / 1024).toFixed(1)}MB），请压缩到 5MB 以内后重试`);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
     setUploading(true);
     const formData = new FormData();
     formData.append("file", file);
@@ -202,6 +209,7 @@ export default function AdminProductsClient({ categories }: { categories: Catego
               <button onClick={() => fileInputRef.current?.click()} disabled={uploading} className="btn-sakura-outline text-xs">
                 {uploading ? "上传中..." : "本地上传"}
               </button>
+              <span className="text-xs text-gray-400 self-center">支持 JPG/PNG/GIF/WebP，单张不超过 5MB</span>
             </div>
             {form.images.length > 0 && (
               <div className="flex gap-2 mt-2 flex-wrap">
