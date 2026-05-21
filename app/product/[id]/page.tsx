@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import Header from "@/components/layout/Header";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";

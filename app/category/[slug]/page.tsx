@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import Header from "@/components/layout/Header";
 import CategorySidebar from "@/components/layout/CategorySidebar";
 import ProductCard from "@/components/product/ProductCard";
