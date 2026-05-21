@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 
 interface Category {
@@ -11,12 +11,16 @@ interface Category {
 interface Product {
   id: string;
   name: string;
+  description: string | null;
   price: number;
   originalPrice: number | null;
   stock: number;
   status: string;
   sales: number;
-  category: { name: string };
+  source: string | null;
+  images: string;
+  categoryId: string;
+  category: { id: string; name: string };
   createdAt: string;
 }
 
@@ -39,38 +43,44 @@ export default function AdminProductsClient({ categories }: { categories: Catego
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
   const [loading, setLoading] = useState(true);
 
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const fetchProducts = useCallback(async () => {
     setLoading(true);
     const params = new URLSearchParams({ page: String(page), limit: "10" });
     if (search) params.set("search", search);
+    if (categoryFilter) params.set("categoryId", categoryFilter);
     const res = await fetch(`/api/admin/products?${params}`);
     const data = await res.json();
     setProducts(data.products);
     setTotal(data.total);
     setLoading(false);
-  }, [page, search]);
+  }, [page, search, categoryFilter]);
 
   useEffect(() => { fetchProducts(); }, [fetchProducts]);
 
   const openEdit = (p: Product) => {
     setEditingId(p.id);
+    let images: string[] = [];
+    try { images = JSON.parse(p.images); } catch {}
     setForm({
       name: p.name,
-      description: "",
+      description: p.description || "",
       price: p.price,
       originalPrice: p.originalPrice || 0,
       stock: p.stock,
       status: p.status,
-      source: "",
-      categoryId: "",
-      images: [],
+      source: p.source || "",
+      categoryId: p.categoryId,
+      images,
       imageInput: "",
     });
     setShowForm(true);
@@ -88,21 +98,40 @@ export default function AdminProductsClient({ categories }: { categories: Catego
     }
   };
 
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    const formData = new FormData();
+    formData.append("file", file);
+    const res = await fetch("/api/admin/upload", { method: "POST", body: formData });
+    if (res.ok) {
+      const data = await res.json();
+      setForm({ ...form, images: [...form.images, data.url] });
+    } else {
+      const data = await res.json();
+      alert(data.error || "上传失败");
+    }
+    setUploading(false);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
   const handleSave = async () => {
     if (!form.name || !form.categoryId || !form.price) return;
     setSaving(true);
 
+    const { imageInput, ...data } = form;
     if (editingId) {
       await fetch(`/api/admin/products/${editingId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify(data),
       });
     } else {
       await fetch("/api/admin/products", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify(data),
       });
     }
 
@@ -165,10 +194,14 @@ export default function AdminProductsClient({ categories }: { categories: Catego
             <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="input-sakura" rows={3} />
           </div>
           <div className="col-span-2">
-            <label className="text-xs text-gray-400 mb-1 block">图片URL</label>
+            <label className="text-xs text-gray-400 mb-1 block">图片</label>
             <div className="flex gap-2">
-              <input type="text" value={form.imageInput} onChange={(e) => setForm({ ...form, imageInput: e.target.value })} className="input-sakura flex-1" placeholder="https://..." />
-              <button onClick={addImage} className="btn-sakura-outline text-xs">添加</button>
+              <input type="text" value={form.imageInput} onChange={(e) => setForm({ ...form, imageInput: e.target.value })} className="input-sakura flex-1" placeholder="图片URL..." />
+              <button onClick={addImage} className="btn-sakura-outline text-xs">添加URL</button>
+              <input ref={fileInputRef} type="file" accept="image/*" onChange={handleUpload} className="hidden" />
+              <button onClick={() => fileInputRef.current?.click()} disabled={uploading} className="btn-sakura-outline text-xs">
+                {uploading ? "上传中..." : "本地上传"}
+              </button>
             </div>
             {form.images.length > 0 && (
               <div className="flex gap-2 mt-2 flex-wrap">
@@ -209,6 +242,14 @@ export default function AdminProductsClient({ categories }: { categories: Catego
             onKeyDown={(e) => e.key === "Enter" && (() => { setPage(1); fetchProducts(); })()}
             className="input-sakura text-sm w-48"
           />
+          <select
+            value={categoryFilter}
+            onChange={(e) => { setCategoryFilter(e.target.value); setPage(1); }}
+            className="input-sakura text-sm w-36"
+          >
+            <option value="">全部类别</option>
+            {categories.map((c) => (<option key={c.id} value={c.id}>{c.name}</option>))}
+          </select>
           <button onClick={() => { setPage(1); fetchProducts(); }} className="btn-sakura-outline text-xs">搜索</button>
         </div>
         <button onClick={openNew} className="btn-sakura text-xs">+ 新增商品</button>

@@ -9,7 +9,7 @@ export default async function AfterSalePage() {
   if (!session?.user) redirect("/login");
 
   const afterSalesRaw = await prisma.afterSale.findMany({
-    where: { userId: (session.user as any).id },
+    where: { userId: session.user.id },
     include: { order: true },
     orderBy: { createdAt: "desc" },
   });
@@ -22,7 +22,7 @@ export default async function AfterSalePage() {
   }));
 
   const ordersRaw = await prisma.order.findMany({
-    where: { userId: (session.user as any).id, status: { not: "CANCELLED" } },
+    where: { userId: session.user.id, status: { not: "CANCELLED" } },
     include: { items: { include: { product: true } } },
     orderBy: { createdAt: "desc" },
   });
@@ -35,10 +35,8 @@ export default async function AfterSalePage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-bold text-gray-800">🔄 售后管理</h2>
-        <AfterSaleClient afterSales={afterSales as any} orders={orders as any} />
-      </div>
+      <h2 className="text-lg font-bold text-gray-800 mb-4">🔄 售后管理</h2>
+      <AfterSaleClient afterSales={afterSales} orders={orders} />
     </div>
   );
 }

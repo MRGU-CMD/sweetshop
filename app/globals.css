@@ -11,13 +11,19 @@
   --color-sakura-700: #4d380b;
   --color-sakura-800: #332609;
   --color-sakura-900: #1a1304;
+  --font-sans: var(--font-zcool-xiaowei), "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-display: var(--font-zcool-qingke), var(--font-zcool-xiaowei), "PingFang SC", sans-serif;
 }
 
 @layer base {
   body {
     color: #3d3220;
+    font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+  h1, h2, h3, .font-display {
+    font-family: var(--font-display);
   }
 }
 

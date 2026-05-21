@@ -12,6 +12,22 @@ interface CartItem {
   product: { id: string; name: string; price: number; images: string };
 }
 
+interface SavedAddress {
+  id: string;
+  name: string;
+  phone: string;
+  province: string;
+  city: string;
+  district: string;
+  detail: string;
+  zipCode: string;
+  isDefault: boolean;
+}
+
+function emptyAddress() {
+  return { name: "", phone: "", province: "", city: "", district: "", detail: "", zipCode: "" };
+}
+
 export default function CheckoutClient() {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -21,16 +37,11 @@ export default function CheckoutClient() {
   const [items, setItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Address
-  const [address, setAddress] = useState({
-    name: "",
-    phone: "",
-    province: "",
-    city: "",
-    district: "",
-    detail: "",
-    zipCode: "",
-  });
+  const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([]);
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
+  const [useSaved, setUseSaved] = useState(true);
+
+  const [address, setAddress] = useState(emptyAddress());
 
   // Payment
   const [paymentMethod, setPaymentMethod] = useState("wechat");
@@ -55,7 +66,66 @@ export default function CheckoutClient() {
     if (status === "authenticated") fetchItems();
   }, [status, router, fetchItems]);
 
+  // Fetch saved addresses
+  useEffect(() => {
+    if (status === "authenticated") {
+      fetch("/api/addresses")
+        .then((r) => r.json())
+        .then((addrs: SavedAddress[]) => {
+          setSavedAddresses(addrs);
+          if (addrs.length > 0) {
+            const def = addrs.find((a) => a.isDefault) || addrs[0];
+            setSelectedAddressId(def.id);
+            setAddress({
+              name: def.name,
+              phone: def.phone,
+              province: def.province || "",
+              city: def.city || "",
+              district: def.district || "",
+              detail: def.detail,
+              zipCode: def.zipCode || "",
+            });
+            setUseSaved(true);
+          }
+        })
+        .catch(() => {});
+    }
+  }, [status]);
+
+  const selectSavedAddress = (addr: SavedAddress) => {
+    setSelectedAddressId(addr.id);
+    setUseSaved(true);
+    setAddress({
+      name: addr.name,
+      phone: addr.phone,
+      province: addr.province || "",
+      city: addr.city || "",
+      district: addr.district || "",
+      detail: addr.detail,
+      zipCode: addr.zipCode || "",
+    });
+  };
+
+  const clearAddress = () => {
+    setSelectedAddressId(null);
+    setUseSaved(false);
+    setAddress(emptyAddress());
+  };
+
   const total = items.reduce((sum, i) => sum + i.product.price * i.quantity, 0);
+
+  const [addressError, setAddressError] = useState("");
+
+  const handleNext = () => {
+    if (step === 1) {
+      if (!address.name || !address.phone || !address.detail) {
+        setAddressError("请填写收货人、手机号和详细地址");
+        return;
+      }
+      setAddressError("");
+    }
+    setStep(step + 1);
+  };
 
   const handleSubmitOrder = async () => {
     const res = await fetch("/api/orders", {
@@ -70,7 +140,7 @@ export default function CheckoutClient() {
 
     if (res.ok) {
       const order = await res.json();
-      router.push(`/order-success?orderId=${order.id}&orderNo=${order.orderNo}&total=${total}`);
+      router.push(`/order-success?orderId=${order.id}&orderNo=${order.orderNo}&total=${total}&payment=${paymentMethod}`);
     }
   };
 
@@ -100,6 +170,8 @@ export default function CheckoutClient() {
     { value: "alipay", label: "支付宝", icon: "💙", color: "#1677ff" },
     { value: "card", label: "银行卡", icon: "💳", color: "#333" },
   ];
+
+  const selectedAddress = savedAddresses.find((a) => a.id === selectedAddressId);
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-6">
@@ -138,78 +210,134 @@ export default function CheckoutClient() {
             {step === 1 && (
               <div>
                 <h2 className="text-base font-bold text-gray-700 mb-4">📍 收货地址</h2>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-xs text-gray-400 mb-1 block">收货人 *</label>
-                    <input
-                      type="text"
-                      value={address.name}
-                      onChange={(e) => setAddress({ ...address, name: e.target.value })}
-                      className="input-sakura"
-                      placeholder="姓名"
-                    />
+
+                {/* Saved addresses */}
+                {savedAddresses.length > 0 && (
+                  <div className="mb-5">
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-xs text-gray-400">已保存的地址</span>
+                      <button
+                        onClick={clearAddress}
+                        className={`text-xs transition-colors ${
+                          useSaved ? "text-sakura-500 hover:underline" : "text-gray-400"
+                        }`}
+                      >
+                        + 使用新地址
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-1 gap-2">
+                      {savedAddresses.map((addr) => (
+                        <label
+                          key={addr.id}
+                          onClick={() => selectSavedAddress(addr)}
+                          className={`block p-3 rounded-xl border-2 cursor-pointer transition-all ${
+                            useSaved && selectedAddress?.id === addr.id
+                              ? "border-sakura-500 bg-sakura-50"
+                              : "border-gray-100 hover:border-gray-200"
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="radio"
+                              name="savedAddress"
+                              checked={useSaved && selectedAddress?.id === addr.id}
+                              onChange={() => selectSavedAddress(addr)}
+                              className="accent-sakura-500"
+                            />
+                            <span className="text-sm font-medium text-gray-700">{addr.name}</span>
+                            <span className="text-xs text-gray-400">{addr.phone}</span>
+                            {addr.isDefault && (
+                              <span className="text-xs text-sakura-500 bg-sakura-50 px-1.5 py-0.5 rounded">默认</span>
+                            )}
+                          </div>
+                          <p className="text-xs text-gray-400 mt-1 ml-6">
+                            {addr.province} {addr.city} {addr.district} {addr.detail}
+                          </p>
+                        </label>
+                      ))}
+                    </div>
                   </div>
-                  <div>
-                    <label className="text-xs text-gray-400 mb-1 block">手机号 *</label>
-                    <input
-                      type="tel"
-                      value={address.phone}
-                      onChange={(e) => setAddress({ ...address, phone: e.target.value })}
-                      className="input-sakura"
-                      placeholder="手机号"
-                    />
+                )}
+
+                {addressError && (
+                  <p className="text-xs text-red-500 mb-3">{addressError}</p>
+                )}
+
+                {/* Address form */}
+                {(savedAddresses.length === 0 || !useSaved) && (
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-xs text-gray-400 mb-1 block">收货人 *</label>
+                      <input
+                        type="text"
+                        value={address.name}
+                        onChange={(e) => setAddress({ ...address, name: e.target.value })}
+                        className="input-sakura"
+                        placeholder="姓名"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs text-gray-400 mb-1 block">手机号 *</label>
+                      <input
+                        type="tel"
+                        value={address.phone}
+                        onChange={(e) => setAddress({ ...address, phone: e.target.value })}
+                        className="input-sakura"
+                        placeholder="手机号"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs text-gray-400 mb-1 block">省份</label>
+                      <input
+                        type="text"
+                        value={address.province}
+                        onChange={(e) => setAddress({ ...address, province: e.target.value })}
+                        className="input-sakura"
+                        placeholder="省"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs text-gray-400 mb-1 block">城市</label>
+                      <input
+                        type="text"
+                        value={address.city}
+                        onChange={(e) => setAddress({ ...address, city: e.target.value })}
+                        className="input-sakura"
+                        placeholder="市"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs text-gray-400 mb-1 block">区/县</label>
+                      <input
+                        type="text"
+                        value={address.district}
+                        onChange={(e) => setAddress({ ...address, district: e.target.value })}
+                        className="input-sakura"
+                        placeholder="区"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs text-gray-400 mb-1 block">邮编</label>
+                      <input
+                        type="text"
+                        value={address.zipCode}
+                        onChange={(e) => setAddress({ ...address, zipCode: e.target.value })}
+                        className="input-sakura"
+                        placeholder="邮编"
+                      />
+                    </div>
+                    <div className="col-span-2">
+                      <label className="text-xs text-gray-400 mb-1 block">详细地址 *</label>
+                      <input
+                        type="text"
+                        value={address.detail}
+                        onChange={(e) => setAddress({ ...address, detail: e.target.value })}
+                        className="input-sakura"
+                        placeholder="街道、门牌号等"
+                      />
+                    </div>
                   </div>
-                  <div>
-                    <label className="text-xs text-gray-400 mb-1 block">省份</label>
-                    <input
-                      type="text"
-                      value={address.province}
-                      onChange={(e) => setAddress({ ...address, province: e.target.value })}
-                      className="input-sakura"
-                      placeholder="省"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-xs text-gray-400 mb-1 block">城市</label>
-                    <input
-                      type="text"
-                      value={address.city}
-                      onChange={(e) => setAddress({ ...address, city: e.target.value })}
-                      className="input-sakura"
-                      placeholder="市"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-xs text-gray-400 mb-1 block">区/县</label>
-                    <input
-                      type="text"
-                      value={address.district}
-                      onChange={(e) => setAddress({ ...address, district: e.target.value })}
-                      className="input-sakura"
-                      placeholder="区"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-xs text-gray-400 mb-1 block">邮编</label>
-                    <input
-                      type="text"
-                      value={address.zipCode}
-                      onChange={(e) => setAddress({ ...address, zipCode: e.target.value })}
-                      className="input-sakura"
-                      placeholder="邮编"
-                    />
-                  </div>
-                  <div className="col-span-2">
-                    <label className="text-xs text-gray-400 mb-1 block">详细地址 *</label>
-                    <input
-                      type="text"
-                      value={address.detail}
-                      onChange={(e) => setAddress({ ...address, detail: e.target.value })}
-                      className="input-sakura"
-                      placeholder="街道、门牌号等"
-                    />
-                  </div>
-                </div>
+                )}
               </div>
             )}
 
@@ -296,7 +424,7 @@ export default function CheckoutClient() {
                 </Link>
               )}
               {step < 3 ? (
-                <button onClick={() => setStep(step + 1)} className="btn-sakura text-sm">
+                <button onClick={handleNext} className="btn-sakura text-sm flex items-center gap-1">
                   下一步 →
                 </button>
               ) : (

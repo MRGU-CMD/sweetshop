@@ -6,16 +6,17 @@ const adapter = new PrismaBetterSqlite3({ url: "file:./dev.db" });
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
-  // Admin user
-  const adminHash = await bcrypt.hash("admin123", 10);
+  const adminPassword = process.env.SEED_ADMIN_PASSWORD || "admin123";
+  const demoPassword = process.env.SEED_DEMO_PASSWORD || "123456";
+
+  const adminHash = await bcrypt.hash(adminPassword, 10);
   await prisma.user.upsert({
     where: { email: "admin@sweetshop.com" },
-    update: {},
-    create: { nickname: "管理员", email: "admin@sweetshop.com", passwordHash: adminHash, role: "ADMIN" },
+    update: { role: "OWNER", nickname: "站主" },
+    create: { nickname: "站主", email: "admin@sweetshop.com", passwordHash: adminHash, role: "OWNER" },
   });
 
-  // Demo user
-  const userHash = await bcrypt.hash("123456", 10);
+  const userHash = await bcrypt.hash(demoPassword, 10);
   await prisma.user.upsert({
     where: { email: "demo@sweetshop.com" },
     update: {},
@@ -94,10 +95,8 @@ async function main() {
       });
     }
   }
-
-  console.log("Seed completed! Admin: admin@sweetshop.com / admin123, Demo: demo@sweetshop.com / 123456");
 }
 
 main()
-  .catch((e) => { console.error(e); process.exit(1); })
+  .catch((e) => { console.error(e instanceof Error ? e.message : "Seed error"); process.exit(1); })
   .finally(() => prisma.$disconnect());

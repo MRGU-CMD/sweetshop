@@ -22,7 +22,7 @@ export default async function SearchPage({
   }
 
   const where = query
-    ? { status: "ON" as const, name: { contains: query } }
+    ? { status: "ON" as const, name: { contains: query, mode: "insensitive" as const } }
     : { status: "ON" as const };
 
   const [products, total] = await Promise.all([

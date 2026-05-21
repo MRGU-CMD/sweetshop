@@ -5,6 +5,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import FavoriteButton from "@/components/product/FavoriteButton";
 import AddToCartButton from "@/components/product/AddToCartButton";
+import { ImageGallery, ProductTabs } from "@/components/product/ProductDetailClient";
 
 export default async function ProductPage({
   params,
@@ -27,11 +28,12 @@ export default async function ProductPage({
 
   if (!product) notFound();
 
+  const isOnShelf = product.status === "ON";
   const session = await auth();
   let isFavorited = false;
   if (session?.user) {
     const fav = await prisma.favorite.findUnique({
-      where: { userId_productId: { userId: (session.user as any).id, productId: product.id } },
+      where: { userId_productId: { userId: session.user.id, productId: product.id } },
     });
     isFavorited = !!fav;
   }
@@ -54,15 +56,9 @@ export default async function ProductPage({
         </div>
 
         <div className="flex gap-8">
-          {/* Left: Image */}
+          {/* Left: Image Gallery */}
           <div className="w-[480px] flex-shrink-0">
-            <div className="aspect-square bg-gradient-to-br from-sakura-50 to-purple-50 rounded-2xl flex items-center justify-center text-8xl">
-              {imageList[0] ? (
-                <img src={imageList[0]} alt={product.name} className="w-full h-full object-cover rounded-2xl" />
-              ) : (
-                <span className="opacity-30">🧸</span>
-              )}
-            </div>
+            <ImageGallery images={imageList} />
           </div>
 
           {/* Right: Info */}
@@ -93,67 +89,35 @@ export default async function ProductPage({
 
             {/* Quantity & buttons */}
             <div className="mt-6">
-              <div className="flex items-center gap-3 mb-3">
-                <FavoriteButton productId={product.id} initialFavorited={isFavorited} />
-              </div>
-              <AddToCartButton productId={product.id} stock={product.stock} />
+              {isOnShelf ? (
+                <>
+                  <div className="flex items-center gap-3 mb-3">
+                    <FavoriteButton productId={product.id} initialFavorited={isFavorited} />
+                  </div>
+                  <AddToCartButton
+                    productId={product.id}
+                    stock={product.stock}
+                    specs={(() => { try { return JSON.parse(product.specs || "[]"); } catch { return undefined; } })()}
+                  />
+                </>
+              ) : (
+                <div className="bg-gray-100 border border-gray-200 rounded-xl p-4">
+                  <p className="text-sm text-gray-500">该商品已下架</p>
+                </div>
+              )}
             </div>
           </div>
         </div>
 
         {/* Tabs: Desc / Specs / Reviews */}
-        <div className="mt-12 bg-white rounded-2xl border border-gray-50 overflow-hidden">
-          <div className="flex border-b border-gray-50">
-            <button className="px-6 py-3.5 text-sm font-semibold text-sakura-500 border-b-2 border-sakura-500">
-              商品详情
-            </button>
-            <button className="px-6 py-3.5 text-sm text-gray-400 hover:text-gray-600">
-              规格参数
-            </button>
-            <button className="px-6 py-3.5 text-sm text-gray-400 hover:text-gray-600">
-              用户评价 ({product._count.reviews})
-            </button>
-          </div>
-
-          <div className="p-8">
-            {/* Description */}
-            <p className="text-sm text-gray-600 leading-relaxed">
-              {product.description || "暂无商品描述"}
-            </p>
-
-            {/* Reviews summary */}
-            {product.reviews.length > 0 && (
-              <div className="mt-8 pt-8 border-t border-gray-50">
-                <h3 className="text-base font-bold text-gray-700 mb-4">
-                  用户评价 ({product._count.reviews})
-                </h3>
-                <div className="space-y-4">
-                  {product.reviews.map((review) => (
-                    <div key={review.id} className="border-b border-gray-50 pb-4 last:border-0">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-sakura-100 rounded-full flex items-center justify-center text-sm">
-                          {review.user.avatar || "🌸"}
-                        </div>
-                        <div>
-                          <span className="text-sm font-medium text-gray-700">
-                            {review.user.nickname}
-                          </span>
-                          <div className="text-yellow-500 text-xs">
-                            {"★".repeat(review.rating)}{"☆".repeat(5 - review.rating)}
-                          </div>
-                        </div>
-                        <span className="text-xs text-gray-300 ml-auto">
-                          {new Date(review.createdAt).toLocaleDateString("zh-CN")}
-                        </span>
-                      </div>
-                      <p className="text-sm text-gray-600 mt-2">{review.content}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
+        <ProductTabs
+          description={product.description}
+          specs={(() => { try { return JSON.parse(product.specs || "[]"); } catch { return []; } })()}
+          reviews={product.reviews}
+          reviewCount={product._count.reviews}
+          productId={product.id}
+          userId={session?.user ? session.user.id : undefined}
+        />
       </div>
     </div>
   );

@@ -7,15 +7,19 @@ import { useSession } from "next-auth/react";
 export default function AddToCartButton({
   productId,
   stock,
+  specs,
 }: {
   productId: string;
   stock: number;
+  specs?: { name: string; values: string[] }[];
 }) {
   const router = useRouter();
   const { data: session } = useSession();
   const [quantity, setQuantity] = useState(1);
   const [adding, setAdding] = useState(false);
   const [message, setMessage] = useState("");
+  const [selectedSpecs, setSelectedSpecs] = useState<Record<string, string>>({});
+  const specInfo = Object.values(selectedSpecs).filter(Boolean).join(" / ");
 
   const addToCart = async () => {
     if (!session) {
@@ -27,7 +31,7 @@ export default function AddToCartButton({
     const res = await fetch("/api/cart", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ productId, quantity }),
+      body: JSON.stringify({ productId, quantity, specInfo: specInfo || undefined }),
     });
     setAdding(false);
     if (res.ok) {
@@ -45,7 +49,7 @@ export default function AddToCartButton({
     const res = await fetch("/api/cart", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ productId, quantity }),
+      body: JSON.stringify({ productId, quantity, specInfo: specInfo || undefined }),
     });
     setAdding(false);
     if (res.ok) {
@@ -56,6 +60,28 @@ export default function AddToCartButton({
 
   return (
     <div className="space-y-3">
+      {/* Specs selector */}
+      {specs && specs.length > 0 && specs.map((group) => (
+        <div key={group.name} className="flex items-center gap-2">
+          <span className="text-sm text-gray-400 w-10">{group.name}</span>
+          <div className="flex flex-wrap gap-1.5">
+            {group.values.map((v) => (
+              <button
+                key={v}
+                onClick={() => setSelectedSpecs({ ...selectedSpecs, [group.name]: v })}
+                className={`text-xs px-3 py-1 rounded-full border transition-colors ${
+                  selectedSpecs[group.name] === v
+                    ? "border-sakura-500 bg-sakura-50 text-sakura-500"
+                    : "border-gray-200 text-gray-500 hover:border-gray-300"
+                }`}
+              >
+                {v}
+              </button>
+            ))}
+          </div>
+        </div>
+      ))}
+
       <div className="flex items-center gap-3">
         <span className="text-sm text-gray-500">数量</span>
         <div className="flex items-center border border-gray-200 rounded-lg">

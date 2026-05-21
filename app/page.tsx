@@ -2,6 +2,7 @@ import Header from "@/components/layout/Header";
 import CategorySidebar from "@/components/layout/CategorySidebar";
 import ProductCard from "@/components/product/ProductCard";
 import { prisma } from "@/lib/prisma";
+import Link from "next/link";
 
 export default async function Home() {
   const products = await prisma.product.findMany({
@@ -32,9 +33,9 @@ export default async function Home() {
                 <div>
                   <p className="text-white/80 text-sm mb-2">🌸 樱花季新品首发</p>
                   <h2 className="text-white text-2xl font-bold mb-3">春季限定手办 & 周边</h2>
-                  <a href="/category/figures" className="inline-block bg-white text-sakura-500 text-sm font-semibold px-5 py-2 rounded-xl hover:shadow-lg transition-shadow">
+                  <Link href="/category/figures" className="inline-block bg-white text-sakura-500 text-sm font-semibold px-5 py-2 rounded-xl hover:shadow-lg transition-shadow">
                     立即选购 →
-                  </a>
+                  </Link>
                 </div>
                 <div className="text-8xl absolute right-8 opacity-30">🌸</div>
               </div>
@@ -53,9 +54,9 @@ export default async function Home() {
             {/* Hot products */}
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-bold text-gray-800">🔥 热销推荐</h2>
-              <a href="/category/figures" className="text-sm text-sakura-500 hover:underline">
+              <Link href="/search" className="text-sm text-sakura-500 hover:underline">
                 查看更多 →
-              </a>
+              </Link>
             </div>
             <div className="grid grid-cols-4 gap-4">
               {products.map((p) => (

@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#fdf9f0"/>
+      <stop offset="50%" stop-color="#f7eed8"/>
+      <stop offset="100%" stop-color="#ebd9af"/>
+    </linearGradient>
+    <linearGradient id="bag" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#c9a545"/>
+      <stop offset="50%" stop-color="#8b6914"/>
+      <stop offset="100%" stop-color="#6b5010"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background circle -->
+  <circle cx="256" cy="256" r="240" fill="url(#bg)"/>
+  <circle cx="256" cy="256" r="240" fill="none" stroke="#d4b974" stroke-width="3" opacity="0.3"/>
+
+  <!-- Shopping bag body -->
+  <g transform="translate(256, 275)">
+    <path d="M-110,-30 L-110,100 Q-110,130 -80,130 L80,130 Q110,130 110,100 L110,-30 Z"
+          fill="url(#bag)" />
+    <!-- Bag top fold -->
+    <path d="M-110,-30 Q0,-10 110,-30 L110,10 Q0,30 -110,10 Z"
+          fill="#c9a545" opacity="0.6"/>
+    <!-- Bag shine -->
+    <path d="M-80,-10 L-80,110 Q-60,120 -40,110 L-40,-5 Z"
+          fill="white" opacity="0.08"/>
+  </g>
+
+  <!-- Handles -->
+  <g fill="none" stroke="#8b6914" stroke-width="12" stroke-linecap="round">
+    <path d="M175,235 Q165,195 185,185 Q210,175 215,220"/>
+    <path d="M337,235 Q347,195 327,185 Q302,175 297,220"/>
+  </g>
+
+  <!-- Sakura flower top-left -->
+  <g transform="translate(155, 185)">
+    <g fill="#c9a545">
+      <ellipse cx="0" cy="-18" rx="10" ry="18" transform="rotate(0)"/>
+      <ellipse cx="0" cy="-18" rx="10" ry="18" transform="rotate(72)"/>
+      <ellipse cx="0" cy="-18" rx="10" ry="18" transform="rotate(144)"/>
+      <ellipse cx="0" cy="-18" rx="10" ry="18" transform="rotate(216)"/>
+      <ellipse cx="0" cy="-18" rx="10" ry="18" transform="rotate(288)"/>
+    </g>
+    <circle cx="0" cy="0" r="6" fill="#8b6914"/>
+  </g>
+
+  <!-- Sakura flower top-right -->
+  <g transform="translate(357, 175)">
+    <g fill="#c9a545" opacity="0.7">
+      <ellipse cx="0" cy="-14" rx="8" ry="14" transform="rotate(0)"/>
+      <ellipse cx="0" cy="-14" rx="8" ry="14" transform="rotate(72)"/>
+      <ellipse cx="0" cy="-14" rx="8" ry="14" transform="rotate(144)"/>
+      <ellipse cx="0" cy="-14" rx="8" ry="14" transform="rotate(216)"/>
+      <ellipse cx="0" cy="-14" rx="8" ry="14" transform="rotate(288)"/>
+    </g>
+    <circle cx="0" cy="0" r="5" fill="#8b6914" opacity="0.7"/>
+  </g>
+
+  <!-- Small sakura petal bottom-right of bag -->
+  <g transform="translate(310, 355)" opacity="0.5">
+    <ellipse cx="0" cy="-10" rx="6" ry="10" fill="#d4b974" transform="rotate(30)"/>
+    <ellipse cx="0" cy="-10" rx="6" ry="10" fill="#d4b974" transform="rotate(150)"/>
+    <ellipse cx="0" cy="-10" rx="6" ry="10" fill="#d4b974" transform="rotate(270)"/>
+    <circle cx="0" cy="0" r="3" fill="#b8942f"/>
+  </g>
+
+  <!-- "S" letter on bag -->
+  <text x="256" y="350" text-anchor="middle"
+        font-family="Georgia, serif" font-size="72" font-weight="bold"
+        fill="#fdf9f0" opacity="0.9">S</text>
+
+  <!-- Bottom text -->
+  <text x="256" y="455" text-anchor="middle"
+        font-family="system-ui, sans-serif" font-size="28" font-weight="600"
+        fill="#6b5010" opacity="0.6" letter-spacing="8">SWEETSHOP</text>
+</svg>

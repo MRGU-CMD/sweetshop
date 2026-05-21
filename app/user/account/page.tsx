@@ -9,12 +9,12 @@ export default async function AccountPage() {
   if (!session?.user) redirect("/login");
 
   const user = await prisma.user.findUnique({
-    where: { id: (session.user as any).id },
+    where: { id: session.user.id },
     select: { id: true, nickname: true, avatar: true, phone: true, email: true, role: true, createdAt: true },
   });
 
   const bindings = await prisma.userBinding.findMany({
-    where: { userId: (session.user as any).id },
+    where: { userId: session.user.id },
   });
 
   const serializedUser = user ? { ...user, createdAt: user.createdAt.toISOString() } : null;

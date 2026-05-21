@@ -9,7 +9,7 @@ export default async function AddressesPage() {
   if (!session?.user) redirect("/login");
 
   const addresses = await prisma.address.findMany({
-    where: { userId: (session.user as any).id },
+    where: { userId: session.user.id },
     orderBy: [{ isDefault: "desc" }, { createdAt: "desc" }],
   });
 

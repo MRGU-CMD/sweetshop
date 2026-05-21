@@ -4,6 +4,11 @@ import Google from "next-auth/providers/google";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import bcrypt from "bcryptjs";
 import { prisma } from "./prisma";
+import { rateLimit } from "./rate-limit";
+
+export function isAdminRole(role: string | undefined): boolean {
+  return role === "ADMIN" || role === "OWNER";
+}
 
 const wechatProvider = {
   id: "wechat",
@@ -134,11 +139,34 @@ const providers: any[] = [Credentials({
   credentials: {
     account: { label: "邮箱/手机号", type: "text" },
     password: { label: "密码", type: "password" },
+    code: { label: "验证码", type: "text" },
   },
   async authorize(credentials) {
-    if (!credentials?.account || !credentials?.password) return null;
+    if (!credentials?.account) return null;
     const account = credentials.account as string;
+
+    // Code-based login
+    if (credentials.code) {
+      const code = credentials.code as string;
+      if (!rateLimit(`login:${account}`, 10, 60_000)) return null;
+
+      const storedCode = await prisma.verificationCode.findFirst({
+        where: { contact: account, code, used: false, expiresAt: { gt: new Date() } },
+        orderBy: { createdAt: "desc" },
+      });
+      if (!storedCode) return null;
+
+      await prisma.verificationCode.update({ where: { id: storedCode.id }, data: { used: true } });
+
+      const user = await prisma.user.findFirst({ where: { OR: [{ email: account }, { phone: account }] } });
+      if (!user) return null;
+      return { id: user.id, name: user.nickname, email: user.email, image: user.avatar, role: user.role };
+    }
+
+    // Password login
+    if (!credentials?.password) return null;
     const password = credentials.password as string;
+    if (!rateLimit(`login:${account}`, 10, 60_000)) return null;
 
     const user = await prisma.user.findFirst({
       where: { OR: [{ email: account }, { phone: account }] },
@@ -149,7 +177,7 @@ const providers: any[] = [Credentials({
     const isValid = await bcrypt.compare(password, user.passwordHash);
     if (!isValid) return null;
 
-    return { id: user.id, name: user.nickname, email: user.email, image: user.avatar };
+    return { id: user.id, name: user.nickname, email: user.email, image: user.avatar, role: user.role };
   },
 })];
 
@@ -165,12 +193,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
   session: { strategy: "jwt" },
   pages: { signIn: "/login" },
+  cookies: {
+    sessionToken: {
+      name: "next-auth.session-token",
+      options: { httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", path: "/" },
+    },
+  },
   providers,
   callbacks: {
     async jwt({ token, user, account }) {
       if (user) {
-        token.id = user.id;
-        token.role = (user as any).role || "USER";
+        token.id = user.id!;
+        token.role = user.role || "USER";
       }
       if (account && user) {
         const existingUser = await prisma.user.findUnique({ where: { id: user.id! } });
@@ -178,7 +212,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           await prisma.user.create({
             data: {
               id: user.id!,
-              nickname: (user as any).nickname || user.name || "用户",
+              nickname: user.nickname || user.name || "用户",
               avatar: user.image,
               role: "USER",
             },
@@ -189,8 +223,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
     async session({ session, token }) {
       if (session.user) {
-        (session.user as any).id = token.id;
-        (session.user as any).role = token.role;
+        session.user.id = token.id;
+        session.user.role = token.role;
       }
       return session;
     },

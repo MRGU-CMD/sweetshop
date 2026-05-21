@@ -1,9 +1,12 @@
 import Link from "next/link";
-import { auth, signOut } from "@/lib/auth";
+import { auth, isAdminRole } from "@/lib/auth";
 import SearchBox from "./SearchBox";
+import LogoutButton from "./LogoutButton";
+import CartLink from "./CartLink";
 
 export default async function Header() {
   const session = await auth();
+  const isAdmin = isAdminRole(session?.user?.role);
 
   return (
     <header className="bg-white border-b border-sakura-50 sticky top-0 z-50">
@@ -27,6 +30,12 @@ export default async function Header() {
           <Link href="/category/games" className="px-3 py-2 text-gray-600 hover:text-sakura-500 rounded-lg hover:bg-sakura-50 transition-colors">
             游戏
           </Link>
+          <Link href="/category/cosmetics" className="px-3 py-2 text-gray-600 hover:text-sakura-500 rounded-lg hover:bg-sakura-50 transition-colors">
+            化妆品
+          </Link>
+          <Link href="/category/digital" className="px-3 py-2 text-gray-600 hover:text-sakura-500 rounded-lg hover:bg-sakura-50 transition-colors">
+            数码
+          </Link>
         </nav>
 
         {/* Search */}
@@ -36,31 +45,25 @@ export default async function Header() {
 
         {/* Right icons */}
         <div className="flex items-center gap-3 text-sm">
-          <Link
-            href="/cart"
-            className="relative p-2 text-gray-500 hover:text-sakura-500 transition-colors"
-          >
-            🛒
-          </Link>
+          <CartLink />
 
           {session ? (
             <div className="flex items-center gap-2">
+              {isAdmin && (
+                <Link
+                  href="/admin"
+                  className="px-3 py-1.5 text-xs font-medium rounded-lg bg-sakura-50 text-sakura-500 hover:bg-sakura-100 transition-colors"
+                >
+                  后台
+                </Link>
+              )}
               <Link
                 href="/user"
                 className="p-2 text-gray-500 hover:text-sakura-500 transition-colors"
               >
                 👤
               </Link>
-              <form
-                action={async () => {
-                  "use server";
-                  await signOut({ redirectTo: "/" });
-                }}
-              >
-                <button className="text-xs text-gray-400 hover:text-sakura-500 transition-colors">
-                  退出
-                </button>
-              </form>
+              <LogoutButton />
             </div>
           ) : (
             <Link href="/login" className="text-sakura-500 font-medium text-sm hover:underline">

@@ -1,17 +1,21 @@
-import { auth } from "@/lib/auth";
+import { auth, isAdminRole } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import LogoutButton from "@/components/layout/LogoutButton";
 
 const menuItems = [
   { href: "/admin", label: "仪表盘", icon: "📊", exact: true },
   { href: "/admin/products", label: "商品管理", icon: "📦" },
+  { href: "/admin/categories", label: "分类管理", icon: "🏷️" },
   { href: "/admin/orders", label: "订单管理", icon: "📋" },
+  { href: "/admin/after-sale", label: "售后管理", icon: "🔄" },
+  { href: "/admin/reviews", label: "评价管理", icon: "⭐" },
   { href: "/admin/users", label: "用户管理", icon: "👥" },
 ];
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
-  if (!session?.user || (session.user as any).role !== "ADMIN") redirect("/");
+  if (!session?.user || !isAdminRole(session.user.role)) redirect("/");
 
   return (
     <div className="min-h-screen bg-[#fafafa]">
@@ -23,9 +27,12 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             </Link>
             <span className="text-xs bg-sakura-100 text-sakura-500 px-2 py-0.5 rounded-full">Admin</span>
           </div>
-          <Link href="/" className="text-sm text-gray-400 hover:text-sakura-500">
-            返回前台
-          </Link>
+          <div className="flex items-center gap-4">
+            <Link href="/" className="text-sm text-gray-400 hover:text-sakura-500">
+              返回前台
+            </Link>
+            <LogoutButton className="text-sm text-gray-400 hover:text-sakura-500 transition-colors" label="退出登录" />
+          </div>
         </div>
       </header>
       <div className="flex">

@@ -1,4 +1,4 @@
-import Header from "@/components/layout/Header";
+import OrderActions from "@/components/order/OrderActions";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect, notFound } from "next/navigation";
@@ -13,6 +13,55 @@ const statusLabels: Record<string, { label: string; color: string }> = {
   CANCELLED: { label: "已取消", color: "text-gray-300" },
 };
 
+function buildTimeline(order: any) {
+  const items: { time: string; text: string; active: boolean }[] = [];
+
+  items.push({
+    time: new Date(order.createdAt).toLocaleString("zh-CN"),
+    text: "订单已提交",
+    active: true,
+  });
+
+  if (order.status === "CANCELLED") {
+    items.push({ time: new Date(order.updatedAt).toLocaleString("zh-CN"), text: "订单已取消", active: true });
+    return items;
+  }
+
+  if (order.paidAt) {
+    items.push({
+      time: new Date(order.paidAt).toLocaleString("zh-CN"),
+      text: "已付款",
+      active: true,
+    });
+  }
+
+  if (order.shippedAt) {
+    items.push({
+      time: new Date(order.shippedAt).toLocaleString("zh-CN"),
+      text: order.logisticsCompany
+        ? `${order.logisticsCompany} 已揽件`
+        : "已发货",
+      active: true,
+    });
+  } else if (order.status === "SHIPPED" || order.status === "RECEIVED" || order.status === "COMPLETED") {
+    items.push({ time: "", text: "等待发货...", active: false });
+  }
+
+  if (order.receivedAt) {
+    items.push({
+      time: new Date(order.receivedAt).toLocaleString("zh-CN"),
+      text: "已确认收货",
+      active: true,
+    });
+  }
+
+  if (order.status === "COMPLETED") {
+    items.push({ time: "", text: "订单已完成", active: true });
+  }
+
+  return items;
+}
+
 export default async function OrderDetailPage({
   params,
 }: {
@@ -22,8 +71,8 @@ export default async function OrderDetailPage({
   if (!session?.user) redirect("/login");
 
   const { id } = await params;
-  const order = await prisma.order.findUnique({
-    where: { id },
+  const order = await prisma.order.findFirst({
+    where: { id, userId: session.user.id },
     include: {
       items: { include: { product: true } },
     },
@@ -32,21 +81,10 @@ export default async function OrderDetailPage({
   if (!order) notFound();
   const status = statusLabels[order.status] || { label: order.status, color: "text-gray-400" };
   const address = JSON.parse(order.address || "{}");
-
-  const logistics = order.trackingNo
-    ? [
-        { time: "2026-05-18 14:30", text: "【广州市】快件已到达天河区XX驿站", active: true },
-        { time: "2026-05-18 08:15", text: "【广州市】快件离开天河分拣中心", active: false },
-        { time: "2026-05-17 22:00", text: "【深圳市】快件已到达深圳集散中心", active: false },
-        { time: "2026-05-17 10:00", text: "【深圳市】商家已发货", active: false },
-      ]
-    : [];
+  const timeline = buildTimeline(order);
 
   return (
-    <div className="min-h-screen bg-[#fafafa]">
-      <Header />
-      <div className="max-w-3xl mx-auto px-4 py-6">
-        {/* Breadcrumb */}
+    <div className="max-w-3xl mx-auto px-0 py-0">
         <div className="text-sm text-gray-400 mb-4">
           <Link href="/" className="hover:text-sakura-500">首页</Link>
           <span className="mx-2">/</span>
@@ -55,20 +93,21 @@ export default async function OrderDetailPage({
           <span className="text-gray-600">订单详情</span>
         </div>
 
-        {/* Status */}
         <div className="bg-white rounded-2xl border border-gray-50 p-6 mb-4">
           <div className="flex items-center gap-3 mb-2">
             <span className="text-2xl">📦</span>
             <span className="text-lg font-bold text-gray-800">{status.label}</span>
           </div>
           {order.status === "SHIPPED" && (
-            <p className="text-sm text-gray-400">预计 2026年5月20日 送达</p>
+            <p className="text-sm text-gray-400">快递运输中，请耐心等待</p>
+          )}
+          {order.status === "PAID" && (
+            <p className="text-sm text-gray-400">等待商家发货</p>
           )}
 
-          {/* Logistics timeline */}
-          {logistics.length > 0 && (
+          {timeline.length > 1 && (
             <div className="mt-5 pl-2">
-              {logistics.map((log, i) => (
+              {timeline.map((log, i) => (
                 <div key={i} className="flex gap-3 pb-3 last:pb-0">
                   <div className="flex flex-col items-center">
                     <div
@@ -76,15 +115,17 @@ export default async function OrderDetailPage({
                         log.active ? "bg-sakura-500" : "bg-gray-200"
                       }`}
                     />
-                    {i < logistics.length - 1 && <div className="w-0.5 flex-1 bg-gray-100" />}
+                    {i < timeline.length - 1 && <div className="w-0.5 flex-1 bg-gray-100" />}
                   </div>
                   <div>
                     <p className={`text-sm ${log.active ? "text-gray-700 font-medium" : "text-gray-400"}`}>
                       {log.text}
                     </p>
-                    <p className={`text-xs ${log.active ? "text-gray-400" : "text-gray-300"}`}>
-                      {log.time}
-                    </p>
+                    {log.time && (
+                      <p className={`text-xs ${log.active ? "text-gray-400" : "text-gray-300"}`}>
+                        {log.time}
+                      </p>
+                    )}
                   </div>
                 </div>
               ))}
@@ -92,7 +133,6 @@ export default async function OrderDetailPage({
           )}
         </div>
 
-        {/* Address */}
         <div className="bg-white rounded-2xl border border-gray-50 p-5 mb-4">
           <h3 className="text-sm font-bold text-gray-700 mb-3">📍 收货信息</h3>
           <p className="text-sm text-gray-600">
@@ -109,7 +149,6 @@ export default async function OrderDetailPage({
           )}
         </div>
 
-        {/* Items */}
         <div className="bg-white rounded-2xl border border-gray-50 p-5 mb-4">
           <h3 className="text-sm font-bold text-gray-700 mb-3">📦 商品信息</h3>
           {order.items.map((item) => {
@@ -143,7 +182,6 @@ export default async function OrderDetailPage({
           })}
         </div>
 
-        {/* Amount */}
         <div className="bg-white rounded-2xl border border-gray-50 p-5 mb-4">
           <h3 className="text-sm font-bold text-gray-700 mb-3">💰 金额明细</h3>
           <div className="space-y-2 text-sm">
@@ -162,7 +200,6 @@ export default async function OrderDetailPage({
           </div>
         </div>
 
-        {/* Order info */}
         <div className="bg-white rounded-2xl border border-gray-50 p-5">
           <h3 className="text-sm font-bold text-gray-700 mb-3">📋 订单信息</h3>
           <div className="grid grid-cols-2 gap-2 text-sm text-gray-600">
@@ -176,14 +213,9 @@ export default async function OrderDetailPage({
             <Link href="/user/after-sale" className="btn-sakura-outline text-xs px-4 py-2">
               申请售后
             </Link>
-            {order.status === "SHIPPED" && (
-              <button className="btn-sakura text-xs px-4 py-2">
-                确认收货
-              </button>
-            )}
+            <OrderActions orderId={order.id} status={order.status} />
           </div>
         </div>
-      </div>
     </div>
   );
 }

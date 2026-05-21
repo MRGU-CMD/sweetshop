@@ -8,7 +8,7 @@ export async function GET() {
   if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const user = await prisma.user.findUnique({
-    where: { id: (session.user as any).id },
+    where: { id: session.user.id },
     select: { id: true, nickname: true, avatar: true, phone: true, email: true, role: true, createdAt: true },
   });
 
@@ -20,7 +20,7 @@ export async function PUT(req: Request) {
   if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const body = await req.json();
-  const userId = (session.user as any).id;
+  const userId = session.user.id;
 
   if (body.password) {
     if (!body.currentPassword || !body.newPassword) {
@@ -44,6 +44,13 @@ export async function PUT(req: Request) {
     await prisma.user.update({
       where: { id: userId },
       data: { nickname: body.nickname },
+    });
+  }
+
+  if (body.avatar !== undefined) {
+    await prisma.user.update({
+      where: { id: userId },
+      data: { avatar: body.avatar },
     });
   }
 

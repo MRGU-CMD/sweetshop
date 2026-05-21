@@ -55,8 +55,32 @@ export default function AfterSaleClient({
     refundAmount: "",
   });
   const [submitting, setSubmitting] = useState(false);
+  const [images, setImages] = useState<string[]>([]);
+  const [uploading, setUploading] = useState(false);
 
   const selectedOrder = orders.find((o) => o.id === form.orderId);
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    const formData = new FormData();
+    formData.append("file", file);
+    const res = await fetch("/api/upload", { method: "POST", body: formData });
+    if (res.ok) {
+      const data = await res.json();
+      setImages((prev) => [...prev, data.url]);
+    } else {
+      const data = await res.json();
+      alert(data.error || "上传失败");
+    }
+    setUploading(false);
+    e.target.value = "";
+  };
+
+  const removeImage = (url: string) => {
+    setImages((prev) => prev.filter((img) => img !== url));
+  };
 
   const handleSubmit = async () => {
     if (!form.orderId || !form.orderItemId || !form.type) return;
@@ -70,6 +94,7 @@ export default function AfterSaleClient({
         type: form.type,
         reason: form.reason,
         refundAmount: form.refundAmount ? parseFloat(form.refundAmount) : null,
+        images,
       }),
     });
     setSubmitting(false);
@@ -148,6 +173,26 @@ export default function AfterSaleClient({
                 rows={3}
                 placeholder="请描述问题..."
               />
+            </div>
+            <div>
+              <label className="text-xs text-gray-400 mb-1 block">凭证图片（可选）</label>
+              <div className="flex flex-wrap gap-2 mb-2">
+                {images.map((url) => (
+                  <div key={url} className="relative w-16 h-16 rounded-lg overflow-hidden border border-gray-200">
+                    <img src={url} alt="" className="w-full h-full object-cover" />
+                    <button
+                      onClick={() => removeImage(url)}
+                      className="absolute top-0 right-0 w-5 h-5 bg-red-500 text-white text-xs flex items-center justify-center rounded-bl-lg"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+                <label className="w-16 h-16 rounded-lg border border-dashed border-gray-300 flex items-center justify-center text-gray-400 hover:border-sakura-400 hover:text-sakura-400 cursor-pointer text-2xl transition-colors">
+                  {uploading ? "..." : "+"}
+                  <input type="file" accept="image/*" onChange={handleUpload} className="hidden" disabled={uploading} />
+                </label>
+              </div>
             </div>
             <div className="flex gap-3">
               <button

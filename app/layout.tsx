@@ -1,16 +1,20 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { ZCOOL_XiaoWei, ZCOOL_QingKe_HuangYou } from "next/font/google";
 import "./globals.css";
 import Providers from "@/components/Providers";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const zcoolXiaoWei = ZCOOL_XiaoWei({
+  weight: "400",
   subsets: ["latin"],
+  variable: "--font-zcool-xiaowei",
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const zcoolQingKe = ZCOOL_QingKe_HuangYou({
+  weight: "400",
   subsets: ["latin"],
+  variable: "--font-zcool-qingke",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -26,7 +30,7 @@ export default function RootLayout({
   return (
     <html
       lang="zh-CN"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${zcoolXiaoWei.variable} ${zcoolQingKe.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col"><Providers>{children}</Providers></body>
     </html>

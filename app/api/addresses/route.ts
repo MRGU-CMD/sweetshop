@@ -7,7 +7,7 @@ export async function GET() {
   if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const addresses = await prisma.address.findMany({
-    where: { userId: (session.user as any).id },
+    where: { userId: session.user.id },
     orderBy: [{ isDefault: "desc" }, { createdAt: "desc" }],
   });
 
@@ -25,14 +25,14 @@ export async function POST(req: Request) {
 
   if (body.isDefault) {
     await prisma.address.updateMany({
-      where: { userId: (session.user as any).id },
+      where: { userId: session.user.id },
       data: { isDefault: false },
     });
   }
 
   const address = await prisma.address.create({
     data: {
-      userId: (session.user as any).id,
+      userId: session.user.id,
       name: body.name,
       phone: body.phone,
       province: body.province || "",
@@ -59,10 +59,14 @@ export async function PUT(req: Request) {
 
   if (body.isDefault) {
     await prisma.address.updateMany({
-      where: { userId: (session.user as any).id },
+      where: { userId: session.user.id },
       data: { isDefault: false },
     });
   }
+
+  const userId = session.user.id;
+  const existing = await prisma.address.findFirst({ where: { id, userId } });
+  if (!existing) return NextResponse.json({ error: "Address not found" }, { status: 404 });
 
   const address = await prisma.address.update({
     where: { id },
@@ -81,7 +85,7 @@ export async function DELETE(req: Request) {
   if (!id) return NextResponse.json({ error: "id required" }, { status: 400 });
 
   await prisma.address.deleteMany({
-    where: { id, userId: (session.user as any).id },
+    where: { id, userId: session.user.id },
   });
 
   return NextResponse.json({ success: true });

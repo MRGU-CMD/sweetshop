@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function FavoriteButton({
   productId,
@@ -9,19 +10,22 @@ export default function FavoriteButton({
   productId: string;
   initialFavorited: boolean;
 }) {
+  const router = useRouter();
   const [favorited, setFavorited] = useState(initialFavorited);
 
   const toggle = async () => {
-    if (favorited) {
-      await fetch(`/api/favorites?productId=${productId}`, { method: "DELETE" });
-      setFavorited(false);
-    } else {
-      await fetch("/api/favorites", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productId }),
-      });
-      setFavorited(true);
+    setFavorited(!favorited);
+    const method = favorited ? "DELETE" : "POST";
+    const url = favorited ? `/api/favorites?productId=${productId}` : "/api/favorites";
+    const body = favorited ? undefined : JSON.stringify({ productId });
+    const res = await fetch(url, {
+      method,
+      headers: body ? { "Content-Type": "application/json" } : undefined,
+      body,
+    });
+    if (!res.ok) {
+      setFavorited(favorited);
+      if (res.status === 401) router.push("/login");
     }
   };
 

@@ -1,10 +1,11 @@
-import { auth } from "@/lib/auth";
+import { auth, isAdminRole } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import AdminUsersClient from "./AdminUsersClient";
 
 export default async function AdminUsersPage() {
   const session = await auth();
-  if (!session?.user || (session.user as any).role !== "ADMIN") redirect("/");
+  const role = session?.user?.role;
+  if (!session?.user || !isAdminRole(role)) redirect("/");
 
-  return <AdminUsersClient />;
+  return <AdminUsersClient currentUserRole={role as string} />;
 }

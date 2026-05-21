@@ -24,11 +24,11 @@ export default async function UserLayout({ children }: { children: React.ReactNo
             <div className="bg-white rounded-2xl border border-gray-50 p-4 sticky top-20">
               <div className="flex items-center gap-3 pb-4 mb-4 border-b border-gray-50">
                 <div className="w-10 h-10 rounded-full bg-sakura-100 flex items-center justify-center text-lg">
-                  {(session.user as any).name?.charAt(0) || "👤"}
+                  {session.user.name?.charAt(0) || "👤"}
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-700 truncate">
-                    {(session.user as any).name || (session.user as any).email || "用户"}
+                    {session.user.name || session.user.email || "用户"}
                   </p>
                 </div>
               </div>

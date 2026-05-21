@@ -1,11 +1,11 @@
-import { auth } from "@/lib/auth";
+import { auth, isAdminRole } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import AdminProductsClient from "./AdminProductsClient";
 
 export default async function AdminProductsPage() {
   const session = await auth();
-  if (!session?.user || (session.user as any).role !== "ADMIN") redirect("/");
+  if (!session?.user || !isAdminRole(session.user.role)) redirect("/");
 
   const categories = await prisma.category.findMany({ orderBy: { sort: "asc" } });
 

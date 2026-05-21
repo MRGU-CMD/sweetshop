@@ -1,18 +1,50 @@
 "use client";
 
-import { useState } from "react";
-import { signIn } from "next-auth/react";
+import { useState, useEffect } from "react";
+import { signIn, getSession } from "next-auth/react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") || "/";
   const [tab, setTab] = useState<"email" | "sms">("email");
   const [account, setAccount] = useState("");
   const [password, setPassword] = useState("");
   const [smsCode, setSmsCode] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [codeSending, setCodeSending] = useState(false);
+  const [codeCountdown, setCodeCountdown] = useState(0);
+
+  useEffect(() => {
+    if (codeCountdown <= 0) return;
+    const t = setTimeout(() => setCodeCountdown(codeCountdown - 1), 1000);
+    return () => clearTimeout(t);
+  }, [codeCountdown]);
+
+  const handleSendCode = async () => {
+    const targetEmail = account.trim();
+    if (!targetEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(targetEmail)) {
+      setError("请先输入有效的邮箱地址");
+      return;
+    }
+    setError("");
+    setCodeSending(true);
+    try {
+      const res = await fetch("/api/auth/send-code", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: targetEmail, purpose: "login" }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setError(data.error || "发送失败"); return; }
+      setCodeCountdown(60);
+    } finally {
+      setCodeSending(false);
+    }
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,11 +61,32 @@ export default function LoginPage() {
         setError("账号或密码错误");
         setLoading(false);
       } else {
-        router.push("/");
+        const session = await getSession();
+        const role = session?.user?.role;
+        if (role === "ADMIN" || role === "OWNER") {
+          router.push("/admin");
+        } else {
+          router.push(callbackUrl);
+        }
       }
     } else {
-      setError("短信登录暂未开放");
-      setLoading(false);
+      const result = await signIn("credentials", {
+        account,
+        code: smsCode,
+        redirect: false,
+      });
+      if (result?.error) {
+        setError("验证码无效或已过期");
+        setLoading(false);
+      } else {
+        const session = await getSession();
+        const role = session?.user?.role;
+        if (role === "ADMIN" || role === "OWNER") {
+          router.push("/admin");
+        } else {
+          router.push(callbackUrl);
+        }
+      }
     }
   };
 
@@ -59,6 +112,12 @@ export default function LoginPage() {
       <div className="relative z-10 w-full flex items-center justify-center lg:justify-end lg:pr-16 xl:pr-28 px-4">
         <div className="w-full max-w-md">
           <div className="card-sakura p-8">
+            {/* Back */}
+            <Link href="/" className="inline-flex items-center gap-1 text-sm text-[#c4b898] hover:text-[#8b6914] transition-colors mb-6">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+              返回首页
+            </Link>
+
             {/* Logo */}
             <div className="text-center mb-8">
               <h1 className="text-2xl font-semibold tracking-wide text-[#b8942f]">
@@ -87,7 +146,7 @@ export default function LoginPage() {
                     : "text-[#c4b898] hover:text-[#a09880]"
                 }`}
               >
-                短信登录
+                验证码登录
               </button>
             </div>
 
@@ -120,8 +179,8 @@ export default function LoginPage() {
                 <>
                   <div>
                     <input
-                      type="tel"
-                      placeholder="手机号"
+                      type="text"
+                      placeholder="邮箱地址"
                       value={account}
                       onChange={(e) => setAccount(e.target.value)}
                       className="input-sakura"
@@ -139,9 +198,11 @@ export default function LoginPage() {
                     />
                     <button
                       type="button"
-                      className="px-4 py-3 text-sm text-[#8b6914] bg-[#fdf9f0] rounded-xl font-medium whitespace-nowrap hover:bg-[#f7eed8] transition-colors"
+                      onClick={handleSendCode}
+                      disabled={codeSending || codeCountdown > 0}
+                      className="px-4 py-3 text-sm text-[#8b6914] bg-[#fdf9f0] rounded-xl font-medium whitespace-nowrap hover:bg-[#f7eed8] transition-colors disabled:opacity-50"
                     >
-                      获取验证码
+                      {codeCountdown > 0 ? `${codeCountdown}s` : codeSending ? "发送中..." : "获取验证码"}
                     </button>
                   </div>
                 </>

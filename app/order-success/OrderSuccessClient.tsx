@@ -9,6 +9,8 @@ function OrderSuccessContent() {
   const orderNo = searchParams.get("orderNo") || "";
   const total = searchParams.get("total") || "0";
   const orderId = searchParams.get("orderId") || "";
+  const payment = searchParams.get("payment") || "wechat";
+  const paymentLabel = payment === "wechat" ? "微信支付" : payment === "alipay" ? "支付宝" : payment === "card" ? "银行卡" : "—";
 
   return (
     <div className="max-w-md mx-auto px-4 py-16 text-center">
@@ -24,7 +26,7 @@ function OrderSuccessContent() {
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-gray-400">支付方式</span>
-            <span className="text-gray-700">微信支付</span>
+            <span className="text-gray-700">{paymentLabel}</span>
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-gray-400">实付金额</span>

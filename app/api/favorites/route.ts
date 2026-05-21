@@ -7,7 +7,7 @@ export async function GET() {
   if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const favorites = await prisma.favorite.findMany({
-    where: { userId: (session.user as any).id },
+    where: { userId: session.user.id },
     include: { product: true },
     orderBy: { createdAt: "desc" },
   });
@@ -25,13 +25,13 @@ export async function POST(req: Request) {
   const favorite = await prisma.favorite.upsert({
     where: {
       userId_productId: {
-        userId: (session.user as any).id,
+        userId: session.user.id,
         productId,
       },
     },
     update: {},
     create: {
-      userId: (session.user as any).id,
+      userId: session.user.id,
       productId,
     },
   });
@@ -49,7 +49,7 @@ export async function DELETE(req: Request) {
 
   await prisma.favorite.deleteMany({
     where: {
-      userId: (session.user as any).id,
+      userId: session.user.id,
       productId,
     },
   });

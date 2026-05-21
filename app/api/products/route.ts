@@ -7,7 +7,7 @@ export async function GET(request: NextRequest) {
   const sort = searchParams.get("sort") || "default";
   const page = parseInt(searchParams.get("page") || "1");
   const limit = parseInt(searchParams.get("limit") || "20");
-  const search = searchParams.get("search") || "";
+  const search = (searchParams.get("search") || "").slice(0, 100);
   const minPrice = searchParams.get("minPrice");
   const maxPrice = searchParams.get("maxPrice");
 
@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
   }
 
   if (search) {
-    where.name = { contains: search };
+    where.name = { contains: search, mode: "insensitive" as const };
   }
 
   if (minPrice || maxPrice) {

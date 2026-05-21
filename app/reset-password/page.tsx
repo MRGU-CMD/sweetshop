@@ -1,24 +1,57 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export default function ResetPasswordPage() {
   const router = useRouter();
   const [step, setStep] = useState(1);
-  const [method, setMethod] = useState<"phone" | "email">("phone");
+  const [method, setMethod] = useState<"phone" | "email">("email");
   const [contact, setContact] = useState("");
   const [smsCode, setSmsCode] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [codeSending, setCodeSending] = useState(false);
+  const [codeCountdown, setCodeCountdown] = useState(0);
+
+  useEffect(() => {
+    if (codeCountdown <= 0) return;
+    const t = setTimeout(() => setCodeCountdown(codeCountdown - 1), 1000);
+    return () => clearTimeout(t);
+  }, [codeCountdown]);
+
+  const handleSendCode = async () => {
+    const targetEmail = contact.trim();
+    if (!targetEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(targetEmail)) {
+      setError("请先输入有效的邮箱地址");
+      return;
+    }
+    setError("");
+    setCodeSending(true);
+    try {
+      const res = await fetch("/api/auth/send-code", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: targetEmail, purpose: "reset" }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setError(data.error || "发送失败"); return; }
+      setCodeCountdown(60);
+    } finally {
+      setCodeSending(false);
+    }
+  };
 
   const handleVerify = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    // Simulated: in production, send verification code
+    if (!smsCode || smsCode.length < 4) {
+      setError("请输入验证码");
+      return;
+    }
     setStep(2);
   };
 
@@ -67,6 +100,10 @@ export default function ResetPasswordPage() {
 
       <div className="relative z-10 w-full max-w-md mx-4">
         <div className="card-sakura p-8">
+          <Link href="/login" className="inline-flex items-center gap-1 text-sm text-[#c4b898] hover:text-[#8b6914] transition-colors mb-6">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+            返回登录
+          </Link>
           <div className="text-center mb-6">
             <h1 className="text-2xl font-semibold tracking-wide text-[#b8942f]">找回密码</h1>
             <p className="text-sm text-[#a09880] mt-1">
@@ -123,9 +160,11 @@ export default function ResetPasswordPage() {
                 />
                 <button
                   type="button"
-                  className="px-4 py-3 text-sm text-sakura-500 bg-sakura-50 rounded-xl font-medium whitespace-nowrap hover:bg-sakura-100 transition-colors"
+                  onClick={handleSendCode}
+                  disabled={codeSending || codeCountdown > 0}
+                  className="px-4 py-3 text-sm text-sakura-500 bg-sakura-50 rounded-xl font-medium whitespace-nowrap hover:bg-sakura-100 transition-colors disabled:opacity-50"
                 >
-                  获取验证码
+                  {codeCountdown > 0 ? `${codeCountdown}s` : codeSending ? "发送中..." : "获取验证码"}
                 </button>
               </div>
 

@@ -7,7 +7,7 @@ export async function GET() {
   if (!session?.user) {
     return NextResponse.json({ error: "请先登录" }, { status: 401 });
   }
-  const userId = (session.user as any).id;
+  const userId = session.user.id;
 
   const items = await prisma.cartItem.findMany({
     where: { userId },
@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
   if (!session?.user) {
     return NextResponse.json({ error: "请先登录" }, { status: 401 });
   }
-  const userId = (session.user as any).id;
+  const userId = session.user.id;
 
   const { productId, quantity, specInfo } = await request.json();
 
@@ -65,7 +65,7 @@ export async function PUT(request: NextRequest) {
   if (!session?.user) {
     return NextResponse.json({ error: "请先登录" }, { status: 401 });
   }
-  const userId = (session.user as any).id;
+  const userId = session.user.id;
 
   const { id, quantity } = await request.json();
 
@@ -92,7 +92,7 @@ export async function DELETE(request: NextRequest) {
   if (!session?.user) {
     return NextResponse.json({ error: "请先登录" }, { status: 401 });
   }
-  const userId = (session.user as any).id;
+  const userId = session.user.id;
 
   const { searchParams } = new URL(request.url);
   const id = searchParams.get("id");
