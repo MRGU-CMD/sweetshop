@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  serverExternalPackages: ["pg"],
+  serverExternalPackages: [],
   // Limit request body size to prevent memory exhaustion from large uploads
   experimental: {
     serverActions: {
