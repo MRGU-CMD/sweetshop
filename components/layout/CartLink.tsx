@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { useTransition } from "@/components/TransitionProvider";
 
 const MESSAGES = [
   "你还没进行登录呢~",
@@ -193,6 +194,7 @@ const sparkles = [
 export default function CartLink() {
   const { data: session } = useSession();
   const router = useRouter();
+  const { startLoading } = useTransition();
   const [showModal, setShowModal] = useState(false);
   const [message, setMessage] = useState(randomMessage);
   const [visible, setVisible] = useState(false);
@@ -211,13 +213,14 @@ export default function CartLink() {
       setMessage(randomMessage());
       setShowModal(true);
     } else {
+      startLoading("前往购物车...");
       router.push("/cart");
     }
   };
 
   const goToLogin = () => {
     setVisible(false);
-    setTimeout(() => router.push("/login?callbackUrl=/cart"), 200);
+    setTimeout(() => { startLoading("前往登录..."); router.push("/login?callbackUrl=/cart"); }, 200);
   };
 
   const close = () => {

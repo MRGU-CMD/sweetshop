@@ -4,9 +4,11 @@ import { useState, useEffect } from "react";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useTransition } from "@/components/TransitionProvider";
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { startLoading } = useTransition();
   const [tab, setTab] = useState<"phone" | "email">("phone");
   const [nickname, setNickname] = useState("");
   const [phone, setPhone] = useState("");
@@ -91,6 +93,7 @@ export default function RegisterPage() {
       password,
       redirect: false,
     });
+    startLoading("注册成功...");
     router.push("/");
   };
 

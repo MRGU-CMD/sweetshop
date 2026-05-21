@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTransition } from "@/components/TransitionProvider";
 
 export default function FavoriteButton({
   productId,
@@ -11,6 +12,7 @@ export default function FavoriteButton({
   initialFavorited: boolean;
 }) {
   const router = useRouter();
+  const { startLoading } = useTransition();
   const [favorited, setFavorited] = useState(initialFavorited);
 
   const toggle = async () => {
@@ -25,7 +27,7 @@ export default function FavoriteButton({
     });
     if (!res.ok) {
       setFavorited(favorited);
-      if (res.status === 401) router.push("/login");
+      if (res.status === 401) { startLoading("前往登录..."); router.push("/login"); }
     }
   };
 

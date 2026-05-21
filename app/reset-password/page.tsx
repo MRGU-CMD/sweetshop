@@ -3,9 +3,11 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useTransition } from "@/components/TransitionProvider";
 
 export default function ResetPasswordPage() {
   const router = useRouter();
+  const { startLoading } = useTransition();
   const [step, setStep] = useState(1);
   const [method, setMethod] = useState<"phone" | "email">("email");
   const [contact, setContact] = useState("");
@@ -88,6 +90,7 @@ export default function ResetPasswordPage() {
       return;
     }
 
+    startLoading("重置成功...");
     router.push("/login");
   };
 

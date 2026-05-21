@@ -2,9 +2,11 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useTransition } from "@/components/TransitionProvider";
 
 export default function SearchBox() {
   const router = useRouter();
+  const { startLoading } = useTransition();
   const [query, setQuery] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -30,6 +32,7 @@ export default function SearchBox() {
   const handleSearch = (q: string) => {
     setShowDropdown(false);
     if (q.trim()) {
+      startLoading("搜索中...");
       router.push(`/search?q=${encodeURIComponent(q.trim())}`);
     }
   };

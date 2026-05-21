@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useTransition } from "@/components/TransitionProvider";
 
 interface CartItem {
   id: string;
@@ -23,6 +24,7 @@ interface CartItem {
 export default function CartClient() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const { startLoading } = useTransition();
   const [items, setItems] = useState<CartItem[]>([]);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
@@ -88,6 +90,7 @@ export default function CartClient() {
   const handleCheckout = () => {
     if (selectedItems.length === 0) return;
     const ids = selectedItems.map((i) => i.id).join(",");
+    startLoading("前往结算...");
     router.push(`/checkout?items=${ids}`);
   };
 

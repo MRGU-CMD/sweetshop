@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { useTransition } from "@/components/TransitionProvider";
 
 export default function AddToCartButton({
   productId,
@@ -15,6 +16,7 @@ export default function AddToCartButton({
 }) {
   const router = useRouter();
   const { data: session } = useSession();
+  const { startLoading } = useTransition();
   const [quantity, setQuantity] = useState(1);
   const [adding, setAdding] = useState(false);
   const [message, setMessage] = useState("");
@@ -23,6 +25,7 @@ export default function AddToCartButton({
 
   const addToCart = async () => {
     if (!session) {
+      startLoading("前往登录...");
       router.push("/login");
       return;
     }
@@ -42,6 +45,7 @@ export default function AddToCartButton({
 
   const buyNow = async () => {
     if (!session) {
+      startLoading("前往登录...");
       router.push("/login");
       return;
     }
@@ -54,6 +58,7 @@ export default function AddToCartButton({
     setAdding(false);
     if (res.ok) {
       const item = await res.json();
+      startLoading("前往结算...");
       router.push(`/checkout?items=${item.id}`);
     }
   };

@@ -4,10 +4,12 @@ import { Suspense, useState, useEffect } from "react";
 import { signIn, getSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useTransition } from "@/components/TransitionProvider";
 
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { startLoading } = useTransition();
   const callbackUrl = searchParams.get("callbackUrl") || "/";
   const [tab, setTab] = useState<"email" | "sms">("email");
   const [account, setAccount] = useState("");
@@ -64,8 +66,10 @@ function LoginForm() {
         const session = await getSession();
         const role = session?.user?.role;
         if (role === "ADMIN" || role === "OWNER") {
+          startLoading("进入后台...");
           router.push("/admin");
         } else {
+          startLoading("登录成功...");
           router.push(callbackUrl);
         }
       }
@@ -82,8 +86,10 @@ function LoginForm() {
         const session = await getSession();
         const role = session?.user?.role;
         if (role === "ADMIN" || role === "OWNER") {
+          startLoading("进入后台...");
           router.push("/admin");
         } else {
+          startLoading("登录成功...");
           router.push(callbackUrl);
         }
       }
