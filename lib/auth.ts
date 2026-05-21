@@ -148,7 +148,7 @@ const providers: any[] = [Credentials({
     // Code-based login
     if (credentials.code) {
       const code = credentials.code as string;
-      if (!rateLimit(`login:${account}`, 10, 60_000)) return null;
+      if (!(await rateLimit(`login:${account}`, 10, 60_000))) return null;
 
       const storedCode = await prisma.verificationCode.findFirst({
         where: { contact: account, code, used: false, expiresAt: { gt: new Date() } },
@@ -166,7 +166,7 @@ const providers: any[] = [Credentials({
     // Password login
     if (!credentials?.password) return null;
     const password = credentials.password as string;
-    if (!rateLimit(`login:${account}`, 10, 60_000)) return null;
+    if (!(await rateLimit(`login:${account}`, 10, 60_000))) return null;
 
     const user = await prisma.user.findFirst({
       where: { OR: [{ email: account }, { phone: account }] },

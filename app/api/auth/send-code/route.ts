@@ -13,11 +13,11 @@ export async function POST(req: Request) {
   if (!emailRegex.test(email)) return NextResponse.json({ error: "邮箱格式不正确" }, { status: 400 });
 
   // Rate limit: 1 per 60s per email
-  if (!rateLimit(`send-code:${email}`, 1, 60_000)) {
+  if (!(await rateLimit(`send-code:${email}`, 1, 60_000))) {
     return NextResponse.json({ error: "发送太频繁，请60秒后再试" }, { status: 429 });
   }
   // IP rate limit
-  if (!rateLimit(`send-code-ip:${ip}`, 10, 300_000)) {
+  if (!(await rateLimit(`send-code-ip:${ip}`, 10, 300_000))) {
     return NextResponse.json({ error: "请求过多，请稍后再试" }, { status: 429 });
   }
 

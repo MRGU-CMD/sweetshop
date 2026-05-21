@@ -1,5 +1,4 @@
-import { writeFile, mkdir } from "fs/promises";
-import path from "path";
+import { put } from "@vercel/blob";
 import crypto from "crypto";
 
 const MAGIC: Record<string, number[]> = {
@@ -34,9 +33,12 @@ export async function saveUpload(file: File, maxSize: number = 5 * 1024 * 1024):
   }
 
   const filename = `${crypto.randomUUID()}.${ext}`;
-  const uploadsDir = path.join(process.cwd(), "public", "uploads");
-  await mkdir(uploadsDir, { recursive: true });
-  await writeFile(path.join(uploadsDir, filename), buffer);
 
-  return { url: `/uploads/${filename}` };
+  const blob = await put(filename, buffer, {
+    access: "public",
+    contentType: file.type,
+    addRandomSuffix: false,
+  });
+
+  return { url: blob.url };
 }

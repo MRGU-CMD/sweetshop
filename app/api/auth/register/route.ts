@@ -6,7 +6,7 @@ import { rateLimit, getRateLimitKey } from "@/lib/rate-limit";
 export async function POST(request: NextRequest) {
   try {
     const ip = getRateLimitKey(request);
-    if (!rateLimit(`register:${ip}`, 5, 60_000)) {
+    if (!(await rateLimit(`register:${ip}`, 5, 60_000))) {
       return NextResponse.json({ error: "请求过于频繁，请稍后再试" }, { status: 429 });
     }
 

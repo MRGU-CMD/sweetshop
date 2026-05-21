@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
 }
 
 model User {
@@ -58,6 +58,7 @@ model VerificationToken {
   identifier String
   token      String   @unique
   expires    DateTime
+  @@id([identifier, token])
   @@unique([identifier, token])
 }
 
