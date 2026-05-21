@@ -44,6 +44,9 @@ export async function POST(req: Request) {
   if (err) return err;
 
   const body = await req.json();
+  if (!body.price || body.price <= 0) {
+    return NextResponse.json({ error: "价格必须大于0" }, { status: 400 });
+  }
   const product = await prisma.product.create({
     data: {
       name: body.name,

@@ -125,6 +125,10 @@ export default function AdminProductsClient({ categories }: { categories: Catego
 
   const handleSave = async () => {
     if (!form.name || !form.categoryId || !form.price) return;
+    if (form.price <= 0) {
+      alert("价格必须大于0");
+      return;
+    }
     setSaving(true);
 
     const { imageInput, ...data } = form;
