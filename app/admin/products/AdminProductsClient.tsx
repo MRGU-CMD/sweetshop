@@ -53,6 +53,7 @@ export default function AdminProductsClient({ categories }: { categories: Catego
   const [batchMode, setBatchMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [selectAll, setSelectAll] = useState(false);
+  const [excludedIds, setExcludedIds] = useState<Set<string>>(new Set());
   const [batchDeleting, setBatchDeleting] = useState(false);
 
   const [showForm, setShowForm] = useState(false);
@@ -85,28 +86,39 @@ export default function AdminProductsClient({ categories }: { categories: Catego
     setBatchMode(false);
     setSelectedIds(new Set());
     setSelectAll(false);
+    setExcludedIds(new Set());
   };
 
   const toggleSelect = (id: string) => {
-    setSelectAll(false);
-    setSelectedIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id); else next.add(id);
-      return next;
-    });
-  };
-
-  const handleSelectAll = () => {
-    setSelectAll(!selectAll);
-    if (!selectAll) {
-      // Select all currently visible + mark all-across-pages
-      setSelectedIds(new Set(products.map((p) => p.id)));
+    if (selectAll) {
+      // In select-all mode: toggle exclusion
+      setExcludedIds((prev) => {
+        const next = new Set(prev);
+        if (next.has(id)) next.delete(id); else next.add(id);
+        return next;
+      });
     } else {
-      setSelectedIds(new Set());
+      setSelectedIds((prev) => {
+        const next = new Set(prev);
+        if (next.has(id)) next.delete(id); else next.add(id);
+        return next;
+      });
     }
   };
 
-  const selectedCount = selectAll ? total : selectedIds.size;
+  const handleSelectAll = () => {
+    if (selectAll) {
+      setSelectAll(false);
+      setSelectedIds(new Set());
+      setExcludedIds(new Set());
+    } else {
+      setSelectAll(true);
+      setSelectedIds(new Set(products.map((p) => p.id)));
+      setExcludedIds(new Set());
+    }
+  };
+
+  const selectedCount = selectAll ? Math.max(0, total - excludedIds.size) : selectedIds.size;
 
   const handleBatchDelete = async () => {
     if (selectedCount === 0) return;
@@ -118,6 +130,7 @@ export default function AdminProductsClient({ categories }: { categories: Catego
       // Send filter criteria so the API deletes all matching products
       if (search) body.search = search;
       if (categoryFilter) body.categoryId = categoryFilter;
+      if (excludedIds.size > 0) body.excludedIds = [...excludedIds];
     } else {
       body.ids = [...selectedIds];
     }
@@ -342,7 +355,11 @@ export default function AdminProductsClient({ categories }: { categories: Catego
           {batchMode ? (
             <>
               <span className="text-xs text-gray-400">
-                {selectAll ? `已选全部 ${total} 件` : `已选 ${selectedIds.size} 件`}
+                {selectAll
+                  ? excludedIds.size > 0
+                    ? `已选 ${total - excludedIds.size} 件（已排除 ${excludedIds.size} 件）`
+                    : `已选全部 ${total} 件`
+                  : `已选 ${selectedIds.size} 件`}
               </span>
               <button
                 onClick={handleBatchDelete}
@@ -410,14 +427,13 @@ export default function AdminProductsClient({ categories }: { categories: Catego
               <tr><td colSpan={batchMode ? 8 : 7} className="py-10 text-center text-gray-400">暂无商品</td></tr>
             ) : (
               products.map((p) => (
-                <tr key={p.id} className={`border-b border-gray-50 last:border-0 hover:bg-gray-50/50 ${batchMode && (selectAll || selectedIds.has(p.id)) ? "bg-sakura-50/50" : ""}`}>
+                <tr key={p.id} className={`border-b border-gray-50 last:border-0 hover:bg-gray-50/50 ${batchMode && (selectAll ? !excludedIds.has(p.id) : selectedIds.has(p.id)) ? "bg-sakura-50/50" : ""}`}>
                   {batchMode && (
                     <td className="py-3 px-4">
                       <input
                         type="checkbox"
-                        checked={selectAll || selectedIds.has(p.id)}
+                        checked={selectAll ? !excludedIds.has(p.id) : selectedIds.has(p.id)}
                         onChange={() => toggleSelect(p.id)}
-                        disabled={selectAll}
                         className="w-4 h-4 accent-sakura-500"
                       />
                     </td>

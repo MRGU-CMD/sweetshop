@@ -21,6 +21,11 @@ export async function POST(req: Request) {
     if (body.categoryId) {
       where.categoryId = String(body.categoryId);
     }
+    // Exclude individually unchecked items
+    const excludedIds: string[] | undefined = body.excludedIds;
+    if (Array.isArray(excludedIds) && excludedIds.length > 0) {
+      where.id = { notIn: excludedIds };
+    }
   } else {
     // Delete by specific IDs
     const ids: string[] = body.ids;
