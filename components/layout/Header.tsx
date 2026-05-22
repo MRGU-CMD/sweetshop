@@ -15,19 +15,19 @@ export default async function Header() {
 
   return (
     <header className="bg-white border-b border-sakura-50 sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 h-16 flex items-center gap-6">
+      <div className="max-w-7xl mx-auto px-4 h-16 flex items-center gap-4">
         {/* Logo */}
-        <Link href="/" className="text-xl font-bold text-sakura-500 whitespace-nowrap">
+        <Link href="/" className="text-xl font-bold text-sakura-500 whitespace-nowrap flex-shrink-0">
           🌸 SweetShop
         </Link>
 
         {/* Search */}
-        <div className="flex-1 max-w-2xl">
+        <div className="flex-1">
           <SearchBox />
         </div>
 
         {/* Right icons */}
-        <div className="flex items-center gap-3 text-sm">
+        <div className="flex items-center gap-2 text-sm flex-shrink-0">
           <CartLink />
 
           {session ? (
