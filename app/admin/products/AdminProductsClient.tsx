@@ -49,7 +49,10 @@ export default function AdminProductsClient({ categories }: { categories: Catego
   const [categoryFilter, setCategoryFilter] = useState("");
   const [loading, setLoading] = useState(true);
 
+  // Batch selection state
+  const [batchMode, setBatchMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [selectAll, setSelectAll] = useState(false);
   const [batchDeleting, setBatchDeleting] = useState(false);
 
   const [showForm, setShowForm] = useState(false);
@@ -73,7 +76,19 @@ export default function AdminProductsClient({ categories }: { categories: Catego
 
   useEffect(() => { fetchProducts(); }, [fetchProducts]);
 
+  // Reset selection when filters/search/page change (but keep individual IDs valid)
+  useEffect(() => {
+    setSelectAll(false);
+  }, [search, categoryFilter]);
+
+  const exitBatchMode = () => {
+    setBatchMode(false);
+    setSelectedIds(new Set());
+    setSelectAll(false);
+  };
+
   const toggleSelect = (id: string) => {
+    setSelectAll(false);
     setSelectedIds((prev) => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id); else next.add(id);
@@ -81,26 +96,41 @@ export default function AdminProductsClient({ categories }: { categories: Catego
     });
   };
 
-  const toggleSelectAll = () => {
-    if (selectedIds.size === products.length) {
-      setSelectedIds(new Set());
-    } else {
+  const handleSelectAll = () => {
+    setSelectAll(!selectAll);
+    if (!selectAll) {
+      // Select all currently visible + mark all-across-pages
       setSelectedIds(new Set(products.map((p) => p.id)));
+    } else {
+      setSelectedIds(new Set());
     }
   };
 
+  const selectedCount = selectAll ? total : selectedIds.size;
+
   const handleBatchDelete = async () => {
-    if (selectedIds.size === 0) return;
-    if (!confirm(`确定删除选中的 ${selectedIds.size} 个商品？此操作不可撤销。`)) return;
+    if (selectedCount === 0) return;
+    if (!confirm(`确定删除 ${selectedCount} 个商品？此操作不可撤销。`)) return;
     setBatchDeleting(true);
+
+    const body: Record<string, unknown> = { selectAll };
+    if (selectAll) {
+      // Send filter criteria so the API deletes all matching products
+      if (search) body.search = search;
+      if (categoryFilter) body.categoryId = categoryFilter;
+    } else {
+      body.ids = [...selectedIds];
+    }
+
     const res = await fetch("/api/admin/products/batch", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ids: [...selectedIds] }),
+      body: JSON.stringify(body),
     });
     if (res.ok) {
-      toast(`已删除 ${selectedIds.size} 个商品`, "success");
-      setSelectedIds(new Set());
+      const data = await res.json();
+      toast(`已删除 ${data.deleted} 个商品`, "success");
+      exitBatchMode();
       router.refresh();
       fetchProducts();
     } else {
@@ -287,6 +317,7 @@ export default function AdminProductsClient({ categories }: { categories: Catego
 
   return (
     <div>
+      {/* Toolbar */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           <input
@@ -308,31 +339,61 @@ export default function AdminProductsClient({ categories }: { categories: Catego
           <button onClick={() => { setPage(1); fetchProducts(); }} className="btn-sakura-outline text-xs">搜索</button>
         </div>
         <div className="flex items-center gap-2">
-          {selectedIds.size > 0 && (
-            <button
-              onClick={handleBatchDelete}
-              disabled={batchDeleting}
-              className="btn-sakura bg-red-500 text-white hover:bg-red-600 text-xs"
-            >
-              {batchDeleting ? "删除中..." : `删除选中 (${selectedIds.size})`}
-            </button>
+          {batchMode ? (
+            <>
+              <span className="text-xs text-gray-400">
+                {selectAll ? `已选全部 ${total} 件` : `已选 ${selectedIds.size} 件`}
+              </span>
+              <button
+                onClick={handleBatchDelete}
+                disabled={selectedCount === 0 || batchDeleting}
+                className="bg-red-500 text-white text-xs px-3 py-1.5 rounded-lg hover:bg-red-600 disabled:opacity-50 transition-colors"
+              >
+                {batchDeleting ? "删除中..." : "删除选中"}
+              </button>
+              <button onClick={exitBatchMode} className="btn-sakura-outline text-xs">取消</button>
+            </>
+          ) : (
+            <>
+              <button onClick={() => setBatchMode(true)} className="btn-sakura-outline text-xs">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="inline mr-1">
+                  <path d="M9 11l3 3L22 4" />
+                  <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" />
+                </svg>
+                批量操作
+              </button>
+              <button onClick={openNew} className="btn-sakura text-xs">+ 新增商品</button>
+            </>
           )}
-          <button onClick={openNew} className="btn-sakura text-xs">+ 新增商品</button>
         </div>
       </div>
 
+      {/* Select all bar shown in batch mode */}
+      {batchMode && (
+        <div className="bg-sakura-50 rounded-xl px-4 py-2.5 mb-3 flex items-center gap-4 text-sm">
+          <label className="flex items-center gap-2 cursor-pointer text-gray-600 hover:text-sakura-500 transition-colors">
+            <input
+              type="checkbox"
+              checked={selectAll}
+              onChange={handleSelectAll}
+              className="w-4 h-4 accent-sakura-500"
+            />
+            全选所有 {total} 件商品
+          </label>
+          {!selectAll && (
+            <span className="text-xs text-gray-400">
+              （勾选此项会选中符合当前筛选条件的所有商品，不受翻页影响）
+            </span>
+          )}
+        </div>
+      )}
+
+      {/* Table */}
       <div className="bg-white rounded-2xl border border-gray-50 overflow-hidden">
         <table className="w-full text-sm">
           <thead>
             <tr className="text-left text-gray-400 border-b border-gray-50">
-              <th className="py-3 px-4 font-medium w-10">
-                <input
-                  type="checkbox"
-                  checked={products.length > 0 && selectedIds.size === products.length}
-                  onChange={toggleSelectAll}
-                  className="w-4 h-4 accent-sakura-500"
-                />
-              </th>
+              {batchMode && <th className="py-3 px-4 font-medium w-10"></th>}
               <th className="py-3 px-4 font-medium">商品</th>
               <th className="py-3 px-4 font-medium">价格</th>
               <th className="py-3 px-4 font-medium">库存</th>
@@ -344,20 +405,23 @@ export default function AdminProductsClient({ categories }: { categories: Catego
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan={8} className="py-10 text-center text-gray-400">加载中...</td></tr>
+              <tr><td colSpan={batchMode ? 8 : 7} className="py-10 text-center text-gray-400">加载中...</td></tr>
             ) : products.length === 0 ? (
-              <tr><td colSpan={8} className="py-10 text-center text-gray-400">暂无商品</td></tr>
+              <tr><td colSpan={batchMode ? 8 : 7} className="py-10 text-center text-gray-400">暂无商品</td></tr>
             ) : (
               products.map((p) => (
-                <tr key={p.id} className="border-b border-gray-50 last:border-0 hover:bg-gray-50/50">
-                  <td className="py-3 px-4">
-                    <input
-                      type="checkbox"
-                      checked={selectedIds.has(p.id)}
-                      onChange={() => toggleSelect(p.id)}
-                      className="w-4 h-4 accent-sakura-500"
-                    />
-                  </td>
+                <tr key={p.id} className={`border-b border-gray-50 last:border-0 hover:bg-gray-50/50 ${batchMode && (selectAll || selectedIds.has(p.id)) ? "bg-sakura-50/50" : ""}`}>
+                  {batchMode && (
+                    <td className="py-3 px-4">
+                      <input
+                        type="checkbox"
+                        checked={selectAll || selectedIds.has(p.id)}
+                        onChange={() => toggleSelect(p.id)}
+                        disabled={selectAll}
+                        className="w-4 h-4 accent-sakura-500"
+                      />
+                    </td>
+                  )}
                   <td className="py-3 px-4 text-gray-700">{p.name}</td>
                   <td className="py-3 px-4 text-sakura-500 font-medium">¥{p.price.toFixed(2)}</td>
                   <td className="py-3 px-4 text-gray-600">{p.stock}</td>
