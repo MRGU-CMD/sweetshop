@@ -20,13 +20,12 @@ const emptyForm = { name: "", slug: "", icon: "", sort: 0, parentId: "" };
 export default function AdminCategoriesClient({ categories }: { categories: Category[] }) {
   const router = useRouter();
   const { toast } = useToast();
-  const [items, setItems] = useState(categories);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
 
-  const parentOptions = items.filter((c) => c.id !== editingId);
+  const parentOptions = categories.filter((c) => c.id !== editingId);
 
   const openNew = () => {
     setEditingId(null);
@@ -142,10 +141,10 @@ export default function AdminCategoriesClient({ categories }: { categories: Cate
             </tr>
           </thead>
           <tbody>
-            {items.length === 0 ? (
+            {categories.length === 0 ? (
               <tr><td colSpan={7} className="py-10 text-center text-gray-400">暂无分类</td></tr>
             ) : (
-              items.map((c) => (
+              categories.map((c) => (
                 <tr key={c.id} className="border-b border-gray-50 last:border-0 hover:bg-gray-50/50">
                   <td className="py-3 px-4 text-lg">{c.icon || "—"}</td>
                   <td className="py-3 px-4 text-gray-700 font-medium">{c.name}</td>
