@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { OrdersIcon } from "@/components/admin/AdminIcons";
 
 interface Order {
   id: string;
@@ -69,7 +70,7 @@ export default function AdminOrdersClient() {
 
   return (
     <div>
-      <h1 className="text-xl font-bold text-gray-800 mb-6">📋 订单管理</h1>
+      <h1 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2"><OrdersIcon /> 订单管理</h1>
 
       <div className="flex items-center gap-3 mb-4">
         <select

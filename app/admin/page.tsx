@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import Image from "next/image";
 import { ORDER_STATUS } from "@/lib/constants";
+import { DashboardIcon } from "@/components/admin/AdminIcons";
 
 export default async function AdminDashboard() {
   const [productCount, orderCount, userCount, revenueResult] = await Promise.all([
@@ -28,7 +29,7 @@ export default async function AdminDashboard() {
 
   return (
     <div>
-      <h1 className="text-xl font-bold text-gray-800 mb-6">📊 仪表盘</h1>
+      <h1 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2"><DashboardIcon /> 仪表盘</h1>
 
       <div className="grid grid-cols-4 gap-4 mb-8">
         {stats.map((s) => (

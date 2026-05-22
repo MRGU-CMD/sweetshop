@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useToast } from "@/components/ui/Toast";
+import { UsersIcon } from "@/components/admin/AdminIcons";
 
 interface User {
   id: string;
@@ -84,7 +85,7 @@ export default function AdminUsersClient({ currentUserRole }: { currentUserRole:
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-xl font-bold text-gray-800">👥 用户管理</h1>
+        <h1 className="text-xl font-bold text-gray-800 flex items-center gap-2"><UsersIcon /> 用户管理</h1>
         {isOwner && (
           <button
             onClick={() => setShowTransferModal(true)}

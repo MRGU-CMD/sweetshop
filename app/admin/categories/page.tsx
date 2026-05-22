@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 import { auth, isAdminRole } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
+import { CategoriesIcon } from "@/components/admin/AdminIcons";
 import AdminCategoriesClient from "./AdminCategoriesClient";
 
 export default async function AdminCategoriesPage() {
@@ -15,7 +16,7 @@ export default async function AdminCategoriesPage() {
 
   return (
     <div>
-      <h1 className="text-xl font-bold text-gray-800 mb-6">🏷️ 分类管理</h1>
+      <h1 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2"><CategoriesIcon /> 分类管理</h1>
       <AdminCategoriesClient categories={categories} />
     </div>
   );
