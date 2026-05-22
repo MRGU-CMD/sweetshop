@@ -7,6 +7,7 @@ import {
   useEffect,
   useRef,
   useState,
+  Suspense,
   type ReactNode,
 } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
@@ -26,20 +27,32 @@ export function useTransition() {
   return useContext(TransitionContext);
 }
 
+function RouteChangeListener({ onRouteChange }: { onRouteChange: () => void }) {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  useEffect(() => {
+    onRouteChange();
+  }, [pathname, searchParams, onRouteChange]);
+  return null;
+}
+
 export default function TransitionProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("加载中...");
   const [svgKey, setSvgKey] = useState(0);
   const pathname = usePathname();
-  const searchParams = useSearchParams();
   const counterRef = useRef(0);
   const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
-  // Auto-dismiss when route changes (pathname or query params)
-  useEffect(() => {
+  const dismissLoading = useCallback(() => {
     if (timerRef.current) clearTimeout(timerRef.current);
     setLoading(false);
-  }, [pathname, searchParams]);
+  }, []);
+
+  // Auto-dismiss when pathname changes (incl. query params via Suspense child)
+  useEffect(() => {
+    dismissLoading();
+  }, [pathname, dismissLoading]);
 
   // Auto-detect link clicks — capture phase to beat next/link's own handler
   useEffect(() => {
@@ -83,6 +96,9 @@ export default function TransitionProvider({ children }: { children: ReactNode }
   return (
     <TransitionContext.Provider value={{ startLoading, loading }}>
       {children}
+      <Suspense fallback={null}>
+        <RouteChangeListener onRouteChange={dismissLoading} />
+      </Suspense>
       {loading && <LoadingOverlay message={message} svgKey={svgKey} />}
     </TransitionContext.Provider>
   );
