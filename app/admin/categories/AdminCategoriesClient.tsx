@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { useToast } from "@/components/ui/Toast";
 
 interface Category {
@@ -16,16 +17,42 @@ interface Category {
 }
 
 const emptyForm = { name: "", slug: "", icon: "", sort: 0, parentId: "" };
+const MAX_UPLOAD_SIZE = 3 * 1024 * 1024;
 
 export default function AdminCategoriesClient({ categories }: { categories: Category[] }) {
   const router = useRouter();
   const { toast } = useToast();
+  const fileRef = useRef<HTMLInputElement>(null);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   const parentOptions = categories.filter((c) => c.id !== editingId);
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > MAX_UPLOAD_SIZE) {
+      toast(`图片过大（${(file.size / 1024 / 1024).toFixed(1)}MB），请压缩到 3MB 以内后重试`, "error");
+      e.target.value = "";
+      return;
+    }
+    setUploading(true);
+    const data = new FormData();
+    data.append("file", file);
+    const res = await fetch("/api/upload", { method: "POST", body: data });
+    if (res.ok) {
+      const json = await res.json();
+      setForm({ ...form, icon: json.url });
+    } else {
+      const json = await res.json();
+      toast(json.error || "上传失败", "error");
+    }
+    setUploading(false);
+    e.target.value = "";
+  };
 
   const openNew = () => {
     setEditingId(null);
@@ -96,8 +123,28 @@ export default function AdminCategoriesClient({ categories }: { categories: Cate
             <input type="text" value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} className="input-sakura" />
           </div>
           <div>
-            <label className="text-xs text-gray-400 mb-1 block">图标 (emoji)</label>
-            <input type="text" value={form.icon} onChange={(e) => setForm({ ...form, icon: e.target.value })} className="input-sakura" placeholder="如: 🎀" />
+            <label className="text-xs text-gray-400 mb-1 block">分类图标</label>
+            <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleUpload} />
+            {form.icon ? (
+              <div className="relative w-16 h-16 rounded-lg overflow-hidden border border-gray-200">
+                <Image src={form.icon} alt="" fill className="object-cover" sizes="64px" />
+                <button
+                  onClick={() => setForm({ ...form, icon: "" })}
+                  className="absolute top-0 right-0 w-5 h-5 bg-red-500 text-white text-xs flex items-center justify-center rounded-bl-lg"
+                >
+                  ×
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => fileRef.current?.click()}
+                disabled={uploading}
+                className="w-16 h-16 rounded-lg border-2 border-dashed border-gray-200 flex items-center justify-center text-gray-300 hover:border-sakura-400 hover:text-sakura-400 transition-colors text-2xl"
+              >
+                {uploading ? "..." : "+"}
+              </button>
+            )}
           </div>
           <div>
             <label className="text-xs text-gray-400 mb-1 block">排序</label>
@@ -146,7 +193,13 @@ export default function AdminCategoriesClient({ categories }: { categories: Cate
             ) : (
               categories.map((c) => (
                 <tr key={c.id} className="border-b border-gray-50 last:border-0 hover:bg-gray-50/50">
-                  <td className="py-3 px-4 text-lg">{c.icon || "—"}</td>
+                  <td className="py-3 px-4">
+                    {c.icon ? (
+                      <div className="relative w-8 h-8 rounded-lg overflow-hidden">
+                        <Image src={c.icon} alt="" fill className="object-cover" sizes="32px" />
+                      </div>
+                    ) : "—"}
+                  </td>
                   <td className="py-3 px-4 text-gray-700 font-medium">{c.name}</td>
                   <td className="py-3 px-4 text-gray-400 font-mono text-xs">{c.slug}</td>
                   <td className="py-3 px-4 text-gray-600">{c.sort}</td>
