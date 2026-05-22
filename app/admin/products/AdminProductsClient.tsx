@@ -391,13 +391,13 @@ export default function AdminProductsClient({ categories }: { categories: Catego
           <label className="flex items-center gap-2 cursor-pointer text-gray-600 hover:text-sakura-500 transition-colors">
             <input
               type="checkbox"
-              checked={selectAll}
+              checked={selectAll && excludedIds.size === 0}
               onChange={handleSelectAll}
               className="w-4 h-4 accent-sakura-500"
             />
             全选所有 {total} 件商品
           </label>
-          {!selectAll && (
+          {(!selectAll || excludedIds.size > 0) && (
             <span className="text-xs text-gray-400">
               （勾选此项会选中符合当前筛选条件的所有商品，不受翻页影响）
             </span>
