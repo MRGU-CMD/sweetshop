@@ -31,40 +31,51 @@ export default function AdminCategoriesClient({ categories }: { categories: Cate
   const [batchMode, setBatchMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [selectAll, setSelectAll] = useState(false);
+  const [excludedIds, setExcludedIds] = useState<Set<string>>(new Set());
   const [batchDeleting, setBatchDeleting] = useState(false);
 
   const exitBatchMode = () => {
     setBatchMode(false);
     setSelectedIds(new Set());
     setSelectAll(false);
+    setExcludedIds(new Set());
   };
 
   const toggleSelect = (id: string) => {
-    setSelectAll(false);
-    setSelectedIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id); else next.add(id);
-      return next;
-    });
+    if (selectAll) {
+      setExcludedIds((prev) => {
+        const next = new Set(prev);
+        if (next.has(id)) next.delete(id); else next.add(id);
+        return next;
+      });
+    } else {
+      setSelectedIds((prev) => {
+        const next = new Set(prev);
+        if (next.has(id)) next.delete(id); else next.add(id);
+        return next;
+      });
+    }
   };
 
   const handleSelectAll = () => {
     if (selectAll) {
       setSelectAll(false);
       setSelectedIds(new Set());
+      setExcludedIds(new Set());
     } else {
       setSelectAll(true);
-      setSelectedIds(new Set(categories.map((c) => c.id)));
+      setSelectedIds(new Set());
+      setExcludedIds(new Set());
     }
   };
 
   const deletableCategories = categories.filter((c) => c._count.products === 0);
-  const selectedCount = selectAll ? deletableCategories.length : selectedIds.size;
+  const selectedCount = selectAll ? Math.max(0, deletableCategories.length - excludedIds.size) : selectedIds.size;
 
   const handleBatchDelete = async () => {
     let ids: string[];
     if (selectAll) {
-      ids = deletableCategories.map((c) => c.id);
+      ids = deletableCategories.filter((c) => !excludedIds.has(c.id)).map((c) => c.id);
     } else {
       ids = [...selectedIds];
     }
@@ -258,7 +269,7 @@ export default function AdminCategoriesClient({ categories }: { categories: Cate
                 <th className="py-3 px-4 font-medium w-10">
                   <input
                     type="checkbox"
-                    checked={(selectAll && deletableCategories.length > 0) || (!selectAll && selectedIds.size > 0 && selectedIds.size === deletableCategories.length)}
+                    checked={(selectAll && excludedIds.size === 0) || (!selectAll && selectedIds.size > 0 && selectedIds.size === deletableCategories.length)}
                     onChange={handleSelectAll}
                     className="w-4 h-4 accent-sakura-500"
                   />
@@ -277,13 +288,13 @@ export default function AdminCategoriesClient({ categories }: { categories: Cate
               <tr><td colSpan={batchMode ? 7 : 6} className="py-10 text-center text-gray-400">暂无分类</td></tr>
             ) : (
               categories.map((c) => (
-                <tr key={c.id} className={`border-b border-gray-50 last:border-0 hover:bg-gray-50/50 ${batchMode && (selectAll || selectedIds.has(c.id)) ? "bg-sakura-50/50" : ""}`}>
+                <tr key={c.id} className={`border-b border-gray-50 last:border-0 hover:bg-gray-50/50 ${batchMode && (selectAll ? !excludedIds.has(c.id) : selectedIds.has(c.id)) ? "bg-sakura-50/50" : ""}`}>
                   {batchMode && (
                     <td className="py-3 px-4">
                       {c._count.products === 0 && (
                         <input
                           type="checkbox"
-                          checked={selectAll || selectedIds.has(c.id)}
+                          checked={selectAll ? !excludedIds.has(c.id) : selectedIds.has(c.id)}
                           onChange={() => toggleSelect(c.id)}
                           className="w-4 h-4 accent-sakura-500"
                         />
