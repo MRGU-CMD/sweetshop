@@ -215,6 +215,10 @@ export default function AdminProductsClient({ categories }: { categories: Catego
       toast("价格必须大于0", "error");
       return;
     }
+    if (form.originalPrice < 0) {
+      toast("原价不能为负数", "error");
+      return;
+    }
     if (form.originalPrice > 0 && form.originalPrice <= form.price) {
       toast("原价必须大于售价才能作为划线价展示", "error");
       return;
@@ -270,7 +274,7 @@ export default function AdminProductsClient({ categories }: { categories: Catego
           </div>
           <div>
             <label className="text-xs text-gray-400 mb-1 block">原价</label>
-            <input type="number" step="0.01" value={form.originalPrice || ""} onChange={(e) => { const v = e.target.value; setForm({ ...form, originalPrice: v === "" ? 0 : parseFloat(v) }); }} className="input-sakura" />
+            <input type="number" step="0.01" min="0" value={form.originalPrice || ""} onChange={(e) => { const v = e.target.value; setForm({ ...form, originalPrice: v === "" ? 0 : parseFloat(v) }); }} className="input-sakura" />
           </div>
           <div>
             <label className="text-xs text-gray-400 mb-1 block">库存</label>
