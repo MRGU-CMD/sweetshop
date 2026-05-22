@@ -39,7 +39,6 @@ export async function POST(req: Request) {
       slug: body.slug,
       icon: body.icon || null,
       sort: body.sort ?? 0,
-      parentId: body.parentId || null,
     },
   });
 

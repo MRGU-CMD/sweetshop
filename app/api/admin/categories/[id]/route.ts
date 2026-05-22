@@ -28,7 +28,6 @@ export async function PUT(
       slug: body.slug,
       icon: body.icon,
       sort: body.sort ?? undefined,
-      parentId: body.parentId ?? undefined,
     },
   });
 

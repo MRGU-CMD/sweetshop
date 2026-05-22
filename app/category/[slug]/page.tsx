@@ -31,7 +31,6 @@ export default async function CategoryPage({
 
   const category = await prisma.category.findUnique({
     where: { slug },
-    include: { children: true },
   });
 
   if (!category) {
@@ -50,12 +49,9 @@ export default async function CategoryPage({
   const minPrice = sp.minPrice;
   const maxPrice = sp.maxPrice;
 
-  const childIds = category.children.map((c) => c.id);
-  const categoryIds = [category.id, ...childIds];
-
   const where: any = {
     status: "ON",
-    categoryId: { in: categoryIds },
+    categoryId: category.id,
   };
   if (minPrice) where.price = { ...where.price, gte: parseFloat(minPrice) };
   if (maxPrice) where.price = { ...where.price, lte: parseFloat(maxPrice) };

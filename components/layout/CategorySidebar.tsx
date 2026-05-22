@@ -4,11 +4,7 @@ import { prisma } from "@/lib/prisma";
 
 export default async function CategorySidebar() {
   const categories = await prisma.category.findMany({
-    where: { parentId: null },
     orderBy: { sort: "asc" },
-    include: {
-      children: { orderBy: { sort: "asc" } },
-    },
   });
 
   return (

@@ -11,12 +11,10 @@ interface Category {
   slug: string;
   icon: string | null;
   sort: number;
-  parentId: string | null;
-  parent: { id: string; name: string } | null;
   _count: { products: number };
 }
 
-const emptyForm = { name: "", slug: "", icon: "", sort: 0, parentId: "" };
+const emptyForm = { name: "", slug: "", icon: "", sort: 0 };
 const MAX_UPLOAD_SIZE = 3 * 1024 * 1024;
 
 export default function AdminCategoriesClient({ categories }: { categories: Category[] }) {
@@ -28,8 +26,6 @@ export default function AdminCategoriesClient({ categories }: { categories: Cate
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
-
-  const parentOptions = categories.filter((c) => c.id !== editingId);
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -62,7 +58,7 @@ export default function AdminCategoriesClient({ categories }: { categories: Cate
 
   const openEdit = (c: Category) => {
     setEditingId(c.id);
-    setForm({ name: c.name, slug: c.slug, icon: c.icon || "", sort: c.sort, parentId: c.parentId || "" });
+    setForm({ name: c.name, slug: c.slug, icon: c.icon || "", sort: c.sort });
     setShowForm(true);
   };
 
@@ -70,7 +66,7 @@ export default function AdminCategoriesClient({ categories }: { categories: Cate
     if (!form.name || !form.slug) return;
     setSaving(true);
 
-    const body: any = { name: form.name, slug: form.slug, icon: form.icon || null, sort: form.sort, parentId: form.parentId || null };
+    const body: any = { name: form.name, slug: form.slug, icon: form.icon || null, sort: form.sort };
 
     if (editingId) {
       await fetch(`/api/admin/categories/${editingId}`, {
@@ -150,13 +146,6 @@ export default function AdminCategoriesClient({ categories }: { categories: Cate
             <label className="text-xs text-gray-400 mb-1 block">排序</label>
             <input type="number" value={form.sort} onChange={(e) => setForm({ ...form, sort: parseInt(e.target.value) || 0 })} className="input-sakura" />
           </div>
-          <div>
-            <label className="text-xs text-gray-400 mb-1 block">父级分类</label>
-            <select value={form.parentId} onChange={(e) => setForm({ ...form, parentId: e.target.value })} className="input-sakura">
-              <option value="">无 (顶级分类)</option>
-              {parentOptions.map((c) => (<option key={c.id} value={c.id}>{c.name}</option>))}
-            </select>
-          </div>
         </div>
         <div className="flex gap-3 mt-6">
           <button onClick={handleSave} disabled={saving} className="btn-sakura text-sm">
@@ -182,14 +171,13 @@ export default function AdminCategoriesClient({ categories }: { categories: Cate
               <th className="py-3 px-4 font-medium">名称</th>
               <th className="py-3 px-4 font-medium">标识</th>
               <th className="py-3 px-4 font-medium">排序</th>
-              <th className="py-3 px-4 font-medium">父级</th>
               <th className="py-3 px-4 font-medium">商品数</th>
               <th className="py-3 px-4 font-medium">操作</th>
             </tr>
           </thead>
           <tbody>
             {categories.length === 0 ? (
-              <tr><td colSpan={7} className="py-10 text-center text-gray-400">暂无分类</td></tr>
+              <tr><td colSpan={6} className="py-10 text-center text-gray-400">暂无分类</td></tr>
             ) : (
               categories.map((c) => (
                 <tr key={c.id} className="border-b border-gray-50 last:border-0 hover:bg-gray-50/50">
@@ -203,7 +191,6 @@ export default function AdminCategoriesClient({ categories }: { categories: Cate
                   <td className="py-3 px-4 text-gray-700 font-medium">{c.name}</td>
                   <td className="py-3 px-4 text-gray-400 font-mono text-xs">{c.slug}</td>
                   <td className="py-3 px-4 text-gray-600">{c.sort}</td>
-                  <td className="py-3 px-4 text-gray-400">{c.parent?.name || "—"}</td>
                   <td className="py-3 px-4 text-gray-600">{c._count.products}</td>
                   <td className="py-3 px-4">
                     <div className="flex gap-2">
