@@ -1,21 +1,19 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useToast } from "@/components/ui/Toast";
 
-const statusLabels: Record<string, { label: string; color: string }> = {
-  PENDING: { label: "待处理", color: "bg-orange-100 text-orange-600" },
-  APPROVED: { label: "已审批", color: "bg-blue-100 text-blue-600" },
-  REJECTED: { label: "已拒绝", color: "bg-red-100 text-red-600" },
-  COMPLETED: { label: "已完成", color: "bg-green-100 text-green-600" },
-};
+import { AFTER_SALE_STATUS_LABELS, AFTER_SALE_TYPE_LABELS } from "@/lib/constants";
 
-const typeLabels: Record<string, string> = {
-  refund: "退款",
-  return: "退货退款",
-  exchange: "换货",
+const afterSaleBadgeColors: Record<string, string> = {
+  PENDING: "bg-orange-100 text-orange-600",
+  APPROVED: "bg-blue-100 text-blue-600",
+  REJECTED: "bg-red-100 text-red-600",
+  COMPLETED: "bg-green-100 text-green-600",
 };
 
 export default function AdminAfterSaleClient() {
+  const { toast } = useToast();
   const [afterSales, setAfterSales] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("");
@@ -55,7 +53,7 @@ export default function AdminAfterSaleClient() {
       fetchAfterSales();
     } else {
       const data = await res.json();
-      alert(data.error || "操作失败");
+      toast(data.error || "操作失败", "error");
     }
     setActionLoading(null);
   };
@@ -97,17 +95,18 @@ export default function AdminAfterSaleClient() {
             </thead>
             <tbody>
               {afterSales.map((item) => {
-                const status = statusLabels[item.status] || { label: item.status, color: "bg-gray-100 text-gray-600" };
+                const statusLabel = AFTER_SALE_STATUS_LABELS[item.status] || item.status;
+                const statusColor = afterSaleBadgeColors[item.status] || "bg-gray-100 text-gray-600";
                 return (
                   <tr key={item.id} className="border-t border-gray-50">
                     <td className="px-4 py-3">{item.user?.nickname || "—"}</td>
                     <td className="px-4 py-3 text-gray-400 text-xs">{item.order?.orderNo || "—"}</td>
-                    <td className="px-4 py-3">{typeLabels[item.type] || item.type}</td>
+                    <td className="px-4 py-3">{AFTER_SALE_TYPE_LABELS[item.type] || item.type}</td>
                     <td className="px-4 py-3 text-gray-500 max-w-[200px] truncate">{item.reason || "—"}</td>
                     <td className="px-4 py-3">{item.refundAmount ? `¥${item.refundAmount}` : "—"}</td>
                     <td className="px-4 py-3">
-                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${status.color}`}>
-                        {status.label}
+                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusColor}`}>
+                        {statusLabel}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-gray-400 text-xs">

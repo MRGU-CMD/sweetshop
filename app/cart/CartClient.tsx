@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { useTransition } from "@/components/TransitionProvider";
 
 interface CartItem {
@@ -146,9 +147,9 @@ export default function CartClient() {
                     />
                   </label>
                   <div className="flex-1 flex items-center gap-3">
-                    <Link href={`/product/${item.product.id}`} className="w-16 h-16 bg-gradient-to-br from-sakura-50 to-purple-50 rounded-lg flex items-center justify-center text-2xl flex-shrink-0">
+                    <Link href={`/product/${item.product.id}`} className="relative w-16 h-16 bg-gradient-to-br from-sakura-50 to-purple-50 rounded-lg flex items-center justify-center text-2xl flex-shrink-0">
                       {imgList[0] ? (
-                        <img src={imgList[0]} alt="" className="w-full h-full object-cover rounded-lg" />
+                        <Image src={imgList[0]} alt="" fill className="object-cover rounded-lg" sizes="64px" />
                       ) : (
                         <span className="opacity-40">🧸</span>
                       )}

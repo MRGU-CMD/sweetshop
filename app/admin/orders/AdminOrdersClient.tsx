@@ -16,14 +16,7 @@ interface Order {
   items: { id: string; productId: string; quantity: number; unitPrice: number }[];
 }
 
-const statusLabels: Record<string, { label: string; color: string }> = {
-  PENDING: { label: "待付款", color: "text-orange-500" },
-  PAID: { label: "已付款", color: "text-blue-500" },
-  SHIPPED: { label: "运输中", color: "text-purple-500" },
-  RECEIVED: { label: "已收货", color: "text-green-500" },
-  COMPLETED: { label: "已完成", color: "text-gray-400" },
-  CANCELLED: { label: "已取消", color: "text-gray-300" },
-};
+import { ORDER_STATUS } from "@/lib/constants";
 
 const statusOptions = ["PAID", "SHIPPED", "RECEIVED", "COMPLETED", "CANCELLED"];
 
@@ -85,7 +78,7 @@ export default function AdminOrdersClient() {
           className="input-sakura text-sm w-32"
         >
           <option value="">全部状态</option>
-          {Object.entries(statusLabels).map(([k, v]) => (
+          {Object.entries(ORDER_STATUS).map(([k, v]) => (
             <option key={k} value={k}>{v.label}</option>
           ))}
         </select>
@@ -111,7 +104,7 @@ export default function AdminOrdersClient() {
               <tr><td colSpan={7} className="py-10 text-center text-gray-400">暂无订单</td></tr>
             ) : (
               orders.map((o) => {
-                const st = statusLabels[o.status] || { label: o.status, color: "text-gray-400" };
+                const st = ORDER_STATUS[o.status] || { label: o.status, color: "text-gray-400" };
                 return (
                   <tr key={o.id} className="border-b border-gray-50 last:border-0 hover:bg-gray-50/50">
                     <td className="py-3 px-4 text-gray-600 font-mono text-xs">{o.orderNo}</td>
@@ -159,7 +152,7 @@ export default function AdminOrdersClient() {
                 <label className="text-xs text-gray-400 mb-1 block">订单状态</label>
                 <select value={editStatus} onChange={(e) => setEditStatus(e.target.value)} className="input-sakura">
                   {statusOptions.map((s) => (
-                    <option key={s} value={s}>{statusLabels[s]?.label || s}</option>
+                    <option key={s} value={s}>{ORDER_STATUS[s]?.label || s}</option>
                   ))}
                 </select>
               </div>

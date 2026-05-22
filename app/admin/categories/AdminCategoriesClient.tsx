@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useToast } from "@/components/ui/Toast";
 
 interface Category {
   id: string;
@@ -18,6 +19,7 @@ const emptyForm = { name: "", slug: "", icon: "", sort: 0, parentId: "" };
 
 export default function AdminCategoriesClient({ categories }: { categories: Category[] }) {
   const router = useRouter();
+  const { toast } = useToast();
   const [items, setItems] = useState(categories);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -65,7 +67,7 @@ export default function AdminCategoriesClient({ categories }: { categories: Cate
 
   const handleDelete = async (c: Category) => {
     if (c._count.products > 0) {
-      alert(`该分类下有 ${c._count.products} 个商品，无法删除`);
+      toast(`该分类下有 ${c._count.products} 个商品，无法删除`, "error");
       return;
     }
     if (!confirm(`确定删除分类"${c.name}"？`)) return;
@@ -73,7 +75,7 @@ export default function AdminCategoriesClient({ categories }: { categories: Cate
     const res = await fetch(`/api/admin/categories/${c.id}`, { method: "DELETE" });
     if (!res.ok) {
       const data = await res.json();
-      alert(data.error || "删除失败");
+      toast(data.error || "删除失败", "error");
       return;
     }
     router.refresh();

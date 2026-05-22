@@ -2,6 +2,8 @@ export const dynamic = "force-dynamic";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
+import Image from "next/image";
+import { ORDER_STATUS } from "@/lib/constants";
 
 export default async function AdminDashboard() {
   const [productCount, orderCount, userCount, revenueResult] = await Promise.all([
@@ -24,15 +26,6 @@ export default async function AdminDashboard() {
     { label: "总营收", value: `¥${(revenueResult._sum.totalAmount || 0).toFixed(2)}`, icon: "/images/icon-revenue.svg", color: "from-sakura-50 to-sakura-100" },
   ];
 
-  const statusLabels: Record<string, { label: string; color: string }> = {
-    PENDING: { label: "待付款", color: "text-orange-500" },
-    PAID: { label: "已付款", color: "text-blue-500" },
-    SHIPPED: { label: "运输中", color: "text-purple-500" },
-    RECEIVED: { label: "已收货", color: "text-green-500" },
-    COMPLETED: { label: "已完成", color: "text-gray-400" },
-    CANCELLED: { label: "已取消", color: "text-gray-300" },
-  };
-
   return (
     <div>
       <h1 className="text-xl font-bold text-gray-800 mb-6">📊 仪表盘</h1>
@@ -40,7 +33,7 @@ export default async function AdminDashboard() {
       <div className="grid grid-cols-4 gap-4 mb-8">
         {stats.map((s) => (
           <div key={s.label} className={`bg-gradient-to-br ${s.color} rounded-xl p-5`}>
-            <img src={s.icon} alt="" className="w-10 h-10" />
+            <Image src={s.icon} alt="" width={40} height={40} />
             <p className="text-2xl font-bold text-gray-800 mt-3">{s.value}</p>
             <p className="text-sm text-gray-500">{s.label}</p>
           </div>
@@ -49,7 +42,7 @@ export default async function AdminDashboard() {
 
       <div className="bg-white rounded-2xl border border-gray-50 p-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-base font-bold text-gray-700 flex items-center gap-2"><img src="/images/icon-recent-orders.svg" alt="" className="w-8 h-8" />最近订单</h2>
+          <h2 className="text-base font-bold text-gray-700 flex items-center gap-2"><Image src="/images/icon-recent-orders.svg" alt="" width={32} height={32} />最近订单</h2>
           <Link href="/admin/orders" className="text-sm text-sakura-500 hover:underline">查看全部</Link>
         </div>
         <table className="w-full text-sm">
@@ -64,7 +57,7 @@ export default async function AdminDashboard() {
           </thead>
           <tbody>
             {recentOrders.map((o) => {
-              const st = statusLabels[o.status] || { label: o.status, color: "text-gray-400" };
+              const st = ORDER_STATUS[o.status] || { label: o.status, color: "text-gray-400" };
               return (
                 <tr key={o.id} className="border-b border-gray-50 last:border-0">
                   <td className="py-3 text-gray-600">{o.orderNo}</td>

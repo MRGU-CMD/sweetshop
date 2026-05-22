@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { useToast } from "@/components/ui/Toast";
 
 interface Category {
   id: string;
@@ -38,6 +40,7 @@ const emptyForm = {
 };
 
 export default function AdminProductsClient({ categories }: { categories: Category[] }) {
+  const { toast } = useToast();
   const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
   const [total, setTotal] = useState(0);
@@ -104,7 +107,7 @@ export default function AdminProductsClient({ categories }: { categories: Catego
     const file = e.target.files?.[0];
     if (!file) return;
     if (file.size > MAX_UPLOAD_SIZE) {
-      alert(`图片过大（${(file.size / 1024 / 1024).toFixed(1)}MB），请压缩到 5MB 以内后重试`);
+      toast(`图片过大（${(file.size / 1024 / 1024).toFixed(1)}MB），请压缩到 5MB 以内后重试`, "error");
       if (fileInputRef.current) fileInputRef.current.value = "";
       return;
     }
@@ -117,7 +120,7 @@ export default function AdminProductsClient({ categories }: { categories: Catego
       setForm({ ...form, images: [...form.images, data.url] });
     } else {
       const data = await res.json();
-      alert(data.error || "上传失败");
+      toast(data.error || "上传失败", "error");
     }
     setUploading(false);
     if (fileInputRef.current) fileInputRef.current.value = "";
@@ -126,7 +129,7 @@ export default function AdminProductsClient({ categories }: { categories: Catego
   const handleSave = async () => {
     if (!form.name || !form.categoryId || !form.price) return;
     if (form.price <= 0) {
-      alert("价格必须大于0");
+      toast("价格必须大于0", "error");
       return;
     }
     setSaving(true);
@@ -218,8 +221,8 @@ export default function AdminProductsClient({ categories }: { categories: Catego
             {form.images.length > 0 && (
               <div className="flex gap-2 mt-2 flex-wrap">
                 {form.images.map((url, i) => (
-                  <div key={i} className="relative group">
-                    <img src={url} alt="" className="w-16 h-16 object-cover rounded-lg" />
+                  <div key={i} className="relative w-16 h-16 group">
+                    <Image src={url} alt="" fill className="object-cover rounded-lg" sizes="64px" />
                     <button
                       onClick={() => setForm({ ...form, images: form.images.filter((_, j) => j !== i) })}
                       className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full text-xs opacity-0 group-hover:opacity-100 transition-opacity"

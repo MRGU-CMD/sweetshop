@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useToast } from "@/components/ui/Toast";
 
 interface User {
   id: string;
@@ -20,6 +21,7 @@ export default function AdminUsersClient({ currentUserRole }: { currentUserRole:
   const [loading, setLoading] = useState(true);
   const [showTransferModal, setShowTransferModal] = useState(false);
   const [transferring, setTransferring] = useState(false);
+  const { toast } = useToast();
 
   const isOwner = currentUserRole === "OWNER";
 
@@ -46,7 +48,7 @@ export default function AdminUsersClient({ currentUserRole }: { currentUserRole:
       fetchUsers();
     } else {
       const data = await res.json();
-      alert(data.error || "操作失败");
+      toast(data.error || "操作失败", "error");
     }
   };
 
@@ -58,11 +60,11 @@ export default function AdminUsersClient({ currentUserRole }: { currentUserRole:
       body: JSON.stringify({ targetId }),
     });
     if (res.ok) {
-      alert("站主权限已转交，你现在是普通管理员了");
+      toast("站主权限已转交，你现在是普通管理员了", "info");
       window.location.reload();
     } else {
       const data = await res.json();
-      alert(data.error || "转交失败");
+      toast(data.error || "转交失败", "error");
       setTransferring(false);
     }
   };

@@ -22,7 +22,7 @@ export async function sendVerificationCode(email: string, code: string): Promise
     return true;
   } catch (err) {
     console.error("  ⚠️ Resend 发送失败:", (err as any).message || err);
-    return true;
+    return false;
   }
 }
 

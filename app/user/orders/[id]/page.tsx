@@ -4,15 +4,9 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 
-const statusLabels: Record<string, { label: string; color: string }> = {
-  PENDING: { label: "待付款", color: "text-orange-500" },
-  PAID: { label: "已付款", color: "text-blue-500" },
-  SHIPPED: { label: "运输中", color: "text-purple-500" },
-  RECEIVED: { label: "已收货", color: "text-green-500" },
-  COMPLETED: { label: "已完成", color: "text-gray-400" },
-  CANCELLED: { label: "已取消", color: "text-gray-300" },
-};
+import { ORDER_STATUS } from "@/lib/constants";
 
 function buildTimeline(order: any) {
   const items: { time: string; text: string; active: boolean }[] = [];
@@ -80,7 +74,7 @@ export default async function OrderDetailPage({
   });
 
   if (!order) notFound();
-  const status = statusLabels[order.status] || { label: order.status, color: "text-gray-400" };
+  const status = ORDER_STATUS[order.status] || { label: order.status, color: "text-gray-400" };
   const address = JSON.parse(order.address || "{}");
   const timeline = buildTimeline(order);
 
@@ -159,9 +153,9 @@ export default async function OrderDetailPage({
                 key={item.id}
                 className="flex items-center gap-3 py-3 border-b border-gray-50 last:border-0"
               >
-                <div className="w-14 h-14 bg-gradient-to-br from-sakura-50 to-purple-50 rounded-lg flex items-center justify-center text-xl flex-shrink-0">
+                <div className="relative w-14 h-14 bg-gradient-to-br from-sakura-50 to-purple-50 rounded-lg flex items-center justify-center text-xl flex-shrink-0">
                   {imgList[0] ? (
-                    <img src={imgList[0]} alt="" className="w-full h-full object-cover rounded-lg" />
+                    <Image src={imgList[0]} alt="" fill className="object-cover rounded-lg" sizes="56px" />
                   ) : (
                     <span className="opacity-40">🧸</span>
                   )}

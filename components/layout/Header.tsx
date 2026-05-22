@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { auth, isAdminRole } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 import SearchBox from "./SearchBox";
 import LogoutButton from "./LogoutButton";
 import CartLink from "./CartLink";
@@ -7,6 +8,11 @@ import CartLink from "./CartLink";
 export default async function Header() {
   const session = await auth();
   const isAdmin = isAdminRole(session?.user?.role);
+  const categories = await prisma.category.findMany({
+    where: { parentId: null },
+    orderBy: { sort: "asc" },
+    take: 8,
+  });
 
   return (
     <header className="bg-white border-b border-sakura-50 sticky top-0 z-50">
@@ -18,24 +24,15 @@ export default async function Header() {
 
         {/* Category nav */}
         <nav className="hidden lg:flex items-center gap-1 text-sm">
-          <Link href="/category/figures" className="px-3 py-2 text-gray-600 hover:text-sakura-500 rounded-lg hover:bg-sakura-50 transition-colors">
-            手办
-          </Link>
-          <Link href="/category/clothing" className="px-3 py-2 text-gray-600 hover:text-sakura-500 rounded-lg hover:bg-sakura-50 transition-colors">
-            服饰
-          </Link>
-          <Link href="/category/manga" className="px-3 py-2 text-gray-600 hover:text-sakura-500 rounded-lg hover:bg-sakura-50 transition-colors">
-            漫画
-          </Link>
-          <Link href="/category/games" className="px-3 py-2 text-gray-600 hover:text-sakura-500 rounded-lg hover:bg-sakura-50 transition-colors">
-            游戏
-          </Link>
-          <Link href="/category/cosmetics" className="px-3 py-2 text-gray-600 hover:text-sakura-500 rounded-lg hover:bg-sakura-50 transition-colors">
-            化妆品
-          </Link>
-          <Link href="/category/digital" className="px-3 py-2 text-gray-600 hover:text-sakura-500 rounded-lg hover:bg-sakura-50 transition-colors">
-            数码
-          </Link>
+          {categories.map((c) => (
+            <Link
+              key={c.id}
+              href={`/category/${c.slug}`}
+              className="px-3 py-2 text-gray-600 hover:text-sakura-500 rounded-lg hover:bg-sakura-50 transition-colors"
+            >
+              {c.name}
+            </Link>
+          ))}
         </nav>
 
         {/* Search */}

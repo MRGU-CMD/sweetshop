@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useTransition } from "@/components/TransitionProvider";
 
@@ -100,7 +101,7 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen flex relative overflow-hidden bg-[#1a1304]">
       <div className="absolute inset-0 z-0">
-        <img src="/images/anime-bg.png" alt="" className="w-full h-full object-cover" />
+        <Image src="/images/anime-bg.png" alt="" fill className="object-cover" priority />
         <div className="absolute inset-0 bg-gradient-to-r from-[#1a1304]/80 via-[#1a1304]/40 to-[#1a1304]/65" />
         <div className="absolute inset-0 bg-gradient-to-t from-[#1a1304]/55 via-transparent to-transparent" />
         <div className="absolute top-0 right-1/4 w-1/2 h-full bg-gradient-to-l from-white/[0.04] via-white/[0.02] to-transparent -skew-x-12" />

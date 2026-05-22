@@ -2,13 +2,16 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { useToast } from "@/components/ui/Toast";
 
-const typeLabels: Record<string, string> = { RETURN: "退货退款", REFUND: "仅退款", EXCHANGE: "换货" };
-const statusLabels: Record<string, { label: string; color: string }> = {
-  PENDING: { label: "待处理", color: "text-orange-500" },
-  APPROVED: { label: "已通过", color: "text-green-500" },
-  REJECTED: { label: "已拒绝", color: "text-red-500" },
-  COMPLETED: { label: "已完成", color: "text-gray-400" },
+import { AFTER_SALE_STATUS_LABELS, AFTER_SALE_TYPE_LABELS } from "@/lib/constants";
+
+const afterSaleStatusColors: Record<string, string> = {
+  PENDING: "text-orange-500",
+  APPROVED: "text-green-500",
+  REJECTED: "text-red-500",
+  COMPLETED: "text-gray-400",
 };
 
 interface AfterSaleItem {
@@ -46,6 +49,7 @@ export default function AfterSaleClient({
   orders: Order[];
 }) {
   const router = useRouter();
+  const { toast } = useToast();
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({
     orderId: "",
@@ -66,7 +70,7 @@ export default function AfterSaleClient({
     const file = e.target.files?.[0];
     if (!file) return;
     if (file.size > MAX_UPLOAD_SIZE) {
-      alert(`图片过大（${(file.size / 1024 / 1024).toFixed(1)}MB），请压缩到 3MB 以内后重试`);
+      toast(`图片过大（${(file.size / 1024 / 1024).toFixed(1)}MB），请压缩到 3MB 以内后重试`, "error");
       e.target.value = "";
       return;
     }
@@ -79,7 +83,7 @@ export default function AfterSaleClient({
       setImages((prev) => [...prev, data.url]);
     } else {
       const data = await res.json();
-      alert(data.error || "上传失败");
+      toast(data.error || "上传失败", "error");
     }
     setUploading(false);
     e.target.value = "";
@@ -186,7 +190,7 @@ export default function AfterSaleClient({
               <div className="flex flex-wrap gap-2 mb-2">
                 {images.map((url) => (
                   <div key={url} className="relative w-16 h-16 rounded-lg overflow-hidden border border-gray-200">
-                    <img src={url} alt="" className="w-full h-full object-cover" />
+                    <Image src={url} alt="" fill className="object-cover" sizes="64px" />
                     <button
                       onClick={() => removeImage(url)}
                       className="absolute top-0 right-0 w-5 h-5 bg-red-500 text-white text-xs flex items-center justify-center rounded-bl-lg"
@@ -228,13 +232,14 @@ export default function AfterSaleClient({
       {afterSales.length > 0 ? (
         <div className="space-y-3">
           {afterSales.map((as) => {
-            const st = statusLabels[as.status] || { label: as.status, color: "text-gray-400" };
+            const stLabel = AFTER_SALE_STATUS_LABELS[as.status] || as.status;
+            const stColor = afterSaleStatusColors[as.status] || "text-gray-400";
             return (
               <div key={as.id} className="bg-white rounded-xl border border-gray-50 p-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <span className="text-sm font-medium text-gray-700">{typeLabels[as.type]}</span>
-                    <span className={`text-xs font-medium ${st.color}`}>{st.label}</span>
+                    <span className="text-sm font-medium text-gray-700">{AFTER_SALE_TYPE_LABELS[as.type] || as.type}</span>
+                    <span className={`text-xs font-medium ${stColor}`}>{stLabel}</span>
                   </div>
                   <span className="text-xs text-gray-300">
                     {new Date(as.createdAt).toLocaleDateString("zh-CN")}

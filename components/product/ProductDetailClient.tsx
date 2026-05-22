@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import Image from "next/image";
 import ReviewForm from "./ReviewForm";
 
 export function ImageGallery({ images }: { images: string[] }) {
@@ -8,9 +9,9 @@ export function ImageGallery({ images }: { images: string[] }) {
 
   return (
     <>
-      <div className="aspect-square bg-gradient-to-br from-sakura-50 to-purple-50 rounded-2xl flex items-center justify-center text-8xl overflow-hidden">
+      <div className="aspect-square bg-gradient-to-br from-sakura-50 to-purple-50 rounded-2xl flex items-center justify-center text-8xl overflow-hidden relative">
         {main ? (
-          <img src={main} alt="" className="w-full h-full object-cover rounded-2xl" />
+          <Image src={main} alt="" fill className="object-cover rounded-2xl" sizes="(max-width: 768px) 100vw, 50vw" />
         ) : (
           <span className="opacity-30">🧸</span>
         )}
@@ -21,11 +22,11 @@ export function ImageGallery({ images }: { images: string[] }) {
             <button
               key={i}
               onClick={() => setMain(img)}
-              className={`w-16 h-16 rounded-lg overflow-hidden border-2 flex-shrink-0 transition-all ${
+              className={`relative w-16 h-16 rounded-lg overflow-hidden border-2 flex-shrink-0 transition-all ${
                 img === main ? "border-sakura-500 ring-1 ring-sakura-500" : "border-gray-100 hover:border-gray-300"
               }`}
             >
-              <img src={img} alt="" className="w-full h-full object-cover" />
+              <Image src={img} alt="" fill className="object-cover" sizes="64px" />
             </button>
           ))}
         </div>
@@ -131,9 +132,9 @@ export function ProductTabs({
                 {reviews.map((review: any) => (
                   <div key={review.id} className="border-b border-gray-50 pb-4 last:border-0">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-sakura-100 rounded-full flex items-center justify-center text-sm text-sakura-700 font-medium">
+                      <div className="relative w-8 h-8 bg-sakura-100 rounded-full flex items-center justify-center text-sm text-sakura-700 font-medium">
                         {review.user.avatar ? (
-                          <img src={review.user.avatar} alt="" className="w-full h-full rounded-full object-cover" />
+                          <Image src={review.user.avatar} alt="" fill className="rounded-full object-cover" unoptimized sizes="32px" />
                         ) : (
                           review.user.nickname?.[0] || "🌸"
                         )}

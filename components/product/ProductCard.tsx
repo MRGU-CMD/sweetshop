@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 interface ProductCardProps {
   id: string;
@@ -19,7 +20,7 @@ export default function ProductCard({ id, name, price, originalPrice, sales, ima
         {/* Image */}
         <div className="aspect-square bg-gradient-to-br from-sakura-50 to-purple-50 flex items-center justify-center text-4xl relative overflow-hidden">
           {firstImage ? (
-            <img src={firstImage} alt={name} className="w-full h-full object-cover" />
+            <Image src={firstImage} alt={name} fill className="object-cover" sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw" />
           ) : (
             <span className="opacity-40">🧸</span>
           )}

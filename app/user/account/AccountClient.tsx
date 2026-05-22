@@ -2,6 +2,8 @@
 
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { useToast } from "@/components/ui/Toast";
 
 interface User {
   id: string;
@@ -22,6 +24,7 @@ interface Binding {
 
 export default function AccountClient({ user, bindings }: { user: User; bindings: Binding[] }) {
   const router = useRouter();
+  const { toast } = useToast();
   const fileRef = useRef<HTMLInputElement>(null);
   const [avatar, setAvatar] = useState(user.avatar || "");
   const [uploading, setUploading] = useState(false);
@@ -48,7 +51,7 @@ export default function AccountClient({ user, bindings }: { user: User; bindings
     const file = fileRef.current?.files?.[0];
     if (!file) return;
     if (file.size > MAX_UPLOAD_SIZE) {
-      alert(`图片过大（${(file.size / 1024 / 1024).toFixed(1)}MB），请压缩到 3MB 以内后重试`);
+      toast(`图片过大（${(file.size / 1024 / 1024).toFixed(1)}MB），请压缩到 3MB 以内后重试`, "error");
       if (fileRef.current) fileRef.current.value = "";
       return;
     }
@@ -67,7 +70,7 @@ export default function AccountClient({ user, bindings }: { user: User; bindings
       });
       router.refresh();
     } else {
-      alert(data.error || "上传失败");
+      toast(data.error || "上传失败", "error");
     }
   };
 
@@ -150,9 +153,9 @@ export default function AccountClient({ user, bindings }: { user: User; bindings
         <div className="flex items-start gap-5">
           {/* Avatar */}
           <div className="flex flex-col items-center gap-2">
-            <div className="w-20 h-20 rounded-full bg-sakura-100 flex items-center justify-center text-2xl overflow-hidden text-sakura-600 font-bold">
+            <div className="w-20 h-20 rounded-full bg-sakura-100 flex items-center justify-center text-2xl overflow-hidden text-sakura-600 font-bold relative">
               {avatar ? (
-                <img src={avatar} alt="" className="w-full h-full object-cover" />
+                <Image src={avatar} alt="" fill className="object-cover" unoptimized sizes="80px" />
               ) : (
                 user.nickname?.[0] || "🌸"
               )}

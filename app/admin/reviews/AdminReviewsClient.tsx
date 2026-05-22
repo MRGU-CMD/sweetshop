@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useToast } from "@/components/ui/Toast";
 
 export default function AdminReviewsClient() {
   const [reviews, setReviews] = useState<any[]>([]);
@@ -8,6 +9,7 @@ export default function AdminReviewsClient() {
   const [ratingFilter, setRatingFilter] = useState(0);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const { toast } = useToast();
   const [deleting, setDeleting] = useState<string | null>(null);
 
   const fetchReviews = useCallback(async () => {
@@ -40,7 +42,7 @@ export default function AdminReviewsClient() {
       fetchReviews();
     } else {
       const data = await res.json();
-      alert(data.error || "删除失败");
+      toast(data.error || "删除失败", "error");
     }
     setDeleting(null);
   };

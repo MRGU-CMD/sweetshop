@@ -4,9 +4,29 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import FavoriteButton from "@/components/product/FavoriteButton";
 import AddToCartButton from "@/components/product/AddToCartButton";
 import { ImageGallery, ProductTabs } from "@/components/product/ProductDetailClient";
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params;
+  const product = await prisma.product.findUnique({
+    where: { id },
+    select: { name: true, images: true },
+  });
+  if (!product) return { title: "商品不存在 - SweetShop" };
+  const images = JSON.parse(product.images || "[]") as string[];
+  return {
+    title: `${product.name} - SweetShop 动漫商城`,
+    description: `在线购买${product.name}，高品质动漫周边好物尽在SweetShop`,
+    openGraph: {
+      title: `${product.name} - SweetShop 动漫商城`,
+      description: `发现你喜爱的动漫周边好物`,
+      ...(images[0] ? { images: [images[0]] } : {}),
+    },
+  };
+}
 
 export default async function ProductPage({
   params,

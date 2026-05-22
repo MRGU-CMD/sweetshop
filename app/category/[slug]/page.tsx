@@ -4,6 +4,20 @@ import CategorySidebar from "@/components/layout/CategorySidebar";
 import ProductCard from "@/components/product/ProductCard";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
+import type { Metadata } from "next";
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const category = await prisma.category.findUnique({
+    where: { slug },
+    select: { name: true },
+  });
+  if (!category) return { title: "分类不存在 - SweetShop" };
+  return {
+    title: `${category.name} - SweetShop 动漫商城`,
+    description: `浏览${category.name}分类下的动漫周边好物 — 手办、服饰、漫画、游戏周边，尽在SweetShop`,
+  };
+}
 
 export default async function CategoryPage({
   params,

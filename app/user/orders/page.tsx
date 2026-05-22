@@ -3,28 +3,33 @@ import OrderActions from "@/components/order/OrderActions";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
+import Image from "next/image";
 import { redirect } from "next/navigation";
 
-const statusLabels: Record<string, { label: string; color: string }> = {
-  PENDING: { label: "待付款", color: "text-orange-500" },
-  PAID: { label: "已付款", color: "text-blue-500" },
-  SHIPPED: { label: "运输中", color: "text-purple-500" },
-  RECEIVED: { label: "已收货", color: "text-green-500" },
-  COMPLETED: { label: "已完成", color: "text-gray-400" },
-  CANCELLED: { label: "已取消", color: "text-gray-300" },
-};
+import { ORDER_STATUS } from "@/lib/constants";
 
-export default async function UserOrdersPage() {
+export default async function UserOrdersPage(props: { searchParams: Promise<{ page?: string }> }) {
   const session = await auth();
   if (!session?.user) redirect("/login");
 
-  const orders = await prisma.order.findMany({
-    where: { userId: session.user.id },
-    include: {
-      items: { include: { product: true } },
-    },
-    orderBy: { createdAt: "desc" },
-  });
+  const searchParams = await props.searchParams;
+  const page = Math.max(1, parseInt(searchParams.page || "1"));
+  const take = 10;
+  const skip = (page - 1) * take;
+
+  const [orders, total] = await Promise.all([
+    prisma.order.findMany({
+      where: { userId: session.user.id },
+      include: {
+        items: { include: { product: true } },
+      },
+      orderBy: { createdAt: "desc" },
+      take,
+      skip,
+    }),
+    prisma.order.count({ where: { userId: session.user.id } }),
+  ]);
+  const totalPages = Math.ceil(total / take);
 
   return (
     <div>
@@ -41,7 +46,7 @@ export default async function UserOrdersPage() {
       ) : (
         <div className="space-y-4">
           {orders.map((order) => {
-            const status = statusLabels[order.status] || { label: order.status, color: "text-gray-400" };
+            const status = ORDER_STATUS[order.status] || { label: order.status, color: "text-gray-400" };
             return (
               <div key={order.id} className="bg-white rounded-2xl border border-gray-50 p-5">
                 <div className="flex items-center justify-between mb-3">
@@ -59,9 +64,9 @@ export default async function UserOrdersPage() {
                     const imgList = JSON.parse(item.product.images || "[]") as string[];
                     return (
                       <div key={item.id} className="flex items-center gap-3">
-                        <div className="w-12 h-12 bg-gradient-to-br from-sakura-50 to-purple-50 rounded-lg flex items-center justify-center text-lg flex-shrink-0">
+                        <div className="relative w-12 h-12 bg-gradient-to-br from-sakura-50 to-purple-50 rounded-lg flex items-center justify-center text-lg flex-shrink-0">
                           {imgList[0] ? (
-                            <img src={imgList[0]} alt="" className="w-full h-full object-cover rounded-lg" />
+                            <Image src={imgList[0]} alt="" fill className="object-cover rounded-lg" sizes="48px" />
                           ) : (
                             <span className="opacity-40">🧸</span>
                           )}
@@ -101,6 +106,24 @@ export default async function UserOrdersPage() {
               </div>
             );
           })}
+        </div>
+      )}
+
+      {totalPages > 1 && (
+        <div className="flex justify-center gap-2 mt-6">
+          {Array.from({ length: totalPages }, (_, i) => (
+            <a
+              key={i}
+              href={`/user/orders?page=${i + 1}`}
+              className={`w-8 h-8 rounded-lg text-sm flex items-center justify-center ${
+                page === i + 1
+                  ? "bg-sakura-500 text-white"
+                  : "bg-white text-gray-600 border border-gray-100 hover:border-sakura-300"
+              }`}
+            >
+              {i + 1}
+            </a>
+          ))}
         </div>
       )}
     </div>
