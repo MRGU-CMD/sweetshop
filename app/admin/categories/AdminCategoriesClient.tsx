@@ -27,6 +27,68 @@ export default function AdminCategoriesClient({ categories }: { categories: Cate
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
 
+  // Batch selection
+  const [batchMode, setBatchMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [selectAll, setSelectAll] = useState(false);
+  const [batchDeleting, setBatchDeleting] = useState(false);
+
+  const exitBatchMode = () => {
+    setBatchMode(false);
+    setSelectedIds(new Set());
+    setSelectAll(false);
+  };
+
+  const toggleSelect = (id: string) => {
+    setSelectAll(false);
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
+  const handleSelectAll = () => {
+    if (selectAll) {
+      setSelectAll(false);
+      setSelectedIds(new Set());
+    } else {
+      setSelectAll(true);
+      setSelectedIds(new Set(categories.map((c) => c.id)));
+    }
+  };
+
+  const deletableCategories = categories.filter((c) => c._count.products === 0);
+  const selectedCount = selectAll ? deletableCategories.length : selectedIds.size;
+
+  const handleBatchDelete = async () => {
+    let ids: string[];
+    if (selectAll) {
+      ids = deletableCategories.map((c) => c.id);
+    } else {
+      ids = [...selectedIds];
+    }
+    if (ids.length === 0) return;
+    if (!confirm(`确定删除选中的 ${ids.length} 个分类？此操作不可撤销。`)) return;
+    setBatchDeleting(true);
+
+    const res = await fetch("/api/admin/categories/batch", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ids }),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      toast(`已删除 ${data.deleted} 个分类`, "success");
+      exitBatchMode();
+      router.refresh();
+    } else {
+      const data = await res.json();
+      toast(data.error || "批量删除失败", "error");
+    }
+    setBatchDeleting(false);
+  };
+
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -159,14 +221,49 @@ export default function AdminCategoriesClient({ categories }: { categories: Cate
 
   return (
     <div>
-      <div className="flex justify-end mb-4">
-        <button onClick={openNew} className="btn-sakura text-xs">+ 新增分类</button>
+      <div className="flex justify-end mb-4 gap-2">
+        {batchMode ? (
+          <>
+            <span className="text-xs text-gray-400 self-center">
+              {selectAll ? `已选全部 ${selectedCount} 个` : `已选 ${selectedIds.size} 个`}
+            </span>
+            <button
+              onClick={handleBatchDelete}
+              disabled={selectedCount === 0 || batchDeleting}
+              className="bg-red-500 text-white text-xs px-3 py-1.5 rounded-lg hover:bg-red-600 disabled:opacity-50 transition-colors"
+            >
+              {batchDeleting ? "删除中..." : "删除选中"}
+            </button>
+            <button onClick={exitBatchMode} className="btn-sakura-outline text-xs">取消</button>
+          </>
+        ) : (
+          <>
+            <button onClick={() => setBatchMode(true)} className="btn-sakura-outline text-xs">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="inline mr-1">
+                <path d="M9 11l3 3L22 4" />
+                <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" />
+              </svg>
+              批量操作
+            </button>
+            <button onClick={openNew} className="btn-sakura text-xs">+ 新增分类</button>
+          </>
+        )}
       </div>
 
       <div className="bg-white rounded-2xl border border-gray-50 overflow-hidden">
         <table className="w-full text-sm">
           <thead>
             <tr className="text-left text-gray-400 border-b border-gray-50">
+              {batchMode && (
+                <th className="py-3 px-4 font-medium w-10">
+                  <input
+                    type="checkbox"
+                    checked={(selectAll && deletableCategories.length > 0) || (!selectAll && selectedIds.size > 0 && selectedIds.size === deletableCategories.length)}
+                    onChange={handleSelectAll}
+                    className="w-4 h-4 accent-sakura-500"
+                  />
+                </th>
+              )}
               <th className="py-3 px-4 font-medium">图标</th>
               <th className="py-3 px-4 font-medium">名称</th>
               <th className="py-3 px-4 font-medium">标识</th>
@@ -177,10 +274,22 @@ export default function AdminCategoriesClient({ categories }: { categories: Cate
           </thead>
           <tbody>
             {categories.length === 0 ? (
-              <tr><td colSpan={6} className="py-10 text-center text-gray-400">暂无分类</td></tr>
+              <tr><td colSpan={batchMode ? 7 : 6} className="py-10 text-center text-gray-400">暂无分类</td></tr>
             ) : (
               categories.map((c) => (
-                <tr key={c.id} className="border-b border-gray-50 last:border-0 hover:bg-gray-50/50">
+                <tr key={c.id} className={`border-b border-gray-50 last:border-0 hover:bg-gray-50/50 ${batchMode && (selectAll || selectedIds.has(c.id)) ? "bg-sakura-50/50" : ""}`}>
+                  {batchMode && (
+                    <td className="py-3 px-4">
+                      {c._count.products === 0 && (
+                        <input
+                          type="checkbox"
+                          checked={selectAll || selectedIds.has(c.id)}
+                          onChange={() => toggleSelect(c.id)}
+                          className="w-4 h-4 accent-sakura-500"
+                        />
+                      )}
+                    </td>
+                  )}
                   <td className="py-3 px-4">
                     {c.icon ? (
                       <div className="relative w-8 h-8 rounded-lg overflow-hidden">
