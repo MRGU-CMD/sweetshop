@@ -9,7 +9,7 @@ export default async function AdminCategoriesPage() {
   if (!session?.user || !isAdminRole(session.user.role)) redirect("/");
 
   const categories = await prisma.category.findMany({
-    include: { _count: { select: { products: true } }, parent: { select: { id: true, name: true } } },
+    include: { _count: { select: { products: true } } },
     orderBy: { sort: "asc" },
   });
 
