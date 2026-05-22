@@ -57,13 +57,15 @@ export default function TransitionProvider({ children }: { children: ReactNode }
         a.getAttribute("target") === "_blank"
       )
         return;
+      // Don't show loading for same-page navigation
+      if (href === pathname || href === pathname + window.location.search) return;
       setSvgKey(++counterRef.current);
       setMessage("加载中...");
       setLoading(true);
     };
     document.addEventListener("click", handler, true);
     return () => document.removeEventListener("click", handler, true);
-  }, []);
+  }, [pathname]);
 
   const startLoading = useCallback((msg?: string) => {
     setSvgKey(++counterRef.current);
