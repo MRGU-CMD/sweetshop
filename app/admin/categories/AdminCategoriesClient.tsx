@@ -58,13 +58,13 @@ export default function AdminCategoriesClient({ categories }: { categories: Cate
   };
 
   const handleSelectAll = () => {
-    if (selectAll) {
+    const isAllSelected = selectAll && excludedIds.size === 0;
+    if (isAllSelected) {
       setSelectAll(false);
       setSelectedIds(new Set());
       setExcludedIds(new Set());
     } else {
       setSelectAll(true);
-      setSelectedIds(new Set());
       setExcludedIds(new Set());
     }
   };
