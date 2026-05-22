@@ -258,15 +258,15 @@ export default function AdminProductsClient({ categories }: { categories: Catego
           </div>
           <div>
             <label className="text-xs text-gray-400 mb-1 block">价格 *</label>
-            <input type="number" step="0.01" value={form.price} onChange={(e) => setForm({ ...form, price: parseFloat(e.target.value) || 0 })} className="input-sakura" />
+            <input type="number" step="0.01" value={form.price || ""} onChange={(e) => { const v = e.target.value; setForm({ ...form, price: v === "" ? 0 : parseFloat(v) }); }} className="input-sakura" />
           </div>
           <div>
             <label className="text-xs text-gray-400 mb-1 block">原价</label>
-            <input type="number" step="0.01" value={form.originalPrice} onChange={(e) => setForm({ ...form, originalPrice: parseFloat(e.target.value) || 0 })} className="input-sakura" />
+            <input type="number" step="0.01" value={form.originalPrice || ""} onChange={(e) => { const v = e.target.value; setForm({ ...form, originalPrice: v === "" ? 0 : parseFloat(v) }); }} className="input-sakura" />
           </div>
           <div>
             <label className="text-xs text-gray-400 mb-1 block">库存</label>
-            <input type="number" value={form.stock} onChange={(e) => setForm({ ...form, stock: parseInt(e.target.value) || 0 })} className="input-sakura" />
+            <input type="number" value={form.stock || ""} onChange={(e) => { const v = e.target.value; setForm({ ...form, stock: v === "" ? 0 : parseInt(v) }); }} className="input-sakura" />
           </div>
           <div>
             <label className="text-xs text-gray-400 mb-1 block">分类 *</label>
