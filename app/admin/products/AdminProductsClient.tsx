@@ -215,6 +215,14 @@ export default function AdminProductsClient({ categories }: { categories: Catego
       toast("价格必须大于0", "error");
       return;
     }
+    if (form.originalPrice > 0 && form.originalPrice <= form.price) {
+      toast("原价必须大于售价才能作为划线价展示", "error");
+      return;
+    }
+    if (form.stock < 0 || !Number.isInteger(form.stock)) {
+      toast("库存必须为大于等于0的整数", "error");
+      return;
+    }
     setSaving(true);
 
     const { imageInput, ...data } = form;
@@ -266,7 +274,7 @@ export default function AdminProductsClient({ categories }: { categories: Catego
           </div>
           <div>
             <label className="text-xs text-gray-400 mb-1 block">库存</label>
-            <input type="number" value={form.stock || ""} onChange={(e) => { const v = e.target.value; setForm({ ...form, stock: v === "" ? 0 : parseInt(v) }); }} className="input-sakura" />
+            <input type="number" step="1" value={form.stock || ""} onChange={(e) => { const v = e.target.value; setForm({ ...form, stock: v === "" ? 0 : parseInt(v) }); }} className="input-sakura" />
           </div>
           <div>
             <label className="text-xs text-gray-400 mb-1 block">分类 *</label>
