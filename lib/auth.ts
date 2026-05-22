@@ -201,10 +201,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   },
   providers,
   callbacks: {
-    async jwt({ token, user, account }) {
+    async jwt({ token, user, account, trigger }) {
       if (user) {
         token.id = user.id!;
         token.role = user.role || "USER";
+        token.image = (user as any).image || null;
+      }
+      if (trigger === "update" && token.id) {
+        const dbUser = await prisma.user.findUnique({ where: { id: token.id } });
+        if (dbUser) {
+          token.image = dbUser.avatar;
+          token.role = dbUser.role;
+        }
       }
       if (account && user) {
         const existingUser = await prisma.user.findUnique({ where: { id: user.id! } });
@@ -225,6 +233,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (session.user) {
         session.user.id = token.id;
         session.user.role = token.role;
+        session.user.image = (token.image as string) || null;
       }
       return session;
     },

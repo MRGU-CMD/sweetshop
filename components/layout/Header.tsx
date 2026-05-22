@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { auth, isAdminRole } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import SearchBox from "./SearchBox";
@@ -8,11 +9,16 @@ import CartLink from "./CartLink";
 export default async function Header() {
   const session = await auth();
   const isAdmin = isAdminRole(session?.user?.role);
-  const categories = await prisma.category.findMany({
-    where: { parentId: null },
-    orderBy: { sort: "asc" },
-    take: 8,
-  });
+  const [categories, avatar] = await Promise.all([
+    prisma.category.findMany({
+      where: { parentId: null },
+      orderBy: { sort: "asc" },
+      take: 8,
+    }),
+    session?.user?.id
+      ? prisma.user.findUnique({ where: { id: session.user.id }, select: { avatar: true } }).then((u) => u?.avatar || null)
+      : null,
+  ]);
 
   return (
     <header className="bg-white border-b border-sakura-50 sticky top-0 z-50">
@@ -56,9 +62,24 @@ export default async function Header() {
               )}
               <Link
                 href="/user"
-                className="p-2 text-gray-500 hover:text-sakura-500 transition-colors"
+                className="block w-8 h-8 rounded-full overflow-hidden flex-shrink-0 hover:ring-2 hover:ring-sakura-300 transition-all"
+                title="个人中心"
               >
-                👤
+                {avatar ? (
+                  <Image src={avatar} alt="" width={32} height={32} className="w-full h-full object-cover" unoptimized />
+                ) : (
+                  <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
+                    <circle cx="16" cy="16" r="16" fill="#fce4ec" />
+                    <g fill="#fff" opacity="0.55">
+                      <circle cx="16" cy="7.5" r="4.2" />
+                      <circle cx="23.5" cy="12.5" r="4.2" />
+                      <circle cx="20.6" cy="21.2" r="4.2" />
+                      <circle cx="11.4" cy="21.2" r="4.2" />
+                      <circle cx="8.5" cy="12.5" r="4.2" />
+                    </g>
+                    <circle cx="16" cy="16" r="5" fill="#f8bbd0" />
+                  </svg>
+                )}
               </Link>
               <LogoutButton />
             </div>
