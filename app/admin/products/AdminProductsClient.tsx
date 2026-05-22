@@ -49,6 +49,9 @@ export default function AdminProductsClient({ categories }: { categories: Catego
   const [categoryFilter, setCategoryFilter] = useState("");
   const [loading, setLoading] = useState(true);
 
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [batchDeleting, setBatchDeleting] = useState(false);
+
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyForm);
@@ -69,6 +72,43 @@ export default function AdminProductsClient({ categories }: { categories: Catego
   }, [page, search, categoryFilter]);
 
   useEffect(() => { fetchProducts(); }, [fetchProducts]);
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.size === products.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(products.map((p) => p.id)));
+    }
+  };
+
+  const handleBatchDelete = async () => {
+    if (selectedIds.size === 0) return;
+    if (!confirm(`确定删除选中的 ${selectedIds.size} 个商品？此操作不可撤销。`)) return;
+    setBatchDeleting(true);
+    const res = await fetch("/api/admin/products/batch", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ids: [...selectedIds] }),
+    });
+    if (res.ok) {
+      toast(`已删除 ${selectedIds.size} 个商品`, "success");
+      setSelectedIds(new Set());
+      router.refresh();
+      fetchProducts();
+    } else {
+      const data = await res.json();
+      toast(data.error || "批量删除失败", "error");
+    }
+    setBatchDeleting(false);
+  };
 
   const openEdit = (p: Product) => {
     setEditingId(p.id);
@@ -267,13 +307,32 @@ export default function AdminProductsClient({ categories }: { categories: Catego
           </select>
           <button onClick={() => { setPage(1); fetchProducts(); }} className="btn-sakura-outline text-xs">搜索</button>
         </div>
-        <button onClick={openNew} className="btn-sakura text-xs">+ 新增商品</button>
+        <div className="flex items-center gap-2">
+          {selectedIds.size > 0 && (
+            <button
+              onClick={handleBatchDelete}
+              disabled={batchDeleting}
+              className="btn-sakura bg-red-500 text-white hover:bg-red-600 text-xs"
+            >
+              {batchDeleting ? "删除中..." : `删除选中 (${selectedIds.size})`}
+            </button>
+          )}
+          <button onClick={openNew} className="btn-sakura text-xs">+ 新增商品</button>
+        </div>
       </div>
 
       <div className="bg-white rounded-2xl border border-gray-50 overflow-hidden">
         <table className="w-full text-sm">
           <thead>
             <tr className="text-left text-gray-400 border-b border-gray-50">
+              <th className="py-3 px-4 font-medium w-10">
+                <input
+                  type="checkbox"
+                  checked={products.length > 0 && selectedIds.size === products.length}
+                  onChange={toggleSelectAll}
+                  className="w-4 h-4 accent-sakura-500"
+                />
+              </th>
               <th className="py-3 px-4 font-medium">商品</th>
               <th className="py-3 px-4 font-medium">价格</th>
               <th className="py-3 px-4 font-medium">库存</th>
@@ -285,12 +344,20 @@ export default function AdminProductsClient({ categories }: { categories: Catego
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan={7} className="py-10 text-center text-gray-400">加载中...</td></tr>
+              <tr><td colSpan={8} className="py-10 text-center text-gray-400">加载中...</td></tr>
             ) : products.length === 0 ? (
-              <tr><td colSpan={7} className="py-10 text-center text-gray-400">暂无商品</td></tr>
+              <tr><td colSpan={8} className="py-10 text-center text-gray-400">暂无商品</td></tr>
             ) : (
               products.map((p) => (
                 <tr key={p.id} className="border-b border-gray-50 last:border-0 hover:bg-gray-50/50">
+                  <td className="py-3 px-4">
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.has(p.id)}
+                      onChange={() => toggleSelect(p.id)}
+                      className="w-4 h-4 accent-sakura-500"
+                    />
+                  </td>
                   <td className="py-3 px-4 text-gray-700">{p.name}</td>
                   <td className="py-3 px-4 text-sakura-500 font-medium">¥{p.price.toFixed(2)}</td>
                   <td className="py-3 px-4 text-gray-600">{p.stock}</td>
