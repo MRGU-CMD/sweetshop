@@ -9,16 +9,9 @@ import CartLink from "./CartLink";
 export default async function Header() {
   const session = await auth();
   const isAdmin = isAdminRole(session?.user?.role);
-  const [categories, avatar] = await Promise.all([
-    prisma.category.findMany({
-      where: { parentId: null },
-      orderBy: { sort: "asc" },
-      take: 8,
-    }),
-    session?.user?.id
-      ? prisma.user.findUnique({ where: { id: session.user.id }, select: { avatar: true } }).then((u) => u?.avatar || null)
-      : null,
-  ]);
+  const avatar = session?.user?.id
+    ? (await prisma.user.findUnique({ where: { id: session.user.id }, select: { avatar: true } }))?.avatar || null
+    : null;
 
   return (
     <header className="bg-white border-b border-sakura-50 sticky top-0 z-50">
@@ -28,21 +21,8 @@ export default async function Header() {
           🌸 SweetShop
         </Link>
 
-        {/* Category nav */}
-        <nav className="hidden lg:flex items-center gap-1 text-sm">
-          {categories.map((c) => (
-            <Link
-              key={c.id}
-              href={`/category/${c.slug}`}
-              className="px-3 py-2 text-gray-600 hover:text-sakura-500 rounded-lg hover:bg-sakura-50 transition-colors"
-            >
-              {c.name}
-            </Link>
-          ))}
-        </nav>
-
         {/* Search */}
-        <div className="flex-1 max-w-xl">
+        <div className="flex-1 max-w-2xl">
           <SearchBox />
         </div>
 
