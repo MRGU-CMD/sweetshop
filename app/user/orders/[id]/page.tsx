@@ -5,8 +5,6 @@ import { prisma } from "@/lib/prisma";
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { AddressesIcon } from "@/components/user/UserIcons";
-import { OrdersIcon } from "@/components/admin/AdminIcons";
 
 import { ORDER_STATUS } from "@/lib/constants";
 
@@ -131,7 +129,7 @@ export default async function OrderDetailPage({
         </div>
 
         <div className="bg-white rounded-2xl border border-gray-50 p-5 mb-4">
-          <h3 className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-1.5"><AddressesIcon /> 收货信息</h3>
+          <h3 className="text-sm font-bold text-gray-700 mb-3">📍 收货信息</h3>
           <p className="text-sm text-gray-600">
             {address.name} {address.phone}
           </p>
@@ -198,7 +196,7 @@ export default async function OrderDetailPage({
         </div>
 
         <div className="bg-white rounded-2xl border border-gray-50 p-5">
-          <h3 className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-1.5"><OrdersIcon /> 订单信息</h3>
+          <h3 className="text-sm font-bold text-gray-700 mb-3">📋 订单信息</h3>
           <div className="grid grid-cols-2 gap-2 text-sm text-gray-600">
             <div>订单编号：{order.orderNo}</div>
             <div>支付方式：{order.paymentMethod === "wechat" ? "微信支付" : order.paymentMethod === "alipay" ? "支付宝" : order.paymentMethod || "—"}</div>

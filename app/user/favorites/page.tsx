@@ -5,7 +5,6 @@ import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import FavoritesClient from "./FavoritesClient";
-import { FavoritesIcon } from "@/components/user/UserIcons";
 
 export default async function FavoritesPage(props: { searchParams: Promise<{ page?: string }> }) {
   const session = await auth();
@@ -30,7 +29,7 @@ export default async function FavoritesPage(props: { searchParams: Promise<{ pag
 
   return (
     <div>
-      <h2 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2"><FavoritesIcon /> 我的收藏</h2>
+      <h2 className="text-lg font-bold text-gray-800 mb-4">❤️ 我的收藏</h2>
       <FavoritesClient favorites={favorites} />
 
       {totalPages > 1 && (
