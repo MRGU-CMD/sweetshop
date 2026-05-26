@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import Image from "next/image";
 import { redirect } from "next/navigation";
+import { OrdersIcon } from "@/components/admin/AdminIcons";
 
 import { ORDER_STATUS } from "@/lib/constants";
 
@@ -33,7 +34,7 @@ export default async function UserOrdersPage(props: { searchParams: Promise<{ pa
 
   return (
     <div>
-      <h1 className="text-xl font-bold text-gray-800 mb-6">📋 我的订单</h1>
+      <h1 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2"><OrdersIcon /> 我的订单</h1>
 
       {orders.length === 0 ? (
         <div className="bg-white rounded-2xl p-20 text-center">

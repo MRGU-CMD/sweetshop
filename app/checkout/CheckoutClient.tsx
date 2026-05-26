@@ -7,6 +7,8 @@ import Link from "next/link";
 import Footer from "@/components/layout/Footer";
 import { useTransition } from "@/components/TransitionProvider";
 import { regionData, type RegionItem } from "@/lib/regions";
+import { OrdersIcon } from "@/components/admin/AdminIcons";
+import { AddressesIcon } from "@/components/user/UserIcons";
 
 interface CartItem {
   id: string;
@@ -187,7 +189,7 @@ export default function CheckoutClient() {
   return (
     <div className="min-h-screen bg-[#fafafa] flex flex-col">
       <div className="max-w-5xl mx-auto px-4 py-6 flex-1 w-full">
-        <h1 className="text-xl font-bold text-gray-800 mb-6">📋 订单结算</h1>
+        <h1 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2"><OrdersIcon /> 订单结算</h1>
 
         {/* Step indicator */}
         <div className="flex items-center justify-center gap-0 mb-8">
@@ -221,7 +223,7 @@ export default function CheckoutClient() {
             {/* Step 1: Address */}
             {step === 1 && (
               <div>
-                <h2 className="text-base font-bold text-gray-700 mb-4">📍 收货地址</h2>
+                <h2 className="text-base font-bold text-gray-700 mb-4 flex items-center gap-1.5"><AddressesIcon /> 收货地址</h2>
 
                 {/* Saved addresses */}
                 {savedAddresses.length > 0 && (

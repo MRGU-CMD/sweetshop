@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import AfterSaleClient from "./AfterSaleClient";
+import { AftersaleIcon } from "@/components/admin/AdminIcons";
 
 export default async function AfterSalePage(props: { searchParams: Promise<{ page?: string }> }) {
   const session = await auth();
@@ -47,7 +48,7 @@ export default async function AfterSalePage(props: { searchParams: Promise<{ pag
 
   return (
     <div>
-      <h2 className="text-lg font-bold text-gray-800 mb-4">🔄 售后管理</h2>
+      <h2 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2"><AftersaleIcon /> 售后管理</h2>
       <AfterSaleClient afterSales={afterSales} orders={orders} />
 
       {totalPages > 1 && (

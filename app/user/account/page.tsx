@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import AccountClient from "./AccountClient";
+import { AccountIcon } from "@/components/user/UserIcons";
 
 export default async function AccountPage() {
   const session = await auth();
@@ -22,7 +23,7 @@ export default async function AccountPage() {
 
   return (
     <div>
-      <h2 className="text-lg font-bold text-gray-800 mb-4">⚙️ 账号设置</h2>
+      <h2 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2"><AccountIcon /> 账号设置</h2>
       <AccountClient user={serializedUser!} bindings={bindings} />
     </div>
   );
