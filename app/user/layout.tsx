@@ -26,9 +26,9 @@ export default async function UserLayout({ children }: { children: React.ReactNo
   return (
     <div className="min-h-screen bg-[#fafafa] flex flex-col">
       <Header />
-      <div className="max-w-5xl mx-auto px-4 py-6 flex-1" id="main-content">
-        <div className="flex flex-col lg:flex-row gap-6">
-          <aside className="w-full lg:w-48 flex-shrink-0">
+      <div className="max-w-5xl mx-auto px-4 py-6">
+        <div className="flex gap-6">
+          <aside className="w-48 flex-shrink-0">
             <div className="bg-white rounded-2xl border border-gray-50 p-4 lg:sticky lg:top-20">
               <div className="flex items-center gap-3 pb-4 mb-4 border-b border-gray-50">
                 <div className="w-10 h-10 rounded-full bg-sakura-100 flex items-center justify-center text-lg overflow-hidden flex-shrink-0">
@@ -54,12 +54,12 @@ export default async function UserLayout({ children }: { children: React.ReactNo
                   </p>
                 </div>
               </div>
-              <nav className="flex flex-row lg:flex-col gap-1 overflow-x-auto lg:overflow-visible pb-1 lg:pb-0">
+              <nav className="space-y-1">
                 {menuItems.map((item) => (
                   <Link
                     key={item.href}
                     href={item.href}
-                    className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-sakura-50 hover:text-sakura-500 transition-colors whitespace-nowrap"
+                    className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-sakura-50 hover:text-sakura-500 transition-colors"
                   >
                     <span>{item.icon}</span>
                     <span>{item.label}</span>
