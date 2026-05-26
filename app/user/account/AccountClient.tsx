@@ -31,6 +31,7 @@ export default function AccountClient({ user, bindings }: { user: User; bindings
   const [nickname, setNickname] = useState(user.nickname);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [previewAvatar, setPreviewAvatar] = useState(false);
 
   // Binding state
   const [bindType, setBindType] = useState<string | null>(null);
@@ -169,13 +170,19 @@ export default function AccountClient({ user, bindings }: { user: User; bindings
         <div className="flex items-start gap-5">
           {/* Avatar */}
           <div className="flex flex-col items-center gap-2">
-            <div className="w-20 h-20 rounded-full bg-sakura-100 flex items-center justify-center text-2xl overflow-hidden text-sakura-600 font-bold relative">
-              {avatar ? (
+            {avatar ? (
+              <button
+                onClick={() => setPreviewAvatar(true)}
+                className="w-20 h-20 rounded-full bg-sakura-100 flex items-center justify-center text-2xl overflow-hidden text-sakura-600 font-bold relative cursor-pointer hover:ring-2 hover:ring-sakura-300 transition-all"
+                title="查看头像大图"
+              >
                 <Image src={avatar} alt="" fill className="object-cover" unoptimized sizes="80px" />
-              ) : (
-                user.nickname?.[0] || "🌸"
-              )}
-            </div>
+              </button>
+            ) : (
+              <div className="w-20 h-20 rounded-full bg-sakura-100 flex items-center justify-center text-2xl overflow-hidden text-sakura-600 font-bold relative">
+                {user.nickname?.[0] || "🌸"}
+              </div>
+            )}
             <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleUpload} />
             <button
               onClick={() => fileRef.current?.click()}
@@ -305,6 +312,32 @@ export default function AccountClient({ user, bindings }: { user: User; bindings
           </button>
         </div>
       </div>
+
+      {/* Avatar preview modal */}
+      {previewAvatar && avatar && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
+          onClick={() => setPreviewAvatar(false)}
+        >
+          <button
+            onClick={() => setPreviewAvatar(false)}
+            className="absolute top-6 right-6 w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 text-white text-xl flex items-center justify-center transition-colors"
+            aria-label="关闭"
+          >
+            ✕
+          </button>
+          <div className="relative max-w-2xl max-h-[80vh] w-full aspect-square" onClick={(e) => e.stopPropagation()}>
+            <Image
+              src={avatar}
+              alt={user.nickname + "的头像"}
+              fill
+              className="object-contain"
+              unoptimized
+              sizes="(max-width: 768px) 90vw, 600px"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
