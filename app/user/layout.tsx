@@ -29,9 +29,9 @@ export default async function UserLayout({ children }: { children: React.ReactNo
   return (
     <div className="min-h-screen bg-[#fafafa] flex flex-col">
       <Header />
-      <div className="max-w-5xl mx-auto px-4 py-6">
-        <div className="flex gap-6">
-          <aside className="w-48 flex-shrink-0">
+      <div className="max-w-6xl mx-auto px-4 py-6">
+        <div className="flex gap-8">
+          <aside className="w-52 flex-shrink-0">
             <div className="bg-white rounded-2xl border border-gray-50 p-4 lg:sticky lg:top-20">
               <div className="flex items-center gap-3 pb-4 mb-4 border-b border-gray-50">
                 <UserSidebarAvatar avatar={avatar} name={displayName} />
