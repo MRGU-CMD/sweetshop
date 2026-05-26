@@ -6,13 +6,14 @@ import Image from "next/image";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import BackToTop from "@/components/ui/BackToTop";
+import { OrdersIcon, FavoritesIcon, AftersaleIcon, AddressesIcon, AccountIcon } from "@/components/user/UserIcons";
 
 const menuItems = [
-  { href: "/user/orders", label: "我的订单", icon: "📋" },
-  { href: "/user/favorites", label: "我的收藏", icon: "❤️" },
-  { href: "/user/after-sale", label: "售后管理", icon: "🔄" },
-  { href: "/user/addresses", label: "收货地址", icon: "📍" },
-  { href: "/user/account", label: "账号设置", icon: "⚙️" },
+  { href: "/user/orders", label: "我的订单", icon: <OrdersIcon /> },
+  { href: "/user/favorites", label: "我的收藏", icon: <FavoritesIcon /> },
+  { href: "/user/after-sale", label: "售后管理", icon: <AftersaleIcon /> },
+  { href: "/user/addresses", label: "收货地址", icon: <AddressesIcon /> },
+  { href: "/user/account", label: "账号设置", icon: <AccountIcon /> },
 ];
 
 export default async function UserLayout({ children }: { children: React.ReactNode }) {
