@@ -7,6 +7,7 @@ import Link from "next/link";
 import Footer from "@/components/layout/Footer";
 import { useTransition } from "@/components/TransitionProvider";
 import { regionData, type RegionItem } from "@/lib/regions";
+import { OrdersIcon, AddressesIcon } from "@/components/user/UserIcons";
 
 interface CartItem {
   id: string;
@@ -175,9 +176,9 @@ export default function CheckoutClient() {
   ];
 
   const paymentMethods = [
-    { value: "wechat", label: "微信支付", icon: "💚", color: "#07c160" },
-    { value: "alipay", label: "支付宝", icon: "💙", color: "#1677ff" },
-    { value: "card", label: "银行卡", icon: "💳", color: "#333" },
+    { value: "wechat", label: "微信支付", color: "#07c160" },
+    { value: "alipay", label: "支付宝", color: "#1677ff" },
+    { value: "card", label: "银行卡", color: "#333" },
   ];
 
   const selectedAddress = savedAddresses.find((a) => a.id === selectedAddressId);
@@ -185,7 +186,7 @@ export default function CheckoutClient() {
   return (
     <div className="min-h-screen bg-[#fafafa] flex flex-col">
       <div className="max-w-5xl mx-auto px-4 py-6 flex-1 w-full">
-        <h1 className="text-xl font-bold text-gray-800 mb-6">📋 订单结算</h1>
+        <h1 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2"><OrdersIcon /> 订单结算</h1>
 
         {/* Step indicator */}
         <div className="flex items-center justify-center gap-0 mb-8">
@@ -219,7 +220,7 @@ export default function CheckoutClient() {
             {/* Step 1: Address */}
             {step === 1 && (
               <div>
-                <h2 className="text-base font-bold text-gray-700 mb-4">📍 收货地址</h2>
+                <h2 className="text-base font-bold text-gray-700 mb-4 flex items-center gap-1.5"><AddressesIcon className="w-4 h-4" /> 收货地址</h2>
 
                 {/* Saved addresses */}
                 {savedAddresses.length > 0 && (
@@ -365,7 +366,13 @@ export default function CheckoutClient() {
             {/* Step 2: Payment */}
             {step === 2 && (
               <div>
-                <h2 className="text-base font-bold text-gray-700 mb-4">💳 支付方式</h2>
+                <h2 className="text-base font-bold text-gray-700 mb-4 flex items-center gap-1.5">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
+                    <line x1="1" y1="10" x2="23" y2="10" />
+                  </svg>
+                  支付方式
+                </h2>
                 <div className="space-y-3">
                   {paymentMethods.map((pm) => (
                     <label
@@ -384,7 +391,11 @@ export default function CheckoutClient() {
                         onChange={(e) => setPaymentMethod(e.target.value)}
                         className="accent-sakura-500"
                       />
-                      <span className="text-lg">{pm.icon}</span>
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ color: pm.color }}>
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M16 8h-5a2.5 2.5 0 000 5h2a2.5 2.5 0 010 5H8" />
+                        <path d="M12 6v12" />
+                      </svg>
                       <span className="text-sm font-medium" style={{ color: pm.color }}>
                         {pm.label}
                       </span>
@@ -397,7 +408,12 @@ export default function CheckoutClient() {
             {/* Step 3: Confirm */}
             {step === 3 && (
               <div>
-                <h2 className="text-base font-bold text-gray-700 mb-4">✅ 确认订单</h2>
+                <h2 className="text-base font-bold text-gray-700 mb-4 flex items-center gap-1.5">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                  确认订单
+                </h2>
                 <div className="bg-sakura-50 rounded-xl p-4 mb-4">
                   <p className="text-sm text-gray-600">
                     <span className="font-medium">收货人：</span>

@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
+import { FavoritesIcon } from "@/components/user/UserIcons";
+
 interface FavoriteItem {
   id: string;
   product: {
@@ -30,7 +32,7 @@ export default function FavoritesClient({ favorites }: { favorites: FavoriteItem
   if (items.length === 0) {
     return (
       <div className="bg-white rounded-2xl p-20 text-center">
-        <p className="text-5xl mb-4">💝</p>
+        <div className="text-gray-300 mb-4 flex justify-center"><FavoritesIcon className="w-12 h-12" /></div>
         <p className="text-gray-400">暂无收藏</p>
         <Link href="/" className="text-sakura-500 text-sm mt-2 inline-block hover:underline">
           去逛逛
@@ -71,7 +73,9 @@ export default function FavoritesClient({ favorites }: { favorites: FavoriteItem
                 }}
                 className="absolute top-2 right-2 w-7 h-7 bg-white/90 rounded-full flex items-center justify-center text-sm hover:bg-sakura-500 hover:text-white transition-colors shadow-sm"
               >
-                ❤️
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
+                </svg>
               </button>
             </Link>
             <div className="p-3">

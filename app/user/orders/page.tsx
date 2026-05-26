@@ -6,6 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { redirect } from "next/navigation";
 
+import { OrdersIcon, PackageIcon } from "@/components/user/UserIcons";
 import { ORDER_STATUS } from "@/lib/constants";
 
 export default async function UserOrdersPage(props: { searchParams: Promise<{ page?: string }> }) {
@@ -33,11 +34,11 @@ export default async function UserOrdersPage(props: { searchParams: Promise<{ pa
 
   return (
     <div>
-      <h1 className="text-xl font-bold text-gray-800 mb-6">📋 我的订单</h1>
+      <h1 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2"><OrdersIcon /> 我的订单</h1>
 
       {orders.length === 0 ? (
         <div className="bg-white rounded-2xl p-20 text-center">
-          <p className="text-5xl mb-4">📦</p>
+          <div className="text-gray-300 mb-4 flex justify-center"><PackageIcon className="w-12 h-12" /></div>
           <p className="text-gray-400">暂无订单</p>
           <Link href="/" className="text-sakura-500 text-sm mt-2 inline-block hover:underline">
             去逛逛

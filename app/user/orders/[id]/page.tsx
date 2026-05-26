@@ -7,6 +7,7 @@ import Link from "next/link";
 import Image from "next/image";
 
 import { ORDER_STATUS } from "@/lib/constants";
+import { PackageIcon, AddressesIcon, MoneyIcon, OrdersIcon } from "@/components/user/UserIcons";
 
 function buildTimeline(order: any) {
   const items: { time: string; text: string; active: boolean }[] = [];
@@ -90,7 +91,7 @@ export default async function OrderDetailPage({
 
         <div className="bg-white rounded-2xl border border-gray-50 p-6 mb-4">
           <div className="flex items-center gap-3 mb-2">
-            <span className="text-2xl">📦</span>
+            <PackageIcon className="w-6 h-6" />
             <span className="text-lg font-bold text-gray-800">{status.label}</span>
           </div>
           {order.status === "SHIPPED" && (
@@ -129,7 +130,7 @@ export default async function OrderDetailPage({
         </div>
 
         <div className="bg-white rounded-2xl border border-gray-50 p-5 mb-4">
-          <h3 className="text-sm font-bold text-gray-700 mb-3">📍 收货信息</h3>
+          <h3 className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-1.5"><AddressesIcon className="w-4 h-4" /> 收货信息</h3>
           <p className="text-sm text-gray-600">
             {address.name} {address.phone}
           </p>
@@ -145,7 +146,7 @@ export default async function OrderDetailPage({
         </div>
 
         <div className="bg-white rounded-2xl border border-gray-50 p-5 mb-4">
-          <h3 className="text-sm font-bold text-gray-700 mb-3">📦 商品信息</h3>
+          <h3 className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-1.5"><PackageIcon className="w-4 h-4" /> 商品信息</h3>
           {order.items.map((item) => {
             const imgList = JSON.parse(item.product.images || "[]") as string[];
             return (
@@ -178,7 +179,7 @@ export default async function OrderDetailPage({
         </div>
 
         <div className="bg-white rounded-2xl border border-gray-50 p-5 mb-4">
-          <h3 className="text-sm font-bold text-gray-700 mb-3">💰 金额明细</h3>
+          <h3 className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-1.5"><MoneyIcon className="w-4 h-4" /> 金额明细</h3>
           <div className="space-y-2 text-sm">
             <div className="flex justify-between text-gray-500">
               <span>商品总额</span>
@@ -196,7 +197,7 @@ export default async function OrderDetailPage({
         </div>
 
         <div className="bg-white rounded-2xl border border-gray-50 p-5">
-          <h3 className="text-sm font-bold text-gray-700 mb-3">📋 订单信息</h3>
+          <h3 className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-1.5"><OrdersIcon className="w-4 h-4" /> 订单信息</h3>
           <div className="grid grid-cols-2 gap-2 text-sm text-gray-600">
             <div>订单编号：{order.orderNo}</div>
             <div>支付方式：{order.paymentMethod === "wechat" ? "微信支付" : order.paymentMethod === "alipay" ? "支付宝" : order.paymentMethod || "—"}</div>

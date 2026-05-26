@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { regionData, type RegionItem } from "@/lib/regions";
 import { useToast } from "@/components/ui/Toast";
+import { AddressesIcon } from "@/components/user/UserIcons";
 
 interface Address {
   id: string;
@@ -118,7 +119,7 @@ export default function AddressesClient({ addresses }: { addresses: Address[] })
     return (
       <div className="bg-white rounded-2xl border border-gray-50 p-6">
         <h3 className="text-base font-bold text-gray-700 mb-4">
-          {editingId ? "✏️ 编辑地址" : "➕ 新增地址"}
+          {editingId ? "编辑地址" : "新增地址"}
         </h3>
         <div className="grid grid-cols-2 gap-3 max-w-md">
           <div>
@@ -276,7 +277,7 @@ export default function AddressesClient({ addresses }: { addresses: Address[] })
         </div>
       ) : (
         <div className="bg-white rounded-2xl p-16 text-center">
-          <p className="text-4xl mb-3">📍</p>
+          <div className="text-gray-300 mb-3 flex justify-center"><AddressesIcon className="w-10 h-10" /></div>
           <p className="text-gray-400 text-sm">暂无收货地址</p>
         </div>
       )}
