@@ -60,7 +60,7 @@ export default async function UserLayout({ children }: { children: React.ReactNo
           <main className="flex-1 min-w-0">{children}</main>
         </div>
       </div>
-      <Footer />
+      <div className="relative z-10"><Footer /></div>
       <BackToTop />
     </div>
   );
