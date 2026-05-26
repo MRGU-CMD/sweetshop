@@ -2,12 +2,12 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import BackToTop from "@/components/ui/BackToTop";
 import { OrdersIcon, AftersaleIcon } from "@/components/admin/AdminIcons";
 import { FavoritesIcon, AddressesIcon, AccountIcon } from "@/components/user/UserIcons";
+import UserSidebarAvatar from "@/components/user/UserSidebarAvatar";
 
 const menuItems = [
   { href: "/user/orders", label: "我的订单", icon: <OrdersIcon /> },
@@ -32,30 +32,10 @@ export default async function UserLayout({ children }: { children: React.ReactNo
         <div className="flex flex-col lg:flex-row gap-6">
           <aside className="w-full lg:w-52 flex-shrink-0">
             <div className="bg-white rounded-2xl border border-gray-50 lg:sticky lg:top-20">
-              <div className="flex items-center gap-3 px-4 pt-4 pb-3">
-                <div className="w-10 h-10 rounded-full bg-sakura-100 flex items-center justify-center text-lg overflow-hidden flex-shrink-0">
-                  {avatar ? (
-                    <Image src={avatar} alt="" width={40} height={40} className="w-full h-full object-cover" unoptimized />
-                  ) : (
-                    <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" className="w-7 h-7">
-                      <circle cx="16" cy="16" r="16" fill="#fce4ec" />
-                      <g fill="#fff" opacity="0.55">
-                        <circle cx="16" cy="7.5" r="4.2" />
-                        <circle cx="23.5" cy="12.5" r="4.2" />
-                        <circle cx="20.6" cy="21.2" r="4.2" />
-                        <circle cx="11.4" cy="21.2" r="4.2" />
-                        <circle cx="8.5" cy="12.5" r="4.2" />
-                      </g>
-                      <circle cx="16" cy="16" r="5" fill="#f8bbd0" />
-                    </svg>
-                  )}
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-700 truncate">
-                    {session.user.name || session.user.email || "用户"}
-                  </p>
-                </div>
-              </div>
+              <UserSidebarAvatar
+                avatar={avatar}
+                name={session.user.name || session.user.email || "用户"}
+              />
               <nav className="px-2 pb-2 flex flex-row lg:flex-col gap-0.5 overflow-x-auto lg:overflow-visible">
                 {menuItems.map((item) => (
                   <Link
