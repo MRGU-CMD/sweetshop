@@ -4,17 +4,18 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTransition } from "@/components/TransitionProvider";
+import { useToast } from "@/components/ui/Toast";
 
 export default function ResetPasswordPage() {
   const router = useRouter();
   const { startLoading } = useTransition();
+  const { toast } = useToast();
   const [step, setStep] = useState(1);
   const [method, setMethod] = useState<"phone" | "email">("email");
   const [contact, setContact] = useState("");
   const [smsCode, setSmsCode] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [codeSending, setCodeSending] = useState(false);
   const [codeCountdown, setCodeCountdown] = useState(0);
@@ -28,10 +29,9 @@ export default function ResetPasswordPage() {
   const handleSendCode = async () => {
     const targetEmail = contact.trim();
     if (!targetEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(targetEmail)) {
-      setError("请先输入有效的邮箱地址");
+      toast("请先输入有效的邮箱地址", "error");
       return;
     }
-    setError("");
     setCodeSending(true);
     try {
       const res = await fetch("/api/auth/send-code", {
@@ -40,7 +40,8 @@ export default function ResetPasswordPage() {
         body: JSON.stringify({ email: targetEmail, purpose: "reset" }),
       });
       const data = await res.json();
-      if (!res.ok) { setError(data.error || "发送失败"); return; }
+      if (!res.ok) { toast(data.error || "发送失败", "error"); return; }
+      toast("验证码已发送", "success");
       setCodeCountdown(60);
     } finally {
       setCodeSending(false);
@@ -49,9 +50,8 @@ export default function ResetPasswordPage() {
 
   const handleVerify = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
     if (!smsCode || smsCode.length < 4) {
-      setError("请输入验证码");
+      toast("请输入验证码", "error");
       return;
     }
     setStep(2);
@@ -59,14 +59,13 @@ export default function ResetPasswordPage() {
 
   const handleReset = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
 
     if (newPassword !== confirmPassword) {
-      setError("两次输入的密码不一致");
+      toast("两次输入的密码不一致", "error");
       return;
     }
     if (newPassword.length < 6) {
-      setError("密码至少6位");
+      toast("密码至少6位", "error");
       return;
     }
 
@@ -85,7 +84,7 @@ export default function ResetPasswordPage() {
 
     if (!res.ok) {
       const data = await res.json();
-      setError(data.error || "重置失败");
+      toast(data.error || "重置失败", "error");
       setLoading(false);
       return;
     }
@@ -142,6 +141,7 @@ export default function ResetPasswordPage() {
               </div>
 
               <div>
+                <label className="sr-only">{method === "phone" ? "手机号" : "邮箱地址"}</label>
                 <input
                   type={method === "phone" ? "tel" : "email"}
                   placeholder={method === "phone" ? "已绑定的手机号" : "已绑定的邮箱"}
@@ -153,6 +153,7 @@ export default function ResetPasswordPage() {
               </div>
 
               <div className="flex gap-2">
+                <label className="sr-only">验证码</label>
                 <input
                   type="text"
                   placeholder="验证码"
@@ -171,10 +172,6 @@ export default function ResetPasswordPage() {
                 </button>
               </div>
 
-              {error && (
-                <p className="text-red-500 text-sm text-center">{error}</p>
-              )}
-
               <button type="submit" className="btn-sakura w-full">
                 下一步
               </button>
@@ -192,6 +189,7 @@ export default function ResetPasswordPage() {
               </div>
 
               <div>
+                <label className="sr-only">新密码</label>
                 <input
                   type="password"
                   placeholder="新密码（至少6位）"
@@ -203,6 +201,7 @@ export default function ResetPasswordPage() {
               </div>
 
               <div>
+                <label className="sr-only">确认新密码</label>
                 <input
                   type="password"
                   placeholder="确认新密码"
@@ -212,10 +211,6 @@ export default function ResetPasswordPage() {
                   required
                 />
               </div>
-
-              {error && (
-                <p className="text-red-500 text-sm text-center">{error}</p>
-              )}
 
               <button
                 type="submit"

@@ -92,7 +92,9 @@ export default function CheckoutClient() {
             setUseSaved(true);
           }
         })
-        .catch(() => {});
+        .catch(() => {
+          // Gracefully fall back to empty manual form
+        });
     }
   }, [status]);
 

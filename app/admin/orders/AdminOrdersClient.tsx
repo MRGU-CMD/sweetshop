@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { OrdersIcon } from "@/components/admin/AdminIcons";
+import { useToast } from "@/components/ui/Toast";
 
 interface Order {
   id: string;
@@ -23,6 +24,7 @@ const statusOptions = ["PAID", "SHIPPED", "RECEIVED", "COMPLETED", "CANCELLED"];
 
 export default function AdminOrdersClient() {
   const router = useRouter();
+  const { toast } = useToast();
   const [orders, setOrders] = useState<Order[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
@@ -57,15 +59,25 @@ export default function AdminOrdersClient() {
 
   const handleSave = async () => {
     setSaving(true);
-    await fetch("/api/admin/orders", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id: editingId, status: editStatus, logisticsCompany, trackingNo }),
-    });
+    try {
+      const res = await fetch("/api/admin/orders", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: editingId, status: editStatus, logisticsCompany, trackingNo }),
+      });
+      if (res.ok) {
+        toast("订单已更新", "success");
+        setEditingId(null);
+        router.refresh();
+        fetchOrders();
+      } else {
+        const data = await res.json().catch(() => ({}));
+        toast(data.error || "更新失败", "error");
+      }
+    } catch {
+      toast("网络错误，请重试", "error");
+    }
     setSaving(false);
-    setEditingId(null);
-    router.refresh();
-    fetchOrders();
   };
 
   return (

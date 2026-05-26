@@ -3,19 +3,21 @@
 import { Suspense, useState, useEffect } from "react";
 import { signIn, getSession } from "next-auth/react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTransition } from "@/components/TransitionProvider";
+import { useToast } from "@/components/ui/Toast";
 
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { startLoading } = useTransition();
+  const { toast } = useToast();
   const callbackUrl = searchParams.get("callbackUrl") || "/";
   const [tab, setTab] = useState<"email" | "sms">("email");
   const [account, setAccount] = useState("");
   const [password, setPassword] = useState("");
   const [smsCode, setSmsCode] = useState("");
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [codeSending, setCodeSending] = useState(false);
   const [codeCountdown, setCodeCountdown] = useState(0);
@@ -29,10 +31,9 @@ function LoginForm() {
   const handleSendCode = async () => {
     const targetEmail = account.trim();
     if (!targetEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(targetEmail)) {
-      setError("请先输入有效的邮箱地址");
+      toast("请先输入有效的邮箱地址", "error");
       return;
     }
-    setError("");
     setCodeSending(true);
     try {
       const res = await fetch("/api/auth/send-code", {
@@ -41,7 +42,8 @@ function LoginForm() {
         body: JSON.stringify({ email: targetEmail, purpose: "login" }),
       });
       const data = await res.json();
-      if (!res.ok) { setError(data.error || "发送失败"); return; }
+      if (!res.ok) { toast(data.error || "发送失败", "error"); return; }
+      toast("验证码已发送", "success");
       setCodeCountdown(60);
     } finally {
       setCodeSending(false);
@@ -50,7 +52,6 @@ function LoginForm() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
     setLoading(true);
 
     if (tab === "email") {
@@ -60,7 +61,7 @@ function LoginForm() {
         redirect: false,
       });
       if (result?.error) {
-        setError("账号或密码错误");
+        toast("账号或密码错误", "error");
         setLoading(false);
       } else {
         const session = await getSession();
@@ -80,7 +81,7 @@ function LoginForm() {
         redirect: false,
       });
       if (result?.error) {
-        setError("验证码无效或已过期");
+        toast("验证码无效或已过期", "error");
         setLoading(false);
       } else {
         const session = await getSession();
@@ -100,11 +101,7 @@ function LoginForm() {
     <div className="min-h-screen flex relative overflow-hidden bg-[#1a1304]">
       {/* Background image */}
       <div className="absolute inset-0 z-0">
-        <img
-          src="/images/anime-bg.png"
-          alt=""
-          className="w-full h-full object-cover"
-        />
+        <Image src="/images/anime-bg.png" alt="" fill className="object-cover" priority />
         {/* Lighting overlays */}
         <div className="absolute inset-0 bg-gradient-to-r from-[#1a1304]/85 via-[#1a1304]/45 to-[#1a1304]/70" />
         <div className="absolute inset-0 bg-gradient-to-t from-[#1a1304]/60 via-transparent to-transparent" />
@@ -161,6 +158,7 @@ function LoginForm() {
               {tab === "email" ? (
                 <>
                   <div>
+                    <label className="sr-only">邮箱地址</label>
                     <input
                       type="text"
                       placeholder="邮箱地址"
@@ -171,6 +169,7 @@ function LoginForm() {
                     />
                   </div>
                   <div>
+                    <label className="sr-only">密码</label>
                     <input
                       type="password"
                       placeholder="密码"
@@ -184,6 +183,7 @@ function LoginForm() {
               ) : (
                 <>
                   <div>
+                    <label className="sr-only">邮箱地址</label>
                     <input
                       type="text"
                       placeholder="邮箱地址"
@@ -194,6 +194,7 @@ function LoginForm() {
                     />
                   </div>
                   <div className="flex gap-2">
+                    <label className="sr-only">验证码</label>
                     <input
                       type="text"
                       placeholder="验证码"
@@ -212,10 +213,6 @@ function LoginForm() {
                     </button>
                   </div>
                 </>
-              )}
-
-              {error && (
-                <p className="text-red-400 text-sm text-center">{error}</p>
               )}
 
               <div className="flex items-center justify-between text-sm">
@@ -251,8 +248,7 @@ function LoginForm() {
               <div className="flex justify-center gap-6">
                 <button
                   onClick={() => signIn("wechat")}
-                  className="w-10 h-10 rounded-full flex items-center justify-center transition-transform hover:scale-110"
-                  style={{ backgroundColor: "#2aa859" }}
+                  className="w-10 h-10 rounded-full flex items-center justify-center transition-transform hover:scale-110 bg-[#2aa859]"
                   title="微信登录"
                 >
                   <svg viewBox="0 0 24 24" className="w-5 h-5 fill-white">
@@ -261,8 +257,7 @@ function LoginForm() {
                 </button>
                 <button
                   onClick={() => signIn("qq")}
-                  className="w-10 h-10 rounded-full flex items-center justify-center transition-transform hover:scale-110"
-                  style={{ backgroundColor: "#3e9fcf" }}
+                  className="w-10 h-10 rounded-full flex items-center justify-center transition-transform hover:scale-110 bg-[#3e9fcf]"
                   title="QQ登录"
                 >
                   <svg viewBox="0 0 24 24" className="w-4 h-4 fill-white">

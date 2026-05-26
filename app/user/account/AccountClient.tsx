@@ -35,7 +35,6 @@ export default function AccountClient({ user, bindings }: { user: User; bindings
   // Binding state
   const [bindType, setBindType] = useState<string | null>(null);
   const [bindValue, setBindValue] = useState("");
-  const [bindMsg, setBindMsg] = useState("");
 
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: "",
@@ -43,7 +42,7 @@ export default function AccountClient({ user, bindings }: { user: User; bindings
     confirmPassword: "",
   });
   const [pwSaving, setPwSaving] = useState(false);
-  const [pwError, setPwError] = useState("");
+  const [pwMsg, setPwMsg] = useState("");
 
   const MAX_UPLOAD_SIZE = 3 * 1024 * 1024; // 3MB
 
@@ -76,61 +75,78 @@ export default function AccountClient({ user, bindings }: { user: User; bindings
 
   const handleSaveProfile = async () => {
     setSaving(true);
-    await fetch("/api/user", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ nickname }),
-    });
+    try {
+      const res = await fetch("/api/user", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nickname }),
+      });
+      if (res.ok) {
+        setSaved(true);
+        setTimeout(() => setSaved(false), 2000);
+      } else {
+        toast("保存失败", "error");
+      }
+    } catch {
+      toast("网络错误，请重试", "error");
+    }
     setSaving(false);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
   };
 
   const handleBind = async () => {
     if (!bindValue) return;
-    setBindMsg("");
-    const res = await fetch("/api/user/bind", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ type: bindType, identifier: bindValue }),
-    });
-    const data = await res.json();
-    if (res.ok) {
-      setBindMsg("绑定成功！");
-      router.refresh();
-    } else {
-      setBindMsg(data.error || "绑定失败");
+    try {
+      const res = await fetch("/api/user/bind", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: bindType, identifier: bindValue }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        toast("绑定成功！", "success");
+        setBindType(null);
+        setBindValue("");
+        router.refresh();
+      } else {
+        toast(data.error || "绑定失败", "error");
+      }
+    } catch {
+      toast("网络错误，请重试", "error");
     }
   };
 
   const handleChangePassword = async () => {
-    setPwError("");
+    setPwMsg("");
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-      setPwError("两次输入的新密码不一致");
+      toast("两次输入的新密码不一致", "error");
       return;
     }
     if (passwordForm.newPassword.length < 6) {
-      setPwError("新密码至少6位");
+      toast("新密码至少6位", "error");
       return;
     }
     setPwSaving(true);
-    const res = await fetch("/api/user", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        currentPassword: passwordForm.currentPassword,
-        newPassword: passwordForm.newPassword,
-        password: true,
-      }),
-    });
-    const data = await res.json();
-    setPwSaving(false);
-    if (res.ok) {
-      setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
-      setPwError("密码修改成功！");
-    } else {
-      setPwError(data.error || "修改失败");
+    try {
+      const res = await fetch("/api/user", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          currentPassword: passwordForm.currentPassword,
+          newPassword: passwordForm.newPassword,
+          password: true,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
+        toast("密码修改成功！", "success");
+      } else {
+        toast(data.error || "修改失败", "error");
+      }
+    } catch {
+      toast("网络错误，请重试", "error");
     }
+    setPwSaving(false);
   };
 
   const providerLabels: Record<string, string> = {
@@ -222,7 +238,7 @@ export default function AccountClient({ user, bindings }: { user: User; bindings
                       placeholder={type === "phone" ? "输入手机号" : "输入邮箱"}
                     />
                     <button onClick={handleBind} className="text-xs text-sakura-500 bg-sakura-50 px-2 py-1 rounded hover:bg-sakura-100">确认</button>
-                    <button onClick={() => { setBindType(null); setBindValue(""); setBindMsg(""); }} className="text-xs text-gray-400">取消</button>
+                    <button onClick={() => { setBindType(null); setBindValue(""); }} className="text-xs text-gray-400">取消</button>
                   </div>
                 ) : (
                   <button onClick={() => setBindType(type)} className="text-xs text-sakura-500 hover:underline">绑定</button>
@@ -248,9 +264,6 @@ export default function AccountClient({ user, bindings }: { user: User; bindings
             );
           })}
         </div>
-        {bindMsg && (
-          <p className={`text-xs mt-2 ${bindMsg.includes("成功") ? "text-green-500" : "text-red-500"}`}>{bindMsg}</p>
-        )}
       </div>
 
       {/* Change password */}
@@ -284,8 +297,8 @@ export default function AccountClient({ user, bindings }: { user: User; bindings
               className="input-sakura"
             />
           </div>
-          {pwError && (
-            <p className={`text-xs ${pwError.includes("成功") ? "text-green-500" : "text-red-500"}`}>{pwError}</p>
+          {pwMsg && (
+            <p className="text-xs text-green-500">{pwMsg}</p>
           )}
           <button onClick={handleChangePassword} disabled={pwSaving} className="btn-sakura text-sm">
             {pwSaving ? "修改中..." : "修改密码"}

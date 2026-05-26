@@ -16,12 +16,12 @@ export default function OrderActions({ orderId, status }: { orderId: string; sta
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ action }),
     });
+    setLoading(null);
     if (res.ok) {
       router.refresh();
     } else {
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
       toast(data.error || "操作失败", "error");
-      setLoading(null);
     }
   };
 

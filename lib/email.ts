@@ -4,10 +4,11 @@ const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KE
 const emailFrom = process.env.EMAIL_FROM || "SweetShop <noreply@sweetshop.com>";
 
 export async function sendVerificationCode(email: string, code: string): Promise<boolean> {
-  // Always print code to console so it's available during development
-  console.log(`\n📧 [验证码] ${code} → ${email}\n`);
-
   if (!resend) {
+    // Dev mode: log code to console since email sending is not configured
+    if (process.env.NODE_ENV === "development") {
+      console.log(`\n📧 [DEV验证码] ${code} → ${email}\n`);
+    }
     return true;
   }
 
@@ -18,10 +19,9 @@ export async function sendVerificationCode(email: string, code: string): Promise
       subject: "SweetShop 验证码 - " + code,
       html: emailTemplate(code),
     });
-    console.log(`  ✅ Resend 已发送`);
     return true;
   } catch (err) {
-    console.error("  ⚠️ Resend 发送失败:", (err as any).message || err);
+    console.error("Resend send error:", (err as any).message || err);
     return false;
   }
 }

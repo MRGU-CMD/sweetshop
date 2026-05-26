@@ -1,32 +1,37 @@
 "use client";
 
 import { useState } from "react";
+import { useToast } from "@/components/ui/Toast";
 
 export default function ReviewForm({ productId, onSuccess }: { productId: string; onSuccess?: () => void }) {
+  const { toast } = useToast();
   const [rating, setRating] = useState(5);
   const [content, setContent] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
   const handleSubmit = async () => {
-    if (content.length > 500) { setError("评价内容不能超过500字"); return; }
+    if (content.length > 500) { toast("评价内容不能超过500字", "error"); return; }
     setSubmitting(true);
-    setError("");
-    const res = await fetch("/api/reviews", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ productId, rating, content }),
-    });
-    const data = await res.json();
-    setSubmitting(false);
-    if (res.ok) {
-      setSuccess(true);
-      setContent("");
-      onSuccess?.();
-    } else {
-      setError(data.error || "提交失败");
+    try {
+      const res = await fetch("/api/reviews", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId, rating, content }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setSuccess(true);
+        setContent("");
+        toast("评价提交成功！", "success");
+        onSuccess?.();
+      } else {
+        toast(data.error || "提交失败", "error");
+      }
+    } catch {
+      toast("网络错误，请重试", "error");
     }
+    setSubmitting(false);
   };
 
   if (success) {
@@ -50,6 +55,7 @@ export default function ReviewForm({ productId, onSuccess }: { productId: string
                 key={star}
                 onClick={() => setRating(star)}
                 className={`text-2xl transition-colors ${star <= rating ? "text-yellow-400" : "text-gray-200"}`}
+                aria-label={`${star}星`}
               >
                 ★
               </button>
@@ -68,7 +74,6 @@ export default function ReviewForm({ productId, onSuccess }: { productId: string
           />
           <p className="text-xs text-gray-300 mt-1">{content.length}/500</p>
         </div>
-        {error && <p className="text-xs text-red-500">{error}</p>}
         <button onClick={handleSubmit} disabled={submitting || !content} className="btn-sakura text-xs px-4 py-2">
           {submitting ? "提交中..." : "提交评价"}
         </button>

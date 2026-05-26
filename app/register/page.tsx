@@ -6,10 +6,12 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useTransition } from "@/components/TransitionProvider";
+import { useToast } from "@/components/ui/Toast";
 
 export default function RegisterPage() {
   const router = useRouter();
   const { startLoading } = useTransition();
+  const { toast } = useToast();
   const [tab, setTab] = useState<"phone" | "email">("phone");
   const [nickname, setNickname] = useState("");
   const [phone, setPhone] = useState("");
@@ -17,7 +19,6 @@ export default function RegisterPage() {
   const [smsCode, setSmsCode] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [codeSending, setCodeSending] = useState(false);
   const [codeCountdown, setCodeCountdown] = useState(0);
@@ -31,10 +32,9 @@ export default function RegisterPage() {
   const handleSendCode = async () => {
     const targetEmail = email.trim();
     if (!targetEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(targetEmail)) {
-      setError("请先输入有效的邮箱地址");
+      toast("请先输入有效的邮箱地址", "error");
       return;
     }
-    setError("");
     setCodeSending(true);
     try {
       const res = await fetch("/api/auth/send-code", {
@@ -43,9 +43,9 @@ export default function RegisterPage() {
         body: JSON.stringify({ email: targetEmail, purpose: "register" }),
       });
       const data = await res.json();
-      if (!res.ok) { setError(data.error || "发送失败"); return; }
+      if (!res.ok) { toast(data.error || "发送失败", "error"); return; }
+      toast("验证码已发送", "success");
       setCodeCountdown(60);
-      setError("");
     } finally {
       setCodeSending(false);
     }
@@ -53,18 +53,17 @@ export default function RegisterPage() {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
 
     if (password !== confirmPassword) {
-      setError("两次输入的密码不一致");
+      toast("两次输入的密码不一致", "error");
       return;
     }
     if (password.length < 6) {
-      setError("密码至少6位");
+      toast("密码至少6位", "error");
       return;
     }
     if (!smsCode) {
-      setError("请输入验证码");
+      toast("请输入验证码", "error");
       return;
     }
 
@@ -84,7 +83,7 @@ export default function RegisterPage() {
 
     const data = await res.json();
     if (!res.ok) {
-      setError(data.error || "注册失败");
+      toast(data.error || "注册失败", "error");
       setLoading(false);
       return;
     }
@@ -132,20 +131,24 @@ export default function RegisterPage() {
 
             <form onSubmit={handleRegister} className="space-y-4">
               <div>
+                <label className="sr-only">昵称</label>
                 <input type="text" placeholder="昵称" value={nickname} onChange={(e) => setNickname(e.target.value)} className="input-sakura" required />
               </div>
 
               {tab === "phone" ? (
                 <div>
+                  <label className="sr-only">手机号</label>
                   <input type="tel" placeholder="手机号" value={phone} onChange={(e) => setPhone(e.target.value)} className="input-sakura" required />
                 </div>
               ) : null}
 
               <div>
+                <label className="sr-only">邮箱地址</label>
                 <input type="email" placeholder="邮箱 (接收验证码)" value={email} onChange={(e) => setEmail(e.target.value)} className="input-sakura" required />
               </div>
 
               <div className="flex gap-2">
+                <label className="sr-only">验证码</label>
                 <input type="text" placeholder="验证码" value={smsCode} onChange={(e) => setSmsCode(e.target.value)} className="input-sakura flex-1" required />
                 <button type="button" onClick={handleSendCode} disabled={codeSending || codeCountdown > 0}
                   className="px-4 py-3 text-sm text-[#8b6914] bg-[#fdf9f0] rounded-xl font-medium whitespace-nowrap hover:bg-[#f7eed8] transition-colors disabled:opacity-50">
@@ -154,13 +157,13 @@ export default function RegisterPage() {
               </div>
 
               <div>
+                <label className="sr-only">密码</label>
                 <input type="password" placeholder="密码（至少6位）" value={password} onChange={(e) => setPassword(e.target.value)} className="input-sakura" required />
               </div>
               <div>
+                <label className="sr-only">确认密码</label>
                 <input type="password" placeholder="确认密码" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="input-sakura" required />
               </div>
-
-              {error && <p className="text-red-400 text-sm text-center">{error}</p>}
 
               <button type="submit" disabled={loading} className="btn-sakura w-full disabled:opacity-60">
                 {loading ? "注册中..." : "注册"}
