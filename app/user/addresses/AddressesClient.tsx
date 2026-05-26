@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import { regionData, type RegionItem } from "@/lib/regions";
+import { useToast } from "@/components/ui/Toast";
 
 interface Address {
   id: string;
@@ -28,10 +30,14 @@ const emptyAddress = {
 
 export default function AddressesClient({ addresses }: { addresses: Address[] }) {
   const router = useRouter();
+  const { toast } = useToast();
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyAddress);
   const [saving, setSaving] = useState(false);
+
+  const selectedProvince = useMemo(() => regionData.find((p) => p.name === form.province), [form.province]);
+  const selectedCity = useMemo(() => selectedProvince?.children?.find((c: RegionItem) => c.name === form.city), [selectedProvince, form.city]);
 
   const openEdit = (addr: Address) => {
     setEditingId(addr.id);
@@ -55,40 +61,57 @@ export default function AddressesClient({ addresses }: { addresses: Address[] })
   };
 
   const handleSave = async () => {
-    if (!form.name || !form.phone || !form.detail) return;
+    if (!form.name || !form.phone || !form.detail || !form.province) {
+      toast("请填写完整的收货信息", "error");
+      return;
+    }
     setSaving(true);
 
-    if (editingId) {
-      await fetch(`/api/addresses?id=${editingId}`, {
-        method: "PUT",
+    try {
+      const res = await fetch(editingId ? `/api/addresses?id=${editingId}` : "/api/addresses", {
+        method: editingId ? "PUT" : "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
       });
-    } else {
-      await fetch("/api/addresses", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
+      if (res.ok) {
+        toast(editingId ? "地址已更新" : "地址已添加", "success");
+        setShowForm(false);
+        router.refresh();
+      } else {
+        toast("保存失败，请重试", "error");
+      }
+    } catch {
+      toast("网络错误，请重试", "error");
     }
-
     setSaving(false);
-    setShowForm(false);
-    router.refresh();
   };
 
   const handleDelete = async (id: string) => {
-    await fetch(`/api/addresses?id=${id}`, { method: "DELETE" });
-    router.refresh();
+    try {
+      const res = await fetch(`/api/addresses?id=${id}`, { method: "DELETE" });
+      if (res.ok) {
+        toast("地址已删除", "success");
+        router.refresh();
+      }
+    } catch {
+      toast("删除失败", "error");
+    }
   };
 
   const handleSetDefault = async (id: string) => {
-    await fetch(`/api/addresses?id=${id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ isDefault: true }),
-    });
-    router.refresh();
+    try {
+      const res = await fetch(`/api/addresses?id=${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isDefault: true }),
+      });
+      if (res.ok) {
+        toast("已设为默认地址", "success");
+        router.refresh();
+      }
+    } catch {
+      toast("操作失败", "error");
+    }
   };
 
   if (showForm) {
@@ -119,34 +142,45 @@ export default function AddressesClient({ addresses }: { addresses: Address[] })
             />
           </div>
           <div>
-            <label className="text-xs text-gray-400 mb-1 block">省份</label>
-            <input
-              type="text"
+            <label className="text-xs text-gray-400 mb-1 block">省份 *</label>
+            <select
               value={form.province}
-              onChange={(e) => setForm({ ...form, province: e.target.value })}
+              onChange={(e) => setForm({ ...form, province: e.target.value, city: "", district: "" })}
               className="input-sakura"
-              placeholder="省"
-            />
+            >
+              <option value="">请选择省份</option>
+              {regionData.map((p) => (
+                <option key={p.name} value={p.name}>{p.name}</option>
+              ))}
+            </select>
           </div>
           <div>
             <label className="text-xs text-gray-400 mb-1 block">城市</label>
-            <input
-              type="text"
+            <select
               value={form.city}
-              onChange={(e) => setForm({ ...form, city: e.target.value })}
+              onChange={(e) => setForm({ ...form, city: e.target.value, district: "" })}
               className="input-sakura"
-              placeholder="市"
-            />
+              disabled={!selectedProvince?.children}
+            >
+              <option value="">请选择城市</option>
+              {selectedProvince?.children?.map((c: RegionItem) => (
+                <option key={c.name} value={c.name}>{c.name}</option>
+              ))}
+            </select>
           </div>
           <div>
             <label className="text-xs text-gray-400 mb-1 block">区/县</label>
-            <input
-              type="text"
+            <select
               value={form.district}
               onChange={(e) => setForm({ ...form, district: e.target.value })}
               className="input-sakura"
-              placeholder="区"
-            />
+              disabled={!selectedCity?.children}
+            >
+              <option value="">请选择区县</option>
+              {selectedCity?.children?.map((d: RegionItem) => (
+                <option key={d.name} value={d.name}>{d.name}</option>
+              ))}
+            </select>
           </div>
           <div>
             <label className="text-xs text-gray-400 mb-1 block">邮编</label>

@@ -1,5 +1,7 @@
 export const dynamic = "force-dynamic";
 import Header from "@/components/layout/Header";
+import Footer from "@/components/layout/Footer";
+import BackToTop from "@/components/ui/BackToTop";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
@@ -7,6 +9,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import FavoriteButton from "@/components/product/FavoriteButton";
 import AddToCartButton from "@/components/product/AddToCartButton";
+import ShareButton from "@/components/product/ShareButton";
 import { ImageGallery, ProductTabs } from "@/components/product/ProductDetailClient";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
@@ -62,11 +65,11 @@ export default async function ProductPage({
   const imageList = JSON.parse(product.images || "[]") as string[];
 
   return (
-    <div className="min-h-screen bg-[#fafafa]">
+    <div className="min-h-screen bg-[#fafafa] flex flex-col">
       <Header />
-      <div className="max-w-7xl mx-auto px-4 py-6">
+      <div className="max-w-7xl mx-auto px-4 py-6 flex-1" id="main-content">
         {/* Breadcrumb */}
-        <div className="text-sm text-gray-400 mb-6">
+        <div className="text-sm text-gray-400 mb-6 overflow-x-auto whitespace-nowrap">
           <Link href="/" className="hover:text-sakura-500">首页</Link>
           <span className="mx-2">/</span>
           <Link href={`/category/${product.category.slug}`} className="hover:text-sakura-500">
@@ -76,9 +79,9 @@ export default async function ProductPage({
           <span className="text-gray-600">{product.name}</span>
         </div>
 
-        <div className="flex gap-8">
+        <div className="flex flex-col lg:flex-row gap-8">
           {/* Left: Image Gallery */}
-          <div className="w-[480px] flex-shrink-0">
+          <div className="w-full lg:w-[480px] flex-shrink-0">
             <ImageGallery images={imageList} />
           </div>
 
@@ -114,6 +117,7 @@ export default async function ProductPage({
                 <>
                   <div className="flex items-center gap-3 mb-3">
                     <FavoriteButton productId={product.id} initialFavorited={isFavorited} />
+                    <ShareButton name={product.name} />
                   </div>
                   <AddToCartButton
                     productId={product.id}
@@ -140,6 +144,8 @@ export default async function ProductPage({
           userId={session?.user ? session.user.id : undefined}
         />
       </div>
+      <Footer />
+      <BackToTop />
     </div>
   );
 }

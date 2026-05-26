@@ -6,18 +6,50 @@ import ReviewForm from "./ReviewForm";
 
 export function ImageGallery({ images }: { images: string[] }) {
   const [main, setMain] = useState(images[0] || "");
+  const [zoomed, setZoomed] = useState(false);
+  const [zoomPos, setZoomPos] = useState({ x: 50, y: 50 });
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    setZoomPos({
+      x: ((e.clientX - rect.left) / rect.width) * 100,
+      y: ((e.clientY - rect.top) / rect.height) * 100,
+    });
+  };
 
   return (
     <>
-      <div className="aspect-square bg-gradient-to-br from-sakura-50 to-purple-50 rounded-2xl flex items-center justify-center text-8xl overflow-hidden relative">
+      <div
+        className="aspect-square bg-gradient-to-br from-sakura-50 to-purple-50 rounded-2xl flex items-center justify-center text-8xl overflow-hidden relative cursor-zoom-in group"
+        onMouseEnter={() => main && setZoomed(true)}
+        onMouseLeave={() => setZoomed(false)}
+        onMouseMove={handleMouseMove}
+        onClick={() => setZoomed(!zoomed)}
+      >
         {main ? (
-          <Image src={main} alt="" fill className="object-cover rounded-2xl" sizes="(max-width: 768px) 100vw, 50vw" />
+          <>
+            <Image src={main} alt="" fill className="object-cover rounded-2xl" sizes="(max-width: 768px) 100vw, 50vw" />
+            {zoomed && (
+              <div
+                className="absolute inset-0 z-10"
+                style={{
+                  backgroundImage: `url(${main})`,
+                  backgroundPosition: `${zoomPos.x}% ${zoomPos.y}%`,
+                  backgroundSize: "200%",
+                  backgroundRepeat: "no-repeat",
+                }}
+              />
+            )}
+            <div className="absolute top-3 right-3 z-20 bg-black/50 text-white text-xs px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">
+              🔍 悬停放大
+            </div>
+          </>
         ) : (
           <span className="opacity-30">🧸</span>
         )}
       </div>
       {images.length > 1 && (
-        <div className="flex gap-2 mt-3">
+        <div className="flex gap-2 mt-3 overflow-x-auto pb-1">
           {images.map((img, i) => (
             <button
               key={i}

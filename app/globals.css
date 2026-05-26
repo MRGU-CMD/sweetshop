@@ -25,6 +25,28 @@
   h1, h2, h3, .font-display {
     font-family: var(--font-display);
   }
+  :focus-visible {
+    outline: 2px solid #b8942f;
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  ::selection {
+    background: rgba(184, 148, 47, 0.2);
+    color: #6b5010;
+  }
+}
+
+@layer utilities {
+  .animate-skeleton {
+    background: linear-gradient(90deg, #f0ede5 25%, #e8e3d6 50%, #f0ede5 75%);
+    background-size: 200% 100%;
+    animation: skeleton-wave 1.5s ease-in-out infinite;
+  }
+}
+
+@keyframes skeleton-wave {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }
 
 @layer components {

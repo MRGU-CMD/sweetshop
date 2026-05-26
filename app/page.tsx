@@ -1,7 +1,9 @@
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 import Header from "@/components/layout/Header";
+import Footer from "@/components/layout/Footer";
 import CategorySidebar from "@/components/layout/CategorySidebar";
 import ProductCard from "@/components/product/ProductCard";
+import BackToTop from "@/components/ui/BackToTop";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 
@@ -21,35 +23,42 @@ export default async function Home() {
   return (
     <div className="min-h-screen bg-[#fafafa]">
       <Header />
-      <div className="max-w-7xl mx-auto px-4 py-6">
+      <div className="max-w-7xl mx-auto px-4 py-6" id="main-content">
         <div className="flex gap-6">
           {/* Left sidebar */}
-          <CategorySidebar />
+          <aside className="hidden lg:block w-44 flex-shrink-0">
+            <CategorySidebar />
+          </aside>
 
           {/* Main area */}
           <div className="flex-1 min-w-0">
             {/* Banner carousel */}
-            <div className="flex gap-4 mb-8">
-              <div className="flex-[2] h-56 bg-gradient-to-br from-sakura-200 to-sakura-400 rounded-2xl flex items-center px-10 relative overflow-hidden">
+            <div className="flex flex-col sm:flex-row gap-4 mb-8">
+              <div className="sm:flex-[2] h-48 sm:h-56 bg-gradient-to-br from-sakura-200 to-sakura-400 rounded-2xl flex items-center px-6 sm:px-10 relative overflow-hidden">
                 <div>
-                  <p className="text-white/80 text-sm mb-2">🌸 樱花季新品首发</p>
-                  <h2 className="text-white text-2xl font-bold mb-3">春季限定手办 & 周边</h2>
-                  <Link href="/category/figures" className="inline-block bg-white text-sakura-500 text-sm font-semibold px-5 py-2 rounded-xl hover:shadow-lg transition-shadow">
+                  <p className="text-white/80 text-xs sm:text-sm mb-1 sm:mb-2">🌸 樱花季新品首发</p>
+                  <h2 className="text-white text-lg sm:text-2xl font-bold mb-2 sm:mb-3">春季限定手办 & 周边</h2>
+                  <Link href="/category/figures" className="inline-block bg-white text-sakura-500 text-xs sm:text-sm font-semibold px-4 sm:px-5 py-2 rounded-xl hover:shadow-lg transition-shadow">
                     立即选购 →
                   </Link>
                 </div>
-                <div className="text-8xl absolute right-8 opacity-30">🌸</div>
+                <div className="text-5xl sm:text-8xl absolute right-4 sm:right-8 opacity-30">🌸</div>
               </div>
-              <div className="flex-1 flex flex-col gap-4">
-                <div className="flex-1 bg-gradient-to-br from-purple-100 to-sakura-100 rounded-2xl p-5 relative overflow-hidden">
-                  <p className="text-sakura-600 text-sm font-semibold">🎀 满299包邮</p>
-                  <p className="text-sakura-400 text-xs mt-1">全场动漫好物随心选</p>
+              <div className="flex sm:flex-col gap-3 sm:gap-4 sm:flex-1">
+                <div className="flex-1 bg-gradient-to-br from-purple-100 to-sakura-100 rounded-2xl p-4 sm:p-5 relative overflow-hidden">
+                  <p className="text-sakura-600 text-xs sm:text-sm font-semibold">🎀 满299包邮</p>
+                  <p className="text-sakura-400 text-[10px] sm:text-xs mt-1">全场动漫好物随心选</p>
                 </div>
-                <div className="flex-1 bg-gradient-to-br from-sakura-50 to-purple-100 rounded-2xl p-5 relative overflow-hidden">
-                  <p className="text-sakura-600 text-sm font-semibold">✨ 会员专享9折</p>
-                  <p className="text-sakura-400 text-xs mt-1">注册即享首单优惠</p>
+                <div className="flex-1 bg-gradient-to-br from-sakura-50 to-purple-100 rounded-2xl p-4 sm:p-5 relative overflow-hidden">
+                  <p className="text-sakura-600 text-xs sm:text-sm font-semibold">✨ 会员专享9折</p>
+                  <p className="text-sakura-400 text-[10px] sm:text-xs mt-1">注册即享首单优惠</p>
                 </div>
               </div>
+            </div>
+
+            {/* Category sidebar below banner on mobile */}
+            <div className="lg:hidden mb-6">
+              <CategorySidebar />
             </div>
 
             {/* Hot products */}
@@ -59,7 +68,7 @@ export default async function Home() {
                 查看更多 →
               </Link>
             </div>
-            <div className="grid grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
               {products.map((p) => (
                 <ProductCard
                   key={p.id}
@@ -75,6 +84,8 @@ export default async function Home() {
           </div>
         </div>
       </div>
+      <Footer />
+      <BackToTop />
     </div>
   );
 }

@@ -1,5 +1,7 @@
-export const dynamic = "force-dynamic";
+export const revalidate = 120;
 import Header from "@/components/layout/Header";
+import Footer from "@/components/layout/Footer";
+import BackToTop from "@/components/ui/BackToTop";
 import CategorySidebar from "@/components/layout/CategorySidebar";
 import ProductCard from "@/components/product/ProductCard";
 import { prisma } from "@/lib/prisma";
@@ -80,9 +82,9 @@ export default async function CategoryPage({
   ];
 
   return (
-    <div className="min-h-screen bg-[#fafafa]">
+    <div className="min-h-screen bg-[#fafafa] flex flex-col">
       <Header />
-      <div className="max-w-7xl mx-auto px-4 py-6">
+      <div className="max-w-7xl mx-auto px-4 py-6 flex-1" id="main-content">
         {/* Breadcrumb */}
         <div className="text-sm text-gray-400 mb-4">
           <Link href="/" className="hover:text-sakura-500">首页</Link>
@@ -91,12 +93,14 @@ export default async function CategoryPage({
         </div>
 
         <div className="flex gap-6">
-          <CategorySidebar />
+          <aside className="hidden lg:block w-44 flex-shrink-0">
+            <CategorySidebar />
+          </aside>
 
           <div className="flex-1 min-w-0">
             {/* Sort bar */}
             <div className="flex items-center justify-between bg-white rounded-xl px-4 py-3 mb-4 border border-gray-50">
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 overflow-x-auto">
                 {sortOptions.map((opt) => {
                   const isActive = sort === opt.value;
                   const href = `/category/${slug}?sort=${opt.value}${minPrice ? `&minPrice=${minPrice}` : ""}${maxPrice ? `&maxPrice=${maxPrice}` : ""}`;
@@ -104,7 +108,7 @@ export default async function CategoryPage({
                     <a
                       key={opt.value}
                       href={href}
-                      className={`px-4 py-1.5 text-sm rounded-lg transition-colors ${
+                      className={`px-4 py-1.5 text-sm rounded-lg transition-colors whitespace-nowrap ${
                         isActive
                           ? "bg-sakura-50 text-sakura-500 font-medium"
                           : "text-gray-500 hover:text-sakura-500"
@@ -115,13 +119,18 @@ export default async function CategoryPage({
                   );
                 })}
               </div>
-              <span className="text-xs text-gray-400">共 {total} 件</span>
+              <span className="text-xs text-gray-400 flex-shrink-0 ml-3">共 {total} 件</span>
+            </div>
+
+            {/* Category sidebar on mobile */}
+            <div className="lg:hidden mb-4">
+              <CategorySidebar />
             </div>
 
             {/* Product grid */}
             {products.length > 0 ? (
               <>
-                <div className="grid grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
                   {products.map((p) => (
                     <ProductCard
                       key={p.id}
@@ -167,6 +176,8 @@ export default async function CategoryPage({
           </div>
         </div>
       </div>
+      <Footer />
+      <BackToTop />
     </div>
   );
 }

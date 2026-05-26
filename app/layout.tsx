@@ -32,7 +32,15 @@ export default function RootLayout({
       lang="zh-CN"
       className={`${zcoolXiaoWei.variable} ${zcoolQingKe.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col"><Providers>{children}</Providers></body>
+      <body className="min-h-full flex flex-col">
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-3 focus:left-3 focus:z-[200] focus:px-4 focus:py-2 focus:bg-white focus:text-sakura-500 focus:rounded-lg focus:shadow-lg focus:text-sm"
+        >
+          跳到主要内容
+        </a>
+        <Providers>{children}</Providers>
+      </body>
     </html>
   );
 }

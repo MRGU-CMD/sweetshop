@@ -1,5 +1,7 @@
 export const dynamic = "force-dynamic";
 import Header from "@/components/layout/Header";
+import Footer from "@/components/layout/Footer";
+import BackToTop from "@/components/ui/BackToTop";
 import ProductCard from "@/components/product/ProductCard";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
@@ -34,9 +36,9 @@ export default async function SearchPage({
   const totalPages = Math.ceil(total / limit);
 
   return (
-    <div className="min-h-screen bg-[#fafafa]">
+    <div className="min-h-screen bg-[#fafafa] flex flex-col">
       <Header />
-      <div className="max-w-7xl mx-auto px-4 py-6">
+      <div className="max-w-7xl mx-auto px-4 py-6 flex-1" id="main-content">
         {/* Breadcrumb */}
         <div className="text-sm text-gray-400 mb-4">
           <Link href="/" className="hover:text-sakura-500">首页</Link>
@@ -48,7 +50,7 @@ export default async function SearchPage({
 
         {/* Sort bar */}
         <div className="flex items-center justify-between bg-white rounded-xl px-4 py-3 mb-4 border border-gray-50">
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 overflow-x-auto">
             {[
               { value: "default", label: "综合" },
               { value: "sales", label: "销量" },
@@ -63,7 +65,7 @@ export default async function SearchPage({
                 <a
                   key={opt.value}
                   href={`/search?${params.toString()}`}
-                  className={`px-4 py-1.5 text-sm rounded-lg transition-colors ${
+                  className={`px-4 py-1.5 text-sm rounded-lg transition-colors whitespace-nowrap ${
                     isActive
                       ? "bg-sakura-50 text-sakura-500 font-medium"
                       : "text-gray-500 hover:text-sakura-500"
@@ -74,7 +76,7 @@ export default async function SearchPage({
               );
             })}
           </div>
-          {query && <span className="text-xs text-gray-400">共 {total} 件</span>}
+          {query && <span className="text-xs text-gray-400 flex-shrink-0 ml-3">共 {total} 件</span>}
         </div>
 
         {/* Results */}
@@ -85,7 +87,7 @@ export default async function SearchPage({
                 搜索 &quot;{query}&quot; 共找到 {total} 件商品
               </p>
             )}
-            <div className="grid grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
               {products.map((p) => (
                 <ProductCard
                   key={p.id}
@@ -136,6 +138,8 @@ export default async function SearchPage({
           </div>
         )}
       </div>
+      <Footer />
+      <BackToTop />
     </div>
   );
 }

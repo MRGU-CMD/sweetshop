@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTransition } from "@/components/TransitionProvider";
+import { useToast } from "@/components/ui/Toast";
 
 export default function FavoriteButton({
   productId,
@@ -13,6 +14,7 @@ export default function FavoriteButton({
 }) {
   const router = useRouter();
   const { startLoading } = useTransition();
+  const { toast } = useToast();
   const [favorited, setFavorited] = useState(initialFavorited);
 
   const toggle = async () => {
@@ -20,14 +22,20 @@ export default function FavoriteButton({
     const method = favorited ? "DELETE" : "POST";
     const url = favorited ? `/api/favorites?productId=${productId}` : "/api/favorites";
     const body = favorited ? undefined : JSON.stringify({ productId });
-    const res = await fetch(url, {
-      method,
-      headers: body ? { "Content-Type": "application/json" } : undefined,
-      body,
-    });
-    if (!res.ok) {
+    try {
+      const res = await fetch(url, {
+        method,
+        headers: body ? { "Content-Type": "application/json" } : undefined,
+        body,
+      });
+      if (!res.ok) {
+        setFavorited(favorited);
+        if (res.status === 401) { startLoading("前往登录..."); router.push("/login"); return; }
+        toast("操作失败，请重试", "error");
+      }
+    } catch {
       setFavorited(favorited);
-      if (res.status === 401) { startLoading("前往登录..."); router.push("/login"); }
+      toast("网络错误，请重试", "error");
     }
   };
 

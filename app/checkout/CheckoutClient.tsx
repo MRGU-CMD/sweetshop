@@ -1,10 +1,12 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import Footer from "@/components/layout/Footer";
 import { useTransition } from "@/components/TransitionProvider";
+import { regionData, type RegionItem } from "@/lib/regions";
 
 interface CartItem {
   id: string;
@@ -118,10 +120,14 @@ export default function CheckoutClient() {
 
   const [addressError, setAddressError] = useState("");
 
+  // Region cascade
+  const selectedProvince = useMemo(() => regionData.find((p) => p.name === address.province), [address.province]);
+  const selectedCity = useMemo(() => selectedProvince?.children?.find((c: RegionItem) => c.name === address.city), [selectedProvince, address.city]);
+
   const handleNext = () => {
     if (step === 1) {
-      if (!address.name || !address.phone || !address.detail) {
-        setAddressError("请填写收货人、手机号和详细地址");
+      if (!address.name || !address.phone || !address.detail || !address.province) {
+        setAddressError("请填写收货人、手机号、省份和详细地址");
         return;
       }
       setAddressError("");
@@ -177,37 +183,38 @@ export default function CheckoutClient() {
   const selectedAddress = savedAddresses.find((a) => a.id === selectedAddressId);
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-6">
-      <h1 className="text-xl font-bold text-gray-800 mb-6">📋 订单结算</h1>
+    <div className="min-h-screen bg-[#fafafa] flex flex-col">
+      <div className="max-w-5xl mx-auto px-4 py-6 flex-1 w-full">
+        <h1 className="text-xl font-bold text-gray-800 mb-6">📋 订单结算</h1>
 
-      {/* Step indicator */}
-      <div className="flex items-center justify-center gap-0 mb-8">
-        {steps.map((s, i) => (
-          <div key={s.num} className="flex items-center">
-            <div className="flex items-center gap-2">
-              <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all ${
-                  step >= s.num
-                    ? "bg-sakura-500 text-white"
-                    : "bg-gray-100 text-gray-400"
-                }`}
-              >
-                {step > s.num ? "✓" : s.num}
+        {/* Step indicator */}
+        <div className="flex items-center justify-center gap-0 mb-8">
+          {steps.map((s, i) => (
+            <div key={s.num} className="flex items-center">
+              <div className="flex items-center gap-1 sm:gap-2">
+                <div
+                  className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-bold transition-all ${
+                    step >= s.num
+                      ? "bg-sakura-500 text-white"
+                      : "bg-gray-100 text-gray-400"
+                  }`}
+                >
+                  {step > s.num ? "✓" : s.num}
+                </div>
+                <span className={`text-xs sm:text-sm font-medium ${step >= s.num ? "text-sakura-500" : "text-gray-400"}`}>
+                  {s.label}
+                </span>
               </div>
-              <span className={`text-sm font-medium ${step >= s.num ? "text-sakura-500" : "text-gray-400"}`}>
-                {s.label}
-              </span>
+              {i < steps.length - 1 && (
+                <div className={`w-8 sm:w-12 h-0.5 mx-1 sm:mx-2 ${step > s.num ? "bg-sakura-500" : "bg-gray-100"}`} />
+              )}
             </div>
-            {i < steps.length - 1 && (
-              <div className={`w-12 h-0.5 mx-2 ${step > s.num ? "bg-sakura-500" : "bg-gray-100"}`} />
-            )}
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
 
-      <div className="flex gap-6">
-        {/* Main */}
-        <div className="flex-1">
+        <div className="flex flex-col lg:flex-row gap-6">
+          {/* Main */}
+          <div className="flex-1">
           <div className="bg-white rounded-2xl border border-gray-50 p-6">
             {/* Step 1: Address */}
             {step === 1 && (
@@ -290,34 +297,45 @@ export default function CheckoutClient() {
                       />
                     </div>
                     <div>
-                      <label className="text-xs text-gray-400 mb-1 block">省份</label>
-                      <input
-                        type="text"
+                      <label className="text-xs text-gray-400 mb-1 block">省份 *</label>
+                      <select
                         value={address.province}
-                        onChange={(e) => setAddress({ ...address, province: e.target.value })}
+                        onChange={(e) => setAddress({ ...address, province: e.target.value, city: "", district: "" })}
                         className="input-sakura"
-                        placeholder="省"
-                      />
+                      >
+                        <option value="">请选择省份</option>
+                        {regionData.map((p) => (
+                          <option key={p.name} value={p.name}>{p.name}</option>
+                        ))}
+                      </select>
                     </div>
                     <div>
                       <label className="text-xs text-gray-400 mb-1 block">城市</label>
-                      <input
-                        type="text"
+                      <select
                         value={address.city}
-                        onChange={(e) => setAddress({ ...address, city: e.target.value })}
+                        onChange={(e) => setAddress({ ...address, city: e.target.value, district: "" })}
                         className="input-sakura"
-                        placeholder="市"
-                      />
+                        disabled={!selectedProvince?.children}
+                      >
+                        <option value="">请选择城市</option>
+                        {selectedProvince?.children?.map((c: RegionItem) => (
+                          <option key={c.name} value={c.name}>{c.name}</option>
+                        ))}
+                      </select>
                     </div>
                     <div>
                       <label className="text-xs text-gray-400 mb-1 block">区/县</label>
-                      <input
-                        type="text"
+                      <select
                         value={address.district}
                         onChange={(e) => setAddress({ ...address, district: e.target.value })}
                         className="input-sakura"
-                        placeholder="区"
-                      />
+                        disabled={!selectedCity?.children}
+                      >
+                        <option value="">请选择区县</option>
+                        {selectedCity?.children?.map((d: RegionItem) => (
+                          <option key={d.name} value={d.name}>{d.name}</option>
+                        ))}
+                      </select>
                     </div>
                     <div>
                       <label className="text-xs text-gray-400 mb-1 block">邮编</label>
@@ -440,8 +458,8 @@ export default function CheckoutClient() {
         </div>
 
         {/* Sidebar summary */}
-        <div className="w-72 flex-shrink-0">
-          <div className="bg-white rounded-2xl border border-gray-50 p-5 sticky top-20">
+        <div className="w-full lg:w-72 flex-shrink-0">
+          <div className="bg-white rounded-2xl border border-gray-50 p-5 lg:sticky lg:top-20">
             <h3 className="text-sm font-bold text-gray-700 mb-4">订单汇总</h3>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between text-gray-500">
@@ -461,5 +479,7 @@ export default function CheckoutClient() {
         </div>
       </div>
     </div>
+    <Footer />
+  </div>
   );
 }
