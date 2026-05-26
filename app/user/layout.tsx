@@ -7,6 +7,7 @@ import Footer from "@/components/layout/Footer";
 import BackToTop from "@/components/ui/BackToTop";
 import UserSidebarAvatar from "@/components/user/UserSidebarAvatar";
 import { OrdersIcon, FavoritesIcon, AftersaleIcon, AddressesIcon, AccountIcon } from "@/components/user/UserIcons";
+import SakuraPetals from "@/components/user/SakuraPetals";
 
 const menuItems = [
   { href: "/user/orders", label: "我的订单", Icon: OrdersIcon },
@@ -27,9 +28,10 @@ export default async function UserLayout({ children }: { children: React.ReactNo
   const displayName = session.user.name || session.user.email || "用户";
 
   return (
-    <div className="min-h-screen bg-[#fafafa] flex flex-col">
+    <div className="min-h-screen bg-[#fafafa] flex flex-col relative">
+      <SakuraPetals />
       <Header />
-      <div className="max-w-6xl mx-auto px-4 py-6">
+      <div className="max-w-6xl mx-auto px-4 py-6 relative z-10">
         <div className="flex gap-8">
           <aside className="w-52 flex-shrink-0">
             <div className="bg-white rounded-2xl border border-gray-50 p-4 lg:sticky lg:top-20">
