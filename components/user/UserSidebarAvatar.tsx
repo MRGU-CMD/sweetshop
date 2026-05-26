@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import Image from "next/image";
 
 export default function UserSidebarAvatar({
@@ -37,36 +38,39 @@ export default function UserSidebarAvatar({
         )}
       </button>
 
-      {open && avatar && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
-          onClick={() => setOpen(false)}
-          role="dialog"
-          aria-modal="true"
-          aria-label="头像预览"
-        >
-          <div className="relative max-w-lg w-full max-h-[80vh]">
-            <Image
-              src={avatar}
-              alt={`${name}的头像`}
-              width={600}
-              height={600}
-              className="w-full h-auto rounded-2xl object-contain"
-              unoptimized
-            />
-            <button
-              type="button"
-              onClick={() => setOpen(false)}
-              className="absolute -top-3 -right-3 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-gray-50 transition-colors"
-              aria-label="关闭预览"
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                <path d="M18 6L6 18M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-        </div>
-      )}
+      {open && avatar &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 p-4"
+            onClick={() => setOpen(false)}
+            role="dialog"
+            aria-modal="true"
+            aria-label="头像预览"
+          >
+            <div className="relative max-w-lg w-full max-h-[80vh]">
+              <Image
+                src={avatar}
+                alt={`${name}的头像`}
+                width={600}
+                height={600}
+                className="w-full h-auto rounded-2xl object-contain"
+                unoptimized
+              />
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                className="absolute -top-3 -right-3 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-gray-50 transition-colors"
+                aria-label="关闭预览"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                  <path d="M18 6L6 18M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          </div>,
+          document.body
+        )
+      }
     </>
   );
 }
