@@ -6,7 +6,8 @@ import Image from "next/image";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import BackToTop from "@/components/ui/BackToTop";
-import { OrdersIcon, FavoritesIcon, AftersaleIcon, AddressesIcon, AccountIcon } from "@/components/user/UserIcons";
+import { OrdersIcon, AftersaleIcon } from "@/components/admin/AdminIcons";
+import { FavoritesIcon, AddressesIcon, AccountIcon } from "@/components/user/UserIcons";
 
 const menuItems = [
   { href: "/user/orders", label: "我的订单", icon: <OrdersIcon /> },
@@ -29,9 +30,9 @@ export default async function UserLayout({ children }: { children: React.ReactNo
       <Header />
       <div className="max-w-5xl mx-auto px-4 py-6 flex-1" id="main-content">
         <div className="flex flex-col lg:flex-row gap-6">
-          <aside className="w-full lg:w-48 flex-shrink-0">
-            <div className="bg-white rounded-2xl border border-gray-50 p-4 lg:sticky lg:top-20">
-              <div className="flex items-center gap-3 pb-4 mb-4 border-b border-gray-50">
+          <aside className="w-full lg:w-52 flex-shrink-0">
+            <div className="bg-white rounded-2xl border border-gray-50 lg:sticky lg:top-20">
+              <div className="flex items-center gap-3 px-4 pt-4 pb-3">
                 <div className="w-10 h-10 rounded-full bg-sakura-100 flex items-center justify-center text-lg overflow-hidden flex-shrink-0">
                   {avatar ? (
                     <Image src={avatar} alt="" width={40} height={40} className="w-full h-full object-cover" unoptimized />
@@ -55,14 +56,14 @@ export default async function UserLayout({ children }: { children: React.ReactNo
                   </p>
                 </div>
               </div>
-              <nav className="flex flex-row lg:flex-col gap-1 overflow-x-auto lg:overflow-visible pb-1 lg:pb-0">
+              <nav className="px-2 pb-2 flex flex-row lg:flex-col gap-0.5 overflow-x-auto lg:overflow-visible">
                 {menuItems.map((item) => (
                   <Link
                     key={item.href}
                     href={item.href}
-                    className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-sakura-50 hover:text-sakura-500 transition-colors whitespace-nowrap"
+                    className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-gray-600 hover:bg-sakura-50 hover:text-sakura-500 transition-colors whitespace-nowrap"
                   >
-                    <span>{item.icon}</span>
+                    <span className="flex-shrink-0">{item.icon}</span>
                     <span>{item.label}</span>
                   </Link>
                 ))}
