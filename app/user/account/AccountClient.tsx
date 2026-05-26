@@ -4,6 +4,9 @@ import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useToast } from "@/components/ui/Toast";
+import { AccountIcon } from "@/components/user/UserIcons";
+import { OrdersIcon, AftersaleIcon } from "@/components/admin/AdminIcons";
+import { AddressesIcon, FavoritesIcon } from "@/components/user/UserIcons";
 
 interface User {
   id: string;
@@ -33,7 +36,6 @@ export default function AccountClient({ user, bindings }: { user: User; bindings
   const [saved, setSaved] = useState(false);
   const [previewAvatar, setPreviewAvatar] = useState(false);
 
-  // Binding state
   const [bindType, setBindType] = useState<string | null>(null);
   const [bindValue, setBindValue] = useState("");
 
@@ -43,9 +45,8 @@ export default function AccountClient({ user, bindings }: { user: User; bindings
     confirmPassword: "",
   });
   const [pwSaving, setPwSaving] = useState(false);
-  const [pwMsg, setPwMsg] = useState("");
 
-  const MAX_UPLOAD_SIZE = 3 * 1024 * 1024; // 3MB
+  const MAX_UPLOAD_SIZE = 3 * 1024 * 1024;
 
   const handleUpload = async () => {
     const file = fileRef.current?.files?.[0];
@@ -117,7 +118,6 @@ export default function AccountClient({ user, bindings }: { user: User; bindings
   };
 
   const handleChangePassword = async () => {
-    setPwMsg("");
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
       toast("两次输入的新密码不一致", "error");
       return;
@@ -151,11 +151,7 @@ export default function AccountClient({ user, bindings }: { user: User; bindings
   };
 
   const providerLabels: Record<string, string> = {
-    wechat: "微信",
-    qq: "QQ",
-    google: "Google",
-    phone: "手机号",
-    email: "邮箱",
+    wechat: "微信", qq: "QQ", google: "Google", phone: "手机号", email: "邮箱",
   };
 
   const boundTypes = new Set(bindings.map((b) => b.type));
@@ -163,23 +159,26 @@ export default function AccountClient({ user, bindings }: { user: User; bindings
   if (user.email) boundTypes.add("email");
 
   return (
-    <div className="space-y-4">
-      {/* Profile */}
-      <div className="bg-white rounded-2xl border border-gray-50 p-6">
-        <h3 className="text-sm font-bold text-gray-700 mb-4">👤 基本信息</h3>
-        <div className="flex items-start gap-5">
+    <div className="flex flex-col lg:flex-row gap-5">
+      {/* Left column — Profile */}
+      <div className="lg:w-72 flex-shrink-0">
+        <div className="bg-white rounded-2xl border border-gray-50 p-6 text-center">
+          <h3 className="text-sm font-bold text-gray-700 mb-5 flex items-center justify-center gap-2">
+            <AccountIcon /> 基本信息
+          </h3>
+
           {/* Avatar */}
-          <div className="flex flex-col items-center gap-2">
+          <div className="flex flex-col items-center gap-3">
             {avatar ? (
               <button
                 onClick={() => setPreviewAvatar(true)}
-                className="w-20 h-20 rounded-full bg-sakura-100 flex items-center justify-center text-2xl overflow-hidden text-sakura-600 font-bold relative cursor-pointer hover:ring-2 hover:ring-sakura-300 transition-all"
+                className="w-24 h-24 rounded-full bg-sakura-100 flex items-center justify-center overflow-hidden cursor-pointer hover:ring-2 hover:ring-sakura-300 transition-all relative"
                 title="查看头像大图"
               >
-                <Image src={avatar} alt="" fill className="object-cover" unoptimized sizes="80px" />
+                <Image src={avatar} alt="" fill className="object-cover" unoptimized sizes="96px" />
               </button>
             ) : (
-              <div className="w-20 h-20 rounded-full bg-sakura-100 flex items-center justify-center text-2xl overflow-hidden text-sakura-600 font-bold relative">
+              <div className="w-24 h-24 rounded-full bg-sakura-100 flex items-center justify-center text-3xl text-sakura-600 font-bold">
                 {user.nickname?.[0] || "🌸"}
               </div>
             )}
@@ -191,123 +190,147 @@ export default function AccountClient({ user, bindings }: { user: User; bindings
             >
               {uploading ? "上传中..." : "更换头像"}
             </button>
-            <span className="text-xs text-gray-400">不超过 3MB</span>
           </div>
 
-          <div className="flex-1 max-w-sm space-y-3">
-            <div>
-              <label className="text-xs text-gray-400 mb-1 block">昵称</label>
+          {/* Nickname */}
+          <div className="mt-5 text-left">
+            <label className="text-xs text-gray-400 mb-1 block">昵称</label>
+            <div className="flex gap-2">
               <input
                 type="text"
                 value={nickname}
                 onChange={(e) => setNickname(e.target.value)}
+                className="input-sakura flex-1"
+              />
+              <button onClick={handleSaveProfile} disabled={saving} className="btn-sakura text-xs px-3 py-2 whitespace-nowrap">
+                {saving ? "..." : "保存"}
+              </button>
+            </div>
+            {saved && <p className="text-xs text-green-500 mt-1">已保存</p>}
+          </div>
+
+          {/* Meta */}
+          <div className="mt-5 pt-4 border-t border-gray-50 text-xs text-gray-500 space-y-2 text-left">
+            <div className="flex justify-between">
+              <span className="text-gray-400">手机号</span>
+              <span>{user.phone || "未绑定"}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-400">邮箱</span>
+              <span className="truncate ml-2 max-w-[140px]">{user.email || "未绑定"}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-400">注册时间</span>
+              <span>{new Date(user.createdAt).toLocaleDateString("zh-CN")}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-400">角色</span>
+              <span className={user.role === "ADMIN" || user.role === "OWNER" ? "text-sakura-500 font-medium" : ""}>
+                {user.role === "ADMIN" ? "管理员" : user.role === "OWNER" ? "超级管理员" : "用户"}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Right column */}
+      <div className="flex-1 space-y-5">
+        {/* Account bindings */}
+        <div className="bg-white rounded-2xl border border-gray-50 p-6">
+          <h3 className="text-sm font-bold text-gray-700 mb-4 flex items-center gap-2">
+            <OrdersIcon /> 账号绑定
+          </h3>
+          <div className="divide-y divide-gray-50">
+            {["phone", "email"].map((type) => {
+              const label = providerLabels[type];
+              const bound = boundTypes.has(type);
+              const boundValue = type === "phone" ? user.phone : type === "email" ? user.email : "";
+              return (
+                <div key={type} className="flex items-center justify-between py-3 first:pt-0 last:pb-0">
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm text-gray-700">{label}</span>
+                    {bound && (
+                      <span className="text-xs text-gray-400">{boundValue || bindings.find((b) => b.type === type)?.identifier}</span>
+                    )}
+                  </div>
+                  {bound ? (
+                    <span className="text-xs text-green-500 bg-green-50 px-2 py-0.5 rounded-full">已绑定</span>
+                  ) : bindType === type ? (
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={bindValue}
+                        onChange={(e) => setBindValue(e.target.value)}
+                        className="input-sakura text-xs w-36 py-1"
+                        placeholder={type === "phone" ? "输入手机号" : "输入邮箱"}
+                      />
+                      <button onClick={handleBind} className="text-xs btn-sakura px-2 py-1">确认</button>
+                      <button onClick={() => { setBindType(null); setBindValue(""); }} className="text-xs text-gray-400 hover:text-gray-600">取消</button>
+                    </div>
+                  ) : (
+                    <button onClick={() => setBindType(type)} className="text-xs text-sakura-500 hover:underline">绑定</button>
+                  )}
+                </div>
+              );
+            })}
+            {["wechat", "qq", "google"].map((type) => {
+              const label = providerLabels[type];
+              const b = bindings.find((b) => b.type === type);
+              return (
+                <div key={type} className="flex items-center justify-between py-3 first:pt-0 last:pb-0">
+                  <span className="text-sm text-gray-700">{label}</span>
+                  {b ? (
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-gray-400">{b.identifier}</span>
+                      <span className="text-xs text-green-500 bg-green-50 px-2 py-0.5 rounded-full">已绑定</span>
+                    </div>
+                  ) : (
+                    <span className="text-xs text-gray-300">登录后自动绑定</span>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Change password */}
+        <div className="bg-white rounded-2xl border border-gray-50 p-6">
+          <h3 className="text-sm font-bold text-gray-700 mb-4 flex items-center gap-2">
+            <AftersaleIcon /> 修改密码
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label className="text-xs text-gray-400 mb-1 block">当前密码</label>
+              <input
+                type="password"
+                value={passwordForm.currentPassword}
+                onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
                 className="input-sakura"
+                placeholder="输入当前密码"
               />
             </div>
-            <div className="flex gap-3 items-center">
-              <button onClick={handleSaveProfile} disabled={saving} className="btn-sakura text-sm">
-                {saving ? "保存中..." : "保存"}
-              </button>
-              {saved && <span className="text-green-500 text-sm">已保存</span>}
+            <div>
+              <label className="text-xs text-gray-400 mb-1 block">新密码</label>
+              <input
+                type="password"
+                value={passwordForm.newPassword}
+                onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
+                className="input-sakura"
+                placeholder="至少6位"
+              />
+            </div>
+            <div>
+              <label className="text-xs text-gray-400 mb-1 block">确认新密码</label>
+              <input
+                type="password"
+                value={passwordForm.confirmPassword}
+                onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
+                className="input-sakura"
+                placeholder="再次输入"
+              />
             </div>
           </div>
-        </div>
-        <div className="mt-4 pt-4 border-t border-gray-50 text-sm text-gray-500 space-y-1">
-          <p>手机号：{user.phone || "未绑定"}</p>
-          <p>邮箱：{user.email || "未绑定"}</p>
-          <p>注册时间：{new Date(user.createdAt).toLocaleDateString("zh-CN")}</p>
-        </div>
-      </div>
-
-      {/* Account bindings */}
-      <div className="bg-white rounded-2xl border border-gray-50 p-6">
-        <h3 className="text-sm font-bold text-gray-700 mb-4">🔗 账号绑定</h3>
-        <div className="space-y-3 max-w-sm">
-          {["phone", "email"].map((type) => {
-            const label = providerLabels[type];
-            const bound = boundTypes.has(type);
-            const boundValue = type === "phone" ? user.phone : type === "email" ? user.email : "";
-            return (
-              <div key={type} className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
-                <span className="text-sm text-gray-600">{label}</span>
-                {bound ? (
-                  <span className="text-xs text-green-500 flex items-center gap-1">
-                    ✓ 已绑定
-                    <span className="text-gray-300">{boundValue || bindings.find((b) => b.type === type)?.identifier}</span>
-                  </span>
-                ) : bindType === type ? (
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="text"
-                      value={bindValue}
-                      onChange={(e) => setBindValue(e.target.value)}
-                      className="input-sakura text-xs w-40 py-1"
-                      placeholder={type === "phone" ? "输入手机号" : "输入邮箱"}
-                    />
-                    <button onClick={handleBind} className="text-xs text-sakura-500 bg-sakura-50 px-2 py-1 rounded hover:bg-sakura-100">确认</button>
-                    <button onClick={() => { setBindType(null); setBindValue(""); }} className="text-xs text-gray-400">取消</button>
-                  </div>
-                ) : (
-                  <button onClick={() => setBindType(type)} className="text-xs text-sakura-500 hover:underline">绑定</button>
-                )}
-              </div>
-            );
-          })}
-          {["wechat", "qq", "google"].map((type) => {
-            const label = providerLabels[type];
-            const b = bindings.find((b) => b.type === type);
-            return (
-              <div key={type} className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
-                <span className="text-sm text-gray-600">{label}</span>
-                {b ? (
-                  <span className="text-xs text-green-500 flex items-center gap-1">
-                    ✓ 已绑定
-                    <span className="text-gray-300">{b.identifier}</span>
-                  </span>
-                ) : (
-                  <span className="text-xs text-gray-300">登录后自动绑定</span>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Change password */}
-      <div className="bg-white rounded-2xl border border-gray-50 p-6">
-        <h3 className="text-sm font-bold text-gray-700 mb-4">🔒 修改密码</h3>
-        <div className="max-w-sm space-y-3">
-          <div>
-            <label className="text-xs text-gray-400 mb-1 block">当前密码</label>
-            <input
-              type="password"
-              value={passwordForm.currentPassword}
-              onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
-              className="input-sakura"
-            />
-          </div>
-          <div>
-            <label className="text-xs text-gray-400 mb-1 block">新密码</label>
-            <input
-              type="password"
-              value={passwordForm.newPassword}
-              onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
-              className="input-sakura"
-            />
-          </div>
-          <div>
-            <label className="text-xs text-gray-400 mb-1 block">确认新密码</label>
-            <input
-              type="password"
-              value={passwordForm.confirmPassword}
-              onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
-              className="input-sakura"
-            />
-          </div>
-          {pwMsg && (
-            <p className="text-xs text-green-500">{pwMsg}</p>
-          )}
-          <button onClick={handleChangePassword} disabled={pwSaving} className="btn-sakura text-sm">
+          <button onClick={handleChangePassword} disabled={pwSaving} className="btn-sakura text-sm mt-4">
             {pwSaving ? "修改中..." : "修改密码"}
           </button>
         </div>
