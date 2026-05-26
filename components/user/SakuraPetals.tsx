@@ -295,18 +295,23 @@ function updateAndDraw(
   cw: number, ch: number,
   createPetal: (y?: number) => Petal,
 ) {
-  // Mouse swirl
+  // Wind blow — push petals away from cursor
   const dx = p.x - mx;
   const dy = p.y - my;
   const dist = Math.sqrt(dx * dx + dy * dy);
   const range = 75 + p.depth * 110;
   if (dist < range) {
     const f = (range - dist) / range;
-    const a = Math.atan2(dy, dx) + Math.PI / 2;
-    const s = f * 1.4 * p.depth;
-    p.x += Math.cos(a) * s + mvx * f * 0.2 * p.depth;
-    p.y += Math.sin(a) * s + mvy * f * 0.2 * p.depth;
-    p.rotationSpeed += f * 0.018 * p.depth;
+    // Radial push away from cursor
+    const pushX = (dx / dist) * f * 2.5 * p.depth;
+    const pushY = (dy / dist) * f * 2.5 * p.depth;
+    // Wind carry from mouse velocity
+    const windX = mvx * f * 0.5 * p.depth;
+    const windY = mvy * f * 0.5 * p.depth;
+    p.x += pushX + windX;
+    p.y += pushY + windY;
+    // Gentle tumble
+    p.rotationSpeed += (Math.abs(mvx) + Math.abs(mvy)) * f * 0.003 * p.depth;
   }
 
   // Drift
