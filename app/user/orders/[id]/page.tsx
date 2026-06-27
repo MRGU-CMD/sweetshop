@@ -8,6 +8,7 @@ import Image from "next/image";
 
 import { ORDER_STATUS } from "@/lib/constants";
 import { PackageIcon, AddressesIcon, MoneyIcon, OrdersIcon } from "@/components/user/UserIcons";
+import LogisticsMap from "@/components/order/LogisticsMap";
 
 function buildTimeline(order: any) {
   const items: { time: string; text: string; active: boolean }[] = [];
@@ -144,6 +145,17 @@ export default async function OrderDetailPage({
             </p>
           )}
         </div>
+
+        <LogisticsMap
+          address={{
+            province: address.province,
+            city: address.city,
+            district: address.district,
+            detail: address.detail,
+          }}
+          trackingNo={order.trackingNo}
+          logisticsCompany={order.logisticsCompany}
+        />
 
         <div className="bg-white rounded-2xl border border-gray-50 p-5 mb-4">
           <h3 className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-1.5"><PackageIcon className="w-4 h-4" /> 商品信息</h3>
