@@ -9,18 +9,21 @@ import { redirect } from "next/navigation";
 import { OrdersIcon, PackageIcon } from "@/components/user/UserIcons";
 import { ORDER_STATUS } from "@/lib/constants";
 
-export default async function UserOrdersPage(props: { searchParams: Promise<{ page?: string }> }) {
+export default async function UserOrdersPage(props: { searchParams: Promise<{ page?: string; tab?: string }> }) {
   const session = await auth();
   if (!session?.user) redirect("/login");
 
   const searchParams = await props.searchParams;
   const page = Math.max(1, parseInt(searchParams.page || "1"));
+  const tab = searchParams.tab === "cancelled" ? "cancelled" : "active";
   const take = 10;
   const skip = (page - 1) * take;
 
-  const [orders, total] = await Promise.all([
+  const statusFilter = tab === "cancelled" ? "CANCELLED" : { not: "CANCELLED" };
+
+  const [orders, total, cancelledCount] = await Promise.all([
     prisma.order.findMany({
-      where: { userId: session.user.id },
+      where: { userId: session.user.id, status: statusFilter },
       include: {
         items: { include: { product: true } },
       },
@@ -28,18 +31,38 @@ export default async function UserOrdersPage(props: { searchParams: Promise<{ pa
       take,
       skip,
     }),
-    prisma.order.count({ where: { userId: session.user.id } }),
+    prisma.order.count({ where: { userId: session.user.id, status: statusFilter } }),
+    prisma.order.count({ where: { userId: session.user.id, status: "CANCELLED" } }),
   ]);
   const totalPages = Math.ceil(total / take);
 
   return (
     <div>
-      <h1 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2"><OrdersIcon /> 我的订单</h1>
+      <h1 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2"><OrdersIcon /> 我的订单</h1>
+
+      <div className="flex gap-1 mb-4 bg-white rounded-xl border border-gray-50 p-1 w-fit">
+        <Link
+          href="/user/orders"
+          className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+            tab === "active" ? "bg-sakura-500 text-white" : "text-gray-500 hover:text-gray-700"
+          }`}
+        >
+          进行中
+        </Link>
+        <Link
+          href="/user/orders?tab=cancelled"
+          className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+            tab === "cancelled" ? "bg-sakura-500 text-white" : "text-gray-500 hover:text-gray-700"
+          }`}
+        >
+          已取消{cancelledCount > 0 && <span className="ml-1 opacity-70">({cancelledCount})</span>}
+        </Link>
+      </div>
 
       {orders.length === 0 ? (
         <div className="bg-white rounded-2xl p-20 text-center">
           <div className="text-gray-300 mb-4 flex justify-center"><PackageIcon className="w-12 h-12" /></div>
-          <p className="text-gray-400">暂无订单</p>
+          <p className="text-gray-400">{tab === "cancelled" ? "暂无已取消订单" : "暂无订单"}</p>
           <Link href="/" className="text-sakura-500 text-sm mt-2 inline-block hover:underline">
             去逛逛
           </Link>
@@ -115,7 +138,7 @@ export default async function UserOrdersPage(props: { searchParams: Promise<{ pa
           {Array.from({ length: totalPages }, (_, i) => (
             <a
               key={i}
-              href={`/user/orders?page=${i + 1}`}
+              href={`/user/orders?page=${i + 1}${tab === "cancelled" ? "&tab=cancelled" : ""}`}
               className={`w-8 h-8 rounded-lg text-sm flex items-center justify-center ${
                 page === i + 1
                   ? "bg-sakura-500 text-white"
