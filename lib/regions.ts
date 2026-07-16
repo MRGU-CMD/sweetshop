@@ -38,6 +38,11 @@ export const regionData: RegionItem[] = [
       { name: "长寿区" }, { name: "江津区" }, { name: "合川区" }, { name: "永川区" },
       { name: "南川区" }, { name: "綦江区" }, { name: "大足区" }, { name: "璧山区" },
       { name: "铜梁区" }, { name: "潼南区" }, { name: "荣昌区" }, { name: "开州区" },
+      { name: "武隆区" }, { name: "梁平区" },
+      { name: "城口县" }, { name: "丰都县" }, { name: "垫江县" }, { name: "忠县" },
+      { name: "云阳县" }, { name: "奉节县" }, { name: "巫山县" }, { name: "巫溪县" },
+      { name: "石柱土家族自治县" }, { name: "秀山土家族苗族自治县" },
+      { name: "酉阳土家族苗族自治县" }, { name: "彭水苗族土家族自治县" },
     ],
   },
 
@@ -261,6 +266,7 @@ export const regionData: RegionItem[] = [
       { name: "信阳市", children: [{ name: "浉河区" }, { name: "平桥区" }, { name: "罗山县" }, { name: "光山县" }, { name: "新县" }, { name: "商城县" }, { name: "固始县" }, { name: "潢川县" }, { name: "淮滨县" }, { name: "息县" }] },
       { name: "周口市", children: [{ name: "川汇区" }, { name: "淮阳区" }, { name: "项城市" }, { name: "扶沟县" }, { name: "西华县" }, { name: "商水县" }, { name: "沈丘县" }, { name: "郸城县" }, { name: "太康县" }, { name: "鹿邑县" }] },
       { name: "驻马店市", children: [{ name: "驿城区" }, { name: "西平县" }, { name: "上蔡县" }, { name: "平舆县" }, { name: "正阳县" }, { name: "确山县" }, { name: "泌阳县" }, { name: "汝南县" }, { name: "遂平县" }, { name: "新蔡县" }] },
+      { name: "济源市" },
     ],
   },
   {
@@ -278,6 +284,7 @@ export const regionData: RegionItem[] = [
       { name: "咸宁市", children: [{ name: "咸安区" }, { name: "赤壁市" }, { name: "嘉鱼县" }, { name: "通城县" }, { name: "崇阳县" }, { name: "通山县" }] },
       { name: "随州市", children: [{ name: "曾都区" }, { name: "广水市" }, { name: "随县" }] },
       { name: "恩施土家族苗族自治州", children: [{ name: "恩施市" }, { name: "利川市" }, { name: "建始县" }, { name: "巴东县" }, { name: "宣恩县" }, { name: "咸丰县" }, { name: "来凤县" }, { name: "鹤峰县" }] },
+      { name: "仙桃市" }, { name: "潜江市" }, { name: "天门市" }, { name: "神农架林区" },
     ],
   },
   {
@@ -497,11 +504,23 @@ export const regionData: RegionItem[] = [
       { name: "伊犁哈萨克自治州", children: [{ name: "伊宁市" }, { name: "奎屯市" }, { name: "霍尔果斯市" }, { name: "伊宁县" }, { name: "察布查尔锡伯自治县" }, { name: "霍城县" }, { name: "巩留县" }, { name: "新源县" }, { name: "昭苏县" }, { name: "特克斯县" }, { name: "尼勒克县" }] },
       { name: "塔城地区", children: [{ name: "塔城市" }, { name: "乌苏市" }, { name: "沙湾市" }, { name: "额敏县" }, { name: "托里县" }, { name: "裕民县" }, { name: "和布克赛尔蒙古自治县" }] },
       { name: "阿勒泰地区", children: [{ name: "阿勒泰市" }, { name: "布尔津县" }, { name: "富蕴县" }, { name: "福海县" }, { name: "哈巴河县" }, { name: "青河县" }, { name: "吉木乃县" }] },
+      { name: "石河子市" }, { name: "阿拉尔市" }, { name: "图木舒克市" }, { name: "五家渠市" },
+      { name: "北屯市" }, { name: "铁门关市" }, { name: "双河市" }, { name: "可克达拉市" },
+      { name: "昆玉市" }, { name: "胡杨河市" }, { name: "新星市" },
     ],
   },
 
   // ── 特别行政区 ──
   { name: "香港特别行政区", children: [{ name: "中西区" }, { name: "湾仔区" }, { name: "东区" }, { name: "南区" }, { name: "油尖旺区" }, { name: "深水埗区" }, { name: "九龙城区" }, { name: "黄大仙区" }, { name: "观塘区" }, { name: "荃湾区" }, { name: "屯门区" }, { name: "元朗区" }, { name: "北区" }, { name: "大埔区" }, { name: "沙田区" }, { name: "西贡区" }, { name: "葵青区" }, { name: "离岛区" }] },
   { name: "澳门特别行政区", children: [{ name: "花地玛堂区" }, { name: "圣安多尼堂区" }, { name: "大堂区" }, { name: "望德堂区" }, { name: "风顺堂区" }, { name: "嘉模堂区" }, { name: "圣方济各堂区" }] },
-  { name: "台湾省", children: [{ name: "台北市" }, { name: "高雄市" }, { name: "台中市" }, { name: "台南市" }, { name: "新北市" }, { name: "桃园市" }, { name: "基隆市" }, { name: "新竹市" }, { name: "嘉义市" }] },
+  {
+    name: "台湾省", children: [
+      { name: "台北市" }, { name: "高雄市" }, { name: "台中市" }, { name: "台南市" },
+      { name: "新北市" }, { name: "桃园市" }, { name: "基隆市" }, { name: "新竹市" },
+      { name: "嘉义市" }, { name: "新竹县" }, { name: "苗栗县" }, { name: "彰化县" },
+      { name: "南投县" }, { name: "云林县" }, { name: "嘉义县" }, { name: "屏东县" },
+      { name: "宜兰县" }, { name: "花莲县" }, { name: "台东县" }, { name: "澎湖县" },
+      { name: "金门县" }, { name: "连江县" },
+    ],
+  },
 ];
