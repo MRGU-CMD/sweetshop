@@ -162,8 +162,8 @@ export default function AddressesClient({ addresses }: { addresses: Address[] })
             </select>
           </div>
 
+          {/* 直辖市/特别行政区：省份 → 区（两级） */}
           {isDirectMunicipality ? (
-            /* 直辖市 / 特别行政区：省份下面是区 */
             <div>
               <label className="text-xs text-gray-400 mb-1 block">区</label>
               <select
@@ -179,50 +179,53 @@ export default function AddressesClient({ addresses }: { addresses: Address[] })
               </select>
             </div>
           ) : (
-            <>
-              <div>
-                <label className="text-xs text-gray-400 mb-1 block">城市</label>
-                <select
-                  value={form.city}
-                  onChange={(e) => setForm({ ...form, city: e.target.value, district: "" })}
-                  className="input-sakura"
-                  disabled={!selectedProvince?.children}
-                >
-                  <option value="">请选择城市</option>
-                  {selectedProvince?.children?.map((c: RegionItem) => (
-                    <option key={c.name} value={c.name}>{c.name}</option>
-                  ))}
-                </select>
-              </div>
-              {cityHasDistricts ? (
-                <div>
-                  <label className="text-xs text-gray-400 mb-1 block">区/县</label>
-                  <select
-                    value={form.district}
-                    onChange={(e) => setForm({ ...form, district: e.target.value })}
-                    className="input-sakura"
-                  >
-                    <option value="">请选择区县</option>
-                    {selectedCity!.children!.map((d: RegionItem) => (
-                      <option key={d.name} value={d.name}>{d.name}</option>
-                    ))}
-                  </select>
-                </div>
-              ) : (
-                form.city ? (
-                  <div>
-                    <label className="text-xs text-gray-400 mb-1 block">区/县（选填）</label>
-                    <input
-                      type="text"
-                      value={form.district}
-                      onChange={(e) => setForm({ ...form, district: e.target.value })}
-                      className="input-sakura"
-                      placeholder="区或县名称"
-                    />
-                  </div>
-                ) : null
-              )}
-            </>
+            /* 普通省份：城市（必选） */
+            <div>
+              <label className="text-xs text-gray-400 mb-1 block">城市</label>
+              <select
+                value={form.city}
+                onChange={(e) => setForm({ ...form, city: e.target.value, district: "" })}
+                className="input-sakura"
+                disabled={!selectedProvince?.children}
+              >
+                <option value="">请选择城市</option>
+                {selectedProvince?.children?.map((c: RegionItem) => (
+                  <option key={c.name} value={c.name}>{c.name}</option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {/* 第三级：区/县（仅普通省份显示） */}
+          {!isDirectMunicipality && cityHasDistricts && (
+            <div>
+              <label className="text-xs text-gray-400 mb-1 block">区/县</label>
+              <select
+                value={form.district}
+                onChange={(e) => setForm({ ...form, district: e.target.value })}
+                className="input-sakura"
+              >
+                <option value="">请选择区县</option>
+                {selectedCity!.children!.map((d: RegionItem) => (
+                  <option key={d.name} value={d.name}>{d.name}</option>
+                ))}
+              </select>
+            </div>
+          )}
+          {!isDirectMunicipality && !cityHasDistricts && form.city && (
+            <div>
+              <label className="text-xs text-gray-400 mb-1 block">区/县（选填）</label>
+              <input
+                type="text"
+                value={form.district}
+                onChange={(e) => setForm({ ...form, district: e.target.value })}
+                className="input-sakura"
+                placeholder="区或县名称"
+              />
+            </div>
+          )}
+          {!isDirectMunicipality && !cityHasDistricts && !form.city && (
+            <div />
           )}
           <div>
             <label className="text-xs text-gray-400 mb-1 block">邮编</label>
