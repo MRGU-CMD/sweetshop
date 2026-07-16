@@ -31,10 +31,10 @@ export default async function AdminDashboard() {
     <div>
       <h1 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2"><DashboardIcon /> 仪表盘</h1>
 
-      <div className="grid grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {stats.map((s) => (
           <div key={s.label} className={`bg-gradient-to-br ${s.color} rounded-xl p-5`}>
-            <Image src={s.icon} alt="" width={40} height={40} />
+            <Image src={s.icon} alt={s.label} width={40} height={40} />
             <p className="text-2xl font-bold text-gray-800 mt-3">{s.value}</p>
             <p className="text-sm text-gray-500">{s.label}</p>
           </div>
@@ -43,7 +43,7 @@ export default async function AdminDashboard() {
 
       <div className="bg-white rounded-2xl border border-gray-50 p-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-base font-bold text-gray-700 flex items-center gap-2"><Image src="/images/icon-recent-orders.svg" alt="" width={32} height={32} />最近订单</h2>
+          <h2 className="text-base font-bold text-gray-700 flex items-center gap-2"><Image src="/images/icon-recent-orders.svg" alt="最近订单" width={32} height={32} />最近订单</h2>
           <Link href="/admin/orders" className="text-sm text-sakura-500 hover:underline">查看全部</Link>
         </div>
         <table className="w-full text-sm">

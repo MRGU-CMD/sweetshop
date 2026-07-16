@@ -15,9 +15,19 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     select: { name: true },
   });
   if (!category) return { title: "分类不存在 - SweetShop" };
+  const catName = category.name;
   return {
-    title: `${category.name} - SweetShop 动漫商城`,
-    description: `浏览${category.name}分类下的动漫周边好物 — 手办、服饰、漫画、游戏周边，尽在SweetShop`,
+    title: `${catName} - SweetShop 动漫商城`,
+    description: `浏览${catName}分类下的动漫周边好物 — 手办、服饰、漫画、游戏周边，尽在SweetShop`,
+    openGraph: {
+      title: `${catName} | SweetShop 动漫商城`,
+      description: `浏览${catName}分类下的动漫周边好物`,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${catName} | SweetShop`,
+      description: `浏览${catName}分类下的动漫周边好物`,
+    },
   };
 }
 

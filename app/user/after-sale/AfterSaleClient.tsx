@@ -190,7 +190,7 @@ export default function AfterSaleClient({
               <div className="flex flex-wrap gap-2 mb-2">
                 {images.map((url) => (
                   <div key={url} className="relative w-16 h-16 rounded-lg overflow-hidden border border-gray-200">
-                    <Image src={url} alt="" fill className="object-cover" sizes="64px" />
+                    <Image src={url} alt="凭证图片" fill className="object-cover" sizes="64px" />
                     <button
                       onClick={() => removeImage(url)}
                       className="absolute top-0 right-0 w-5 h-5 bg-red-500 text-white text-xs flex items-center justify-center rounded-bl-lg"

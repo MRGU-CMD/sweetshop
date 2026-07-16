@@ -5,6 +5,29 @@ import BackToTop from "@/components/ui/BackToTop";
 import ProductCard from "@/components/product/ProductCard";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
+import type { Metadata } from "next";
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>;
+}): Promise<Metadata> {
+  const sp = await searchParams;
+  const q = sp.q || "";
+  return {
+    title: q ? `搜索: ${q}` : "全部商品",
+    description: q ? `搜索 "${q}" 的动漫周边商品结果` : "浏览SweetShop全部动漫周边商品 — 手办、服饰、漫画、游戏周边",
+    robots: { index: true, follow: true },
+    openGraph: {
+      title: q ? `搜索: ${q} | SweetShop` : "SweetShop 全部商品",
+      description: q ? `在SweetShop搜索 "${q}" 的动漫周边商品` : "浏览全部动漫周边好物",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: q ? `搜索: ${q} | SweetShop` : "SweetShop 全部商品",
+    },
+  };
+}
 
 export default async function SearchPage({
   searchParams,

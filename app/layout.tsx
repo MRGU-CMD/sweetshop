@@ -18,8 +18,28 @@ const zcoolQingKe = ZCOOL_QingKe_HuangYou({
 });
 
 export const metadata: Metadata = {
-  title: "SweetShop 樱花动漫商城",
-  description: "发现你喜爱的动漫周边好物 — 手办、服饰、漫画、游戏周边，尽在SweetShop",
+  metadataBase: new URL("https://192.org.cn"),
+  title: {
+    default: "SweetShop 樱花动漫商城",
+    template: "%s | SweetShop",
+  },
+  description: "发现你喜爱的动漫周边好物 — 手办、服饰、漫画、游戏周边，尽在SweetShop。正品保证，满299包邮，7天无理由退换。",
+  keywords: ["动漫周边", "手办", "服饰", "漫画", "游戏周边", "樱花", "SweetShop"],
+  authors: [{ name: "SweetShop" }],
+  robots: { index: true, follow: true },
+  openGraph: {
+    type: "website",
+    siteName: "SweetShop 樱花动漫商城",
+    title: "SweetShop 樱花动漫商城",
+    description: "发现你喜爱的动漫周边好物 — 手办、服饰、漫画、游戏周边，尽在SweetShop",
+    url: "https://192.org.cn",
+    locale: "zh_CN",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "SweetShop 樱花动漫商城",
+    description: "发现你喜爱的动漫周边好物 — 手办、服饰、漫画、游戏周边",
+  },
 };
 
 export default function RootLayout({

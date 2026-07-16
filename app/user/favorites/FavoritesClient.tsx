@@ -56,7 +56,7 @@ export default function FavoritesClient({ favorites }: { favorites: FavoriteItem
             <Link href={`/product/${fav.product.id}`} className="block relative">
               <div className="aspect-square bg-gradient-to-br from-sakura-50 to-purple-50 flex items-center justify-center text-5xl relative">
                 {imgList[0] ? (
-                  <Image src={imgList[0]} alt="" fill className="object-cover" sizes="(max-width: 640px) 50vw, 25vw" />
+                  <Image src={imgList[0]} alt={fav.product.name} fill className="object-cover" sizes="(max-width: 640px) 50vw, 25vw" />
                 ) : (
                   <span className="opacity-30">🧸</span>
                 )}

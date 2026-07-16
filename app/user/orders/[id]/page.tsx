@@ -168,7 +168,7 @@ export default async function OrderDetailPage({
               >
                 <div className="relative w-14 h-14 bg-gradient-to-br from-sakura-50 to-purple-50 rounded-lg flex items-center justify-center text-xl flex-shrink-0">
                   {imgList[0] ? (
-                    <Image src={imgList[0]} alt="" fill className="object-cover rounded-lg" sizes="56px" />
+                    <Image src={imgList[0]} alt={item.product.name} fill className="object-cover rounded-lg" sizes="56px" />
                   ) : (
                     <span className="opacity-40">🧸</span>
                   )}

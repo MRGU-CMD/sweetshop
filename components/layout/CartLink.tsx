@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { useTransition } from "@/components/TransitionProvider";
 
 const MESSAGES = [
@@ -239,7 +240,7 @@ export default function CartLink() {
       </button>
 
       {showModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center">
+        <div role="dialog" aria-modal="true" aria-label="请先登录" className="fixed inset-0 z-[100] flex items-center justify-center">
           <div
             className={`absolute inset-0 bg-gradient-to-br from-indigo-900/50 via-[#1a1a2e]/60 to-rose-900/50 transition-opacity duration-300 ${
               visible ? "opacity-100" : "opacity-0"
@@ -285,9 +286,11 @@ export default function CartLink() {
                   className="relative"
                   style={{ animation: "charEntrance 0.7s 0.1s cubic-bezier(0.34, 1.56, 0.64, 1) both" }}
                 >
-                  <img
+                  <Image
                     src="/images/cute-character.svg"
                     alt=""
+                    width={112}
+                    height={112}
                     className="w-28 h-28 mx-auto drop-shadow-lg"
                     style={{ filter: "drop-shadow(0 4px 12px rgba(0,0,0,0.08))" }}
                   />

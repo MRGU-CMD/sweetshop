@@ -92,9 +92,10 @@ export default function SearchBox() {
   return (
     <div ref={ref} className="relative">
       <div className="flex items-center bg-sakura-50 rounded-xl px-4 py-2.5">
-        <span className="text-gray-400 mr-2">🔍</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="text-gray-400 mr-2 flex-shrink-0" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
         <input
           type="text"
+          aria-label="搜索商品"
           placeholder="搜索你喜欢的动漫好物..."
           value={query}
           onChange={(e) => {
@@ -110,7 +111,7 @@ export default function SearchBox() {
       </div>
 
       {showDropdown && (
-        <div className="absolute top-full mt-2 left-0 right-0 bg-white rounded-xl shadow-xl border border-gray-50 overflow-hidden z-50">
+        <div role="listbox" className="absolute top-full mt-2 left-0 right-0 bg-white rounded-xl shadow-xl border border-gray-50 overflow-hidden z-50">
           {query ? (
             <>
               <div className="px-4 py-2 text-xs text-gray-300">搜索建议</div>
@@ -118,10 +119,13 @@ export default function SearchBox() {
                 suggestions.map((s) => (
                   <div
                     key={s.name}
+                    role="option"
+                    tabIndex={0}
                     onClick={() => {
                       setQuery(s.name);
                       handleSearch(s.name);
                     }}
+                    onKeyDown={(e) => { if (e.key === "Enter") { setQuery(s.name); handleSearch(s.name); } }}
                     className="px-4 py-2.5 text-sm text-gray-600 hover:bg-sakura-50 cursor-pointer flex items-center justify-between"
                   >
                     <span>{s.name}</span>
@@ -130,7 +134,10 @@ export default function SearchBox() {
                 ))
               ) : (
                 <div
+                  role="option"
+                  tabIndex={0}
                   onClick={() => handleSearch(query)}
+                  onKeyDown={(e) => { if (e.key === "Enter") handleSearch(query); }}
                   className="px-4 py-2.5 text-sm text-gray-600 hover:bg-sakura-50 cursor-pointer flex items-center gap-2"
                 >
                   🔍 搜索 &quot;{query}&quot;
@@ -153,16 +160,20 @@ export default function SearchBox() {
                   {history.map((term) => (
                     <div
                       key={term}
+                      role="option"
+                      tabIndex={0}
                       onClick={() => {
                         setQuery(term);
                         handleSearch(term);
                       }}
+                      onKeyDown={(e) => { if (e.key === "Enter") { setQuery(term); handleSearch(term); } }}
                       className="px-4 py-2.5 text-sm text-gray-600 hover:bg-sakura-50 cursor-pointer flex items-center justify-between"
                     >
                       <span>{term}</span>
                       <button
                         onClick={(e) => { e.stopPropagation(); removeHistoryItem(term); }}
                         className="text-gray-300 hover:text-gray-500 text-xs"
+                        aria-label={`删除搜索记录: ${term}`}
                       >
                         ✕
                       </button>
@@ -177,10 +188,13 @@ export default function SearchBox() {
               {hotSearches.map((term, i) => (
                 <div
                   key={term}
+                  role="option"
+                  tabIndex={0}
                   onClick={() => {
                     setQuery(term);
                     handleSearch(term);
                   }}
+                  onKeyDown={(e) => { if (e.key === "Enter") { setQuery(term); handleSearch(term); } }}
                   className="px-4 py-2.5 text-sm text-gray-600 hover:bg-sakura-50 cursor-pointer flex items-center gap-3"
                 >
                   <span className={`w-5 h-5 rounded text-[10px] font-bold text-white flex items-center justify-center flex-shrink-0 ${

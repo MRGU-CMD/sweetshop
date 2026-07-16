@@ -22,7 +22,7 @@ export default async function CategorySidebar() {
             <span className="w-5 h-5 flex-shrink-0 flex items-center justify-center">
               {cat.icon ? (
                 /^https?:\/\//.test(cat.icon) ? (
-                  <Image src={cat.icon} alt="" width={20} height={20} className="w-full h-full object-cover rounded" />
+                  <Image src={cat.icon} alt={cat.name} width={20} height={20} className="w-full h-full object-cover rounded" />
                 ) : (
                   <span className="text-base">{cat.icon}</span>
                 )

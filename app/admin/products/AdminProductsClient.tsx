@@ -317,7 +317,7 @@ export default function AdminProductsClient({ categories }: { categories: Catego
               <div className="flex gap-2 mt-2 flex-wrap">
                 {form.images.map((url, i) => (
                   <div key={i} className="relative w-16 h-16 group">
-                    <Image src={url} alt="" fill className="object-cover rounded-lg" sizes="64px" />
+                    <Image src={url} alt={`产品图片 ${i + 1}`} fill className="object-cover rounded-lg" sizes="64px" />
                     <button
                       onClick={() => setForm({ ...form, images: form.images.filter((_, j) => j !== i) })}
                       className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full text-xs opacity-0 group-hover:opacity-100 transition-opacity"

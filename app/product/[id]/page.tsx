@@ -22,10 +22,16 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const images = JSON.parse(product.images || "[]") as string[];
   return {
     title: `${product.name} - SweetShop 动漫商城`,
-    description: `在线购买${product.name}，高品质动漫周边好物尽在SweetShop`,
+    description: `在线购买${product.name}，高品质动漫周边好物尽在SweetShop。正品保证，满299包邮。`,
     openGraph: {
-      title: `${product.name} - SweetShop 动漫商城`,
-      description: `发现你喜爱的动漫周边好物`,
+      title: `${product.name} | SweetShop`,
+      description: `在线购买${product.name}，高品质动漫周边好物尽在SweetShop`,
+      ...(images[0] ? { images: [images[0]] } : {}),
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${product.name} | SweetShop`,
+      description: `在线购买${product.name}，高品质动漫周边好物尽在SweetShop`,
       ...(images[0] ? { images: [images[0]] } : {}),
     },
   };
@@ -82,7 +88,7 @@ export default async function ProductPage({
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Left: Image Gallery */}
           <div className="w-full lg:w-[480px] flex-shrink-0">
-            <ImageGallery images={imageList} />
+            <ImageGallery images={imageList} productName={product.name} />
           </div>
 
           {/* Right: Info */}

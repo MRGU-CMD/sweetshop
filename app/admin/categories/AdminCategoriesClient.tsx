@@ -196,7 +196,7 @@ export default function AdminCategoriesClient({ categories }: { categories: Cate
             <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleUpload} />
             {form.icon ? (
               <div className="relative w-16 h-16 rounded-lg overflow-hidden border border-gray-200">
-                <Image src={form.icon} alt="" fill className="object-cover" sizes="64px" />
+                <Image src={form.icon} alt="分类图标" fill className="object-cover" sizes="64px" />
                 <button
                   onClick={() => setForm({ ...form, icon: "" })}
                   className="absolute top-0 right-0 w-5 h-5 bg-red-500 text-white text-xs flex items-center justify-center rounded-bl-lg"
@@ -304,7 +304,7 @@ export default function AdminCategoriesClient({ categories }: { categories: Cate
                   <td className="py-3 px-4">
                     {c.icon ? (
                       <div className="relative w-8 h-8 rounded-lg overflow-hidden">
-                        <Image src={c.icon} alt="" fill className="object-cover" sizes="32px" />
+                        <Image src={c.icon} alt={c.name} fill className="object-cover" sizes="32px" />
                       </div>
                     ) : "—"}
                   </td>

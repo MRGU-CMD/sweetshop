@@ -69,17 +69,24 @@ export default async function Home() {
               </Link>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-              {products.map((p) => (
-                <ProductCard
-                  key={p.id}
-                  id={p.id}
-                  name={p.name}
-                  price={p.price}
-                  originalPrice={p.originalPrice}
-                  sales={p.sales}
-                  images={p.images}
-                />
-              ))}
+              {products.length > 0 ? (
+                products.map((p) => (
+                  <ProductCard
+                    key={p.id}
+                    id={p.id}
+                    name={p.name}
+                    price={p.price}
+                    originalPrice={p.originalPrice}
+                    sales={p.sales}
+                    images={p.images}
+                  />
+                ))
+              ) : (
+                <div className="col-span-full text-center py-16 text-gray-400">
+                  <p className="text-4xl mb-3">🌸</p>
+                  <p>商品正在上架中，敬请期待~</p>
+                </div>
+              )}
             </div>
           </div>
         </div>

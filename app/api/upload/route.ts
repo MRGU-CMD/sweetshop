@@ -15,7 +15,7 @@ export async function POST(req: Request) {
   try {
     const result = await saveUpload(file, 3 * 1024 * 1024);
     return NextResponse.json(result);
-  } catch (e: any) {
-    return NextResponse.json({ error: e.message || "上传失败" }, { status: 400 });
+  } catch {
+    return NextResponse.json({ error: "上传失败，请重试" }, { status: 400 });
   }
 }

@@ -32,8 +32,28 @@ export default async function UserLayout({ children }: { children: React.ReactNo
       <SakuraPetals />
       <Header />
       <div className="max-w-6xl mx-auto px-4 py-6 relative z-10">
+        {/* Mobile: compact user info + horizontal nav */}
+        <div className="lg:hidden mb-4">
+          <div className="flex items-center gap-3 bg-white rounded-xl border border-gray-50 p-3 mb-3">
+            <UserSidebarAvatar avatar={avatar} name={displayName} />
+            <p className="text-sm font-medium text-gray-700 truncate">{displayName}</p>
+          </div>
+          <nav className="flex gap-1 overflow-x-auto bg-white rounded-xl border border-gray-50 p-1.5">
+            {menuItems.map(({ href, label, Icon }) => (
+              <Link
+                key={href}
+                href={href}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs text-gray-600 hover:bg-sakura-50 hover:text-sakura-500 transition-colors whitespace-nowrap flex-shrink-0"
+              >
+                <Icon />
+                <span>{label}</span>
+              </Link>
+            ))}
+          </nav>
+        </div>
+
         <div className="flex gap-8">
-          <aside className="w-52 flex-shrink-0">
+          <aside className="w-52 flex-shrink-0 hidden lg:block">
             <div className="bg-white rounded-2xl border border-gray-50 p-4 lg:sticky lg:top-20">
               <div className="flex items-center gap-3 pb-4 mb-4 border-b border-gray-50">
                 <UserSidebarAvatar avatar={avatar} name={displayName} />

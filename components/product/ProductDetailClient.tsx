@@ -4,7 +4,7 @@ import { useState, useCallback } from "react";
 import Image from "next/image";
 import ReviewForm from "./ReviewForm";
 
-export function ImageGallery({ images }: { images: string[] }) {
+export function ImageGallery({ images, productName }: { images: string[]; productName: string }) {
   const [main, setMain] = useState(images[0] || "");
   const [zoomed, setZoomed] = useState(false);
   const [zoomPos, setZoomPos] = useState({ x: 50, y: 50 });
@@ -28,7 +28,7 @@ export function ImageGallery({ images }: { images: string[] }) {
       >
         {main ? (
           <>
-            <Image src={main} alt="" fill className="object-cover rounded-2xl" sizes="(max-width: 768px) 100vw, 50vw" />
+            <Image src={main} alt={productName} fill className="object-cover rounded-2xl" sizes="(max-width: 768px) 100vw, 50vw" />
             {zoomed && (
               <div
                 className="absolute inset-0 z-10"
@@ -58,7 +58,7 @@ export function ImageGallery({ images }: { images: string[] }) {
                 img === main ? "border-sakura-500 ring-1 ring-sakura-500" : "border-gray-100 hover:border-gray-300"
               }`}
             >
-              <Image src={img} alt="" fill className="object-cover" sizes="64px" />
+              <Image src={img} alt={`${productName} 图片 ${i + 1}`} fill className="object-cover" sizes="64px" />
             </button>
           ))}
         </div>
@@ -166,7 +166,7 @@ export function ProductTabs({
                     <div className="flex items-center gap-3">
                       <div className="relative w-8 h-8 bg-sakura-100 rounded-full flex items-center justify-center text-sm text-sakura-700 font-medium">
                         {review.user.avatar ? (
-                          <Image src={review.user.avatar} alt="" fill className="rounded-full object-cover" unoptimized sizes="32px" />
+                          <Image src={review.user.avatar} alt={review.user.nickname} fill className="rounded-full object-cover" unoptimized sizes="32px" />
                         ) : (
                           review.user.nickname?.[0] || "🌸"
                         )}

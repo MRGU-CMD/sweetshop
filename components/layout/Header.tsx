@@ -46,7 +46,7 @@ export default async function Header() {
                 title="个人中心"
               >
                 {avatar ? (
-                  <Image src={avatar} alt="" width={32} height={32} className="w-full h-full object-cover" unoptimized />
+                  <Image src={avatar} alt={session?.user?.name || "用户头像"} width={32} height={32} className="w-full h-full object-cover" unoptimized />
                 ) : (
                   <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
                     <circle cx="16" cy="16" r="16" fill="#fce4ec" />

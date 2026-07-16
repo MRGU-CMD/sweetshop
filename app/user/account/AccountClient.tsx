@@ -170,7 +170,7 @@ export default function AccountClient({ user, bindings }: { user: User; bindings
                 className="w-20 h-20 rounded-full bg-sakura-100 flex items-center justify-center text-2xl overflow-hidden text-sakura-600 font-bold relative cursor-pointer hover:ring-2 hover:ring-sakura-300 transition-all"
                 title="查看头像大图"
               >
-                <Image src={avatar} alt="" fill className="object-cover" unoptimized sizes="80px" />
+                <Image src={avatar} alt={user.nickname || "用户头像"} fill className="object-cover" unoptimized sizes="80px" />
               </button>
             ) : (
               <div className="w-20 h-20 rounded-full bg-sakura-100 flex items-center justify-center text-2xl overflow-hidden text-sakura-600 font-bold relative">

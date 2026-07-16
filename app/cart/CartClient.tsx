@@ -191,7 +191,7 @@ export default function CartClient() {
                     <div className="flex-1 flex items-center gap-3">
                       <Link href={`/product/${item.product.id}`} className="relative w-16 h-16 bg-gradient-to-br from-sakura-50 to-purple-50 rounded-lg flex items-center justify-center text-2xl flex-shrink-0">
                         {imgList[0] ? (
-                          <Image src={imgList[0]} alt="" fill className="object-cover rounded-lg" sizes="64px" />
+                          <Image src={imgList[0]} alt={item.product.name} fill className="object-cover rounded-lg" sizes="64px" />
                         ) : (
                           <span className="opacity-40">🧸</span>
                         )}
@@ -259,7 +259,7 @@ export default function CartClient() {
                     />
                     <Link href={`/product/${item.product.id}`} className="relative w-20 h-20 bg-gradient-to-br from-sakura-50 to-purple-50 rounded-lg flex items-center justify-center text-2xl flex-shrink-0">
                       {imgList[0] ? (
-                        <Image src={imgList[0]} alt="" fill className="object-cover rounded-lg" sizes="80px" />
+                        <Image src={imgList[0]} alt={item.product.name} fill className="object-cover rounded-lg" sizes="80px" />
                       ) : (
                         <span className="opacity-40">🧸</span>
                       )}

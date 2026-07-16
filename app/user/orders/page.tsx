@@ -90,7 +90,7 @@ export default async function UserOrdersPage(props: { searchParams: Promise<{ pa
                       <div key={item.id} className="flex items-center gap-3">
                         <div className="relative w-12 h-12 bg-gradient-to-br from-sakura-50 to-purple-50 rounded-lg flex items-center justify-center text-lg flex-shrink-0">
                           {imgList[0] ? (
-                            <Image src={imgList[0]} alt="" fill className="object-cover rounded-lg" sizes="48px" />
+                            <Image src={imgList[0]} alt={item.product.name} fill className="object-cover rounded-lg" sizes="48px" />
                           ) : (
                             <span className="opacity-40">🧸</span>
                           )}
