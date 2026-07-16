@@ -214,14 +214,20 @@ export default function AddressesClient({ addresses }: { addresses: Address[] })
           )}
           {!isDirectMunicipality && !cityHasDistricts && form.city && (
             <div>
-              <label className="text-xs text-gray-400 mb-1 block">区/县（选填）</label>
-              <input
-                type="text"
+              <label className="text-xs text-gray-400 mb-1 block">区/县</label>
+              <select
                 value={form.district}
                 onChange={(e) => setForm({ ...form, district: e.target.value })}
                 className="input-sakura"
-                placeholder="区或县名称"
-              />
+              >
+                <option value="">请选择区县</option>
+                <option value="市辖区">市辖区</option>
+                <option value="城区">城区</option>
+                <option value="郊区">郊区</option>
+                <option value="开发区">开发区</option>
+                <option value="高新区">高新区</option>
+                <option value="其他">其他</option>
+              </select>
             </div>
           )}
           {!isDirectMunicipality && !cityHasDistricts && !form.city && (
