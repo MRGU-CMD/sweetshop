@@ -196,7 +196,7 @@ export default function AddressesClient({ addresses }: { addresses: Address[] })
             </div>
           )}
 
-          {/* 第三级：区/县（仅普通省份显示） */}
+          {/* 第三级：区/县（有数据才显示） */}
           {!isDirectMunicipality && cityHasDistricts && (
             <div>
               <label className="text-xs text-gray-400 mb-1 block">区/县</label>
@@ -212,25 +212,7 @@ export default function AddressesClient({ addresses }: { addresses: Address[] })
               </select>
             </div>
           )}
-          {!isDirectMunicipality && !cityHasDistricts && form.city && (
-            <div>
-              <label className="text-xs text-gray-400 mb-1 block">区/县</label>
-              <select
-                value={form.district}
-                onChange={(e) => setForm({ ...form, district: e.target.value })}
-                className="input-sakura"
-              >
-                <option value="">请选择区县</option>
-                <option value="市辖区">市辖区</option>
-                <option value="城区">城区</option>
-                <option value="郊区">郊区</option>
-                <option value="开发区">开发区</option>
-                <option value="高新区">高新区</option>
-                <option value="其他">其他</option>
-              </select>
-            </div>
-          )}
-          {!isDirectMunicipality && !cityHasDistricts && !form.city && (
+          {!isDirectMunicipality && !cityHasDistricts && (
             <div />
           )}
           <div>
